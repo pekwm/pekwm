@@ -94,6 +94,21 @@ X11Render::setColor(int pixel)
 }
 
 void
+X11Render::setFillStyle(enum RenderFillStyle style)
+{
+	XGCValues gv;
+	ulong mask = GCFillStyle;
+	if (style == RENDER_FILL_SOLID) {
+		gv.fill_style = FillSolid;
+	} else {
+		gv.fill_style = FillStippled;
+		gv.stipple = X11::getPixmapChecker();
+		mask |= GCStipple;
+	}
+	XChangeGC(X11::getDpy(), X11::getGC(), mask, &gv);
+}
+
+void
 X11Render::setLineWidth(int lw)
 {
 	XGCValues gv;
@@ -180,7 +195,8 @@ X11Render::destroyImage(XImage *image)
 XImageRender::XImageRender(XImage *image)
 	: _image(image),
 	  _color(0),
-	  _lw(1)
+	  _lw(1),
+	  _fill_style(RENDER_FILL_SOLID)
 {
 }
 
@@ -243,6 +259,12 @@ XImageRender::setColor(int pixel)
 }
 
 void
+XImageRender::setFillStyle(enum RenderFillStyle style)
+{
+	_fill_style = style;
+}
+
+void
 XImageRender::setClip(short x, short y, ushort width, ushort height)
 {
 }
@@ -301,6 +323,20 @@ XImageRender::fill(int x0, int y0, uint width, uint height)
 	y0 = std::max(0, y0);
 	for (int y = y0; y < static_cast<int>(height); y++) {
 		for (int x = x0; x < static_cast<int>(width); x++) {
+			XPutPixel(_image, x, y, _color);
+		}
+	}
+}
+
+void
+XImageRender::fillChecker(int x0, int y0, uint width, uint height)
+{
+	x0 = std::max(0, x0);
+	y0 = std::max(0, y0);
+	int row = 0;
+	for (int y = y0; y < static_cast<int>(height); y++) {
+		int x = (row++ % 2) ? x0 + 1 : x0;
+		for (; x < static_cast<int>(width); x += 2) {
 			XPutPixel(_image, x, y, _color);
 		}
 	}

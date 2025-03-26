@@ -35,19 +35,25 @@ public:
 	}
 };
 
+enum RenderFillStyle {
+	RENDER_FILL_SOLID,
+	RENDER_FILL_CHECKER
+};
+
 /**
  * Graphics render interface, used for textures and images.
  */
 class Render {
 public:
-	Render(void);
-	virtual ~Render(void);
+	Render();
+	virtual ~Render();
 
 	virtual Drawable getDrawable(void) const = 0;
 	virtual XImage *getImage(int x, int y, uint width, uint height) = 0;
 	virtual void destroyImage(XImage *image) = 0;
 
 	virtual void setColor(int pixel) = 0;
+	virtual void setFillStyle(enum RenderFillStyle style) = 0;
 	virtual void setLineWidth(int lw) = 0;
 	virtual void setClip(short x, short y, ushort width, ushort height) = 0;
 	virtual void clearClip() = 0;
@@ -102,6 +108,7 @@ public:
 	virtual void destroyImage(XImage *image);
 
 	virtual void setColor(int pixel);
+	virtual void setFillStyle(enum RenderFillStyle style);
 	virtual void setLineWidth(int lw);
 	virtual void setClip(short x, short y, ushort width, ushort height);
 	virtual void clearClip();
@@ -134,6 +141,7 @@ public:
 
 	virtual void setLineWidth(int lw);
 	virtual void setColor(int pixel);
+	virtual void setFillStyle(enum RenderFillStyle style);
 	virtual void setClip(short x, short y, ushort width, ushort height);
 	virtual void clearClip();
 
@@ -146,9 +154,13 @@ public:
 			      uint width, uint height);
 
 private:
+	void fillChecker(int x0, int y, uint width, uint height);
+
+private:
 	XImage *_image;
 	int _color;
 	int _lw;
+	enum RenderFillStyle _fill_style;
 };
 
 #endif // _PEKWM_RENDER_HH_

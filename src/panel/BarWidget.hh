@@ -14,7 +14,7 @@
 // The field should be a value between 0 and 100.
 //
 // Color is selected based on the value, first color with a value below the
-// current value is choosen. Given the configuration below and a value of 80
+// current value is chosen. Given the configuration below and a value of 80
 // #cccc00 will be selected.
 //
 // ```
@@ -33,6 +33,11 @@
 //    }
 //   }
 // }
+//
+// # Rendering with two values, extra-field on top of field is also possible.
+// Bar = "field extra-field" {
+// }
+//
 // ```
 // ENDDOC
 
@@ -55,7 +60,8 @@
 class BarWidget : public PanelWidget {
 public:
 	BarWidget(const PanelWidgetData &data, const PWinObj* parent,
-		  const WidgetConfig& cfg, const std::string& field);
+		  const WidgetConfig& cfg, const std::string& field,
+		  const std::string& field_extra);
 	virtual ~BarWidget(void);
 
 	const char *getName() const { return "Bar"; }
@@ -73,6 +79,10 @@ public:
 	virtual void render(Render &rend, PSurface *surface);
 
 private:
+	void renderFill(Render &rend, PSurface *surface,
+			const std::string &field, bool checker);
+	int getBarWidth() const { return getWidth() - 3; }
+	int getBarHeight() const { return _theme.getHeight() - 4; }
 	int getBarFill(float percent) const;
 	float getPercent(const std::string& str) const;
 	void parseConfig(const CfgParser::Entry* section);
@@ -80,7 +90,10 @@ private:
 	void addColor(float percent, XColor* color);
 
 	std::string _field;
+	/** extra field value rendered on-top of field */
+	std::string _field_extra;
 	std::string _text;
+	XColor *_checker_color;
 	std::vector<std::pair<float, XColor*> > _colors;
 };
 

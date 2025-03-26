@@ -280,6 +280,40 @@ XrmResourceCbCollect::sort()
 	std::sort(_items.begin(), _items.end(), _string_pair_key_comp);
 }
 
+X11_XImage::X11_XImage(int depth, uint width, uint height)
+	: _ximage(XCreateImage(X11::getDpy(), X11::getVisual(), depth, ZPixmap,
+			       0, nullptr, width, height, 32, 0))
+{
+	if (_ximage) {
+		_ximage->data = new char[_ximage->bytes_per_line * height];
+		if (! _ximage->data) {
+			X11::destroyImage(_ximage);
+			_ximage = nullptr;
+		}
+	}
+}
+
+X11_XImage::~X11_XImage()
+{
+	if (_ximage) {
+		delete[] _ximage->data;
+		_ximage->data = nullptr;
+		X11::destroyImage(_ximage);
+	}
+}
+
+X11_GC::X11_GC(Drawable d, ulong mask, XGCValues *values)
+	: _gc(XCreateGC(X11::getDpy(), d, mask, values))
+{
+}
+
+X11_GC::~X11_GC()
+{
+	if (_gc != None) {
+		XFreeGC(X11::getDpy(), _gc);
+	}
+}
+
 /**
  * Helper class for XColor.
  */
@@ -445,6 +479,10 @@ X11::init(Display *dpy, bool synchronous, bool honour_randr)
 //! @brief X11 destructor
 void
 X11::destruct(void) {
+	if (_pixmap_checker != None) {
+		XFreePixmap(_dpy, _pixmap_checker);
+	}
+
 	if (_colors.size() > 0) {
 		ulong *pixels = new ulong[_colors.size()];
 		for (uint i=0; i < _colors.size(); ++i) {
@@ -1724,6 +1762,46 @@ X11::freeGC(GC gc)
 	}
 }
 
+/**
+ * Return a 32x32 Pixmap with every other pixel set.
+ *
+ * +--------+
+ * |X X X X |
+ * | X X X X|
+ * |X X X X |
+ * | X X X X|
+ * +--------+
+ */
+Pixmap
+X11::getPixmapChecker()
+{
+	if (! _dpy || _pixmap_checker != None) {
+		return _pixmap_checker;
+	}
+
+	X11_XImage ximage(1, 32, 32);
+	if (! *ximage) {
+		P_ERR("failed to create XImage(1, 32, 32)");
+		return None;
+	}
+
+	ulong pixel[2][2] = { { getBlackPixel(), getWhitePixel() },
+			      { getWhitePixel(), getBlackPixel() } };
+	for (uint y = 0; y < 32; ++y) {
+		int p = y % 2;
+		for (uint x = 0; x < 32; x += 2) {
+			XPutPixel(*ximage, x, y, pixel[p][0]);
+			XPutPixel(*ximage, x + 1, y, pixel[p][1]);
+		}
+	}
+
+	_pixmap_checker = createPixmapMask(32, 32);
+	X11_GC gc(_pixmap_checker, 0, 0);
+	putImage(_pixmap_checker, *gc, *ximage, 0, 0, 0, 0, 32, 32);
+
+	return _pixmap_checker;
+}
+
 Pixmap
 X11::createPixmapMask(unsigned w, unsigned h)
 {
@@ -2585,6 +2663,7 @@ uint X11::_server_grabs;
 Time X11::_last_event_time;
 Window X11::_last_click_id = None;
 Time X11::_last_click_time[BUTTON_NO];
+Pixmap X11::_pixmap_checker = None;
 std::vector<X11::ColorEntry*> X11::_colors;
 XColor X11::_xc_default;
 Cursor X11::_cursor_map[CURSOR_NONE];

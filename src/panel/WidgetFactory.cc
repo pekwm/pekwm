@@ -35,11 +35,16 @@ WidgetFactory::mk(const WidgetConfig& cfg)
 	Util::to_upper(name);
 
 	if (name == "BAR") {
+		// field can be configured with one extra field, separated by
+		// space.
 		const std::string &field = cfg.getArg(0);
 		if (field.empty()) {
 			USER_WARN("missing required argument to Bar widget");
 		} else {
-			return new BarWidget(_data, _parent, cfg, field);
+			std::vector<std::string> toks;
+			Util::splitString(field, toks, " \t", 2);
+			return new BarWidget(_data, _parent, cfg, toks[0],
+					     toks.size() == 2 ? toks[1] : "");
 		}
 	} else if (name == "CLIENTLIST") {
 		const std::string &separator = cfg.getArg(0);

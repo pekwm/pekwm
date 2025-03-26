@@ -9,16 +9,25 @@
 #include "BarWidget.hh"
 
 BarWidget::BarWidget(const PanelWidgetData &data, const PWinObj* parent,
-		     const WidgetConfig& cfg, const std::string& field)
+		     const WidgetConfig& cfg, const std::string& field,
+		     const std::string& field_extra)
 	: PanelWidget(data, parent, cfg.getSizeReq(), cfg.getIf()),
-	  _field(field)
+	  _field(field),
+	  _field_extra(field_extra),
+	  _checker_color(nullptr)
 {
 	parseConfig(cfg.getCfgSection());
+	if (! _field_extra.empty()) {
+		_checker_color = X11::getColor("#999999");
+	}
 	pekwm::observerMapping()->addObserver(&_var_data, this, 100);
 }
 
-BarWidget::~BarWidget(void)
+BarWidget::~BarWidget()
 {
+	if (_checker_color) {
+		X11::returnColor(_checker_color);
+	}
 	pekwm::observerMapping()->removeObserver(&_var_data, this);
 }
 
@@ -27,19 +36,40 @@ BarWidget::render(Render &rend, PSurface *surface)
 {
 	PanelWidget::render(rend, surface);
 
-	int width = getWidth() - 3;
-	int height = _theme.getHeight() - 4;
+	int width = getBarWidth();
+	int height = getBarHeight();
 	rend.setColor(_theme.getBarBorder()->pixel);
 	rend.rectangle(getX() + 1, 1, width, height);
-
-	float fill_p = getPercent(_var_data.get(_field));
-	int fill = static_cast<int>(fill_p * (height - 1));
-	rend.setColor(getBarFill(fill_p));
-	rend.fill(getX() + 2, 1 + height - fill, width - 1, fill);
+	renderFill(rend, surface, _field, false);
+	if (! _field_extra.empty()) {
+		renderFill(rend, surface, _field_extra, true);
+	}
 
 	if (! _text.empty()) {
 		PFont *font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
 		renderText(rend, surface, font, getX() + 2, _text, width - 1);
+	}
+}
+
+void
+BarWidget::renderFill(Render &rend, PSurface *surface,
+		      const std::string &field, bool checker)
+{
+	int width = getBarWidth();
+	int height = getBarHeight();
+	float fill_p = getPercent(_var_data.get(field));
+	int fill = static_cast<int>(fill_p * (height - 1));
+
+	int pixel = getBarFill(fill_p);
+	if (checker) {
+		rend.setFillStyle(RENDER_FILL_CHECKER);
+		rend.setColor(_checker_color
+			      ? _checker_color->pixel : X11::getWhitePixel());
+		rend.fill(getX() + 2, 1 + height - fill, width - 1, fill);
+		rend.setFillStyle(RENDER_FILL_SOLID);
+	} else {
+		rend.setColor(pixel);
+		rend.fill(getX() + 2, 1 + height - fill, width - 1, fill);
 	}
 }
 

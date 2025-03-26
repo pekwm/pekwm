@@ -810,38 +810,27 @@ PImage::createMask(uchar* data, uint width, uint height)
 		return None;
 	}
 
-	// Create XImage
-	XImage *ximage = XCreateImage(X11::getDpy(), X11::getVisual(),
-				      1, ZPixmap, 0, 0, width, height, 32, 0);
-	if (! ximage) {
-		P_ERR("failed to create XImage " << width << "x" << height);
-		return None;
+
+	X11_XImage ximage(1, width, height);
+	if (! *ximage) {
+		 P_ERR("failed to create XImage(1, " << width << ", "
+		       << height << ")");
+		 return None;
 	}
-
-	// Alocate ximage data storage.
-	ximage->data = new char[ximage->bytes_per_line * height];
-
-	uchar *src = data;
-
 	ulong pixel_trans = X11::getBlackPixel();
 	ulong pixel_solid = X11::getWhitePixel();
+	uchar *src = data;
 	for (uint y = 0; y < height; ++y) {
 		for (uint x = 0; x < width; ++x) {
-			XPutPixel(ximage, x, y,
+			XPutPixel(*ximage, x, y,
 				  (*src > 127) ? pixel_solid : pixel_trans);
 			src += 4; // Skip A, R, G, and B
 		}
 	}
 
 	Pixmap pix = X11::createPixmapMask(width, height);
-	GC gc = XCreateGC(X11::getDpy(), pix, 0, 0);
-	X11::putImage(pix, gc, ximage, 0, 0, 0, 0, width, height);
-	XFreeGC(X11::getDpy(), gc);
-
-	delete [] ximage->data;
-	ximage->data = 0;
-	X11::destroyImage(ximage);
-
+	X11_GC gc(pix, 0, nullptr);
+	X11::putImage(pix, *gc, *ximage, 0, 0, 0, 0, width, height);
 	return pix;
 }
 

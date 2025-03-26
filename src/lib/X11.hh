@@ -315,6 +315,34 @@ struct ScreenChangeNotification
 	uint height;
 };
 
+class X11_XImage {
+public:
+	X11_XImage(int depth, uint width, uint height);
+	~X11_XImage();
+
+	XImage* operator*() { return _ximage; }
+
+private:
+	X11_XImage(const X11_XImage&);
+	X11_XImage *operator=(const X11_XImage&);
+
+	XImage *_ximage;
+};
+
+class X11_GC {
+public:
+	X11_GC(Drawable d, ulong mask, XGCValues *values);
+	~X11_GC();
+
+	GC operator*() { return _gc; }
+
+private:
+	X11_GC(const GC&);
+	X11_GC *operator=(const GC&);
+
+	GC _gc;
+};
+
 //! @brief Display information class.
 class X11
 {
@@ -614,6 +642,7 @@ public:
 	static GC createGC(Drawable d, ulong mask, XGCValues *values);
 	static void freeGC(GC gc);
 
+	static Pixmap getPixmapChecker();
 	static Pixmap createPixmapMask(unsigned w, unsigned h);
 	static Pixmap createPixmap(unsigned w, unsigned h);
 	static void freePixmap(Pixmap& pixmap);
@@ -710,6 +739,7 @@ private:
 
 	static Cursor _cursor_map[CURSOR_NONE];
 
+	static Pixmap _pixmap_checker;
 	class ColorEntry;
 	static std::vector<ColorEntry*> _colors;
 	static XColor _xc_default; // when allocating fails
