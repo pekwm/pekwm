@@ -27,6 +27,7 @@ struct pekwm_panel_sysinfo {
 	float load15;
 	unsigned long ram_kb;
 	unsigned long free_ram_kb;
+	unsigned long cache_ram_kb;
 	unsigned long swap_kb;
 	unsigned long free_swap_kb;
 	unsigned short num_procs;
@@ -63,6 +64,7 @@ _read_sysinfo(struct pekwm_panel_sysinfo *info)
 	info->load15 = _to_load(sinfo.loads[2]);
 	info->ram_kb = _to_kb(sinfo.mem_unit, sinfo.totalram);
 	info->free_ram_kb = _to_kb(sinfo.mem_unit, sinfo.freeram);
+	info->cache_ram_kb = _to_kb(sinfo.mem_unit, sinfo.bufferram);
 	info->swap_kb = _to_kb(sinfo.mem_unit, sinfo.totalswap);
 	info->free_swap_kb = _to_kb(sinfo.mem_unit, sinfo.freeswap);
 	info->num_procs = sinfo.procs;
@@ -317,6 +319,7 @@ _read_sysinfo(struct pekwm_panel_sysinfo *info)
 
 #include <sys/types.h>
 #include <sys/sysctl.h>
+#include <sys/mount.h>
 #include <sys/vmmeter.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -381,6 +384,16 @@ _read_sysinfo(struct pekwm_panel_sysinfo *info)
 			info->free_ram_kb = vmtotal.t_free * pagesize_kb;
 		}
 	}
+
+	mib[0] = CTL_VFS;
+	mib[1] = VFS_GENERIC;
+	mib[2] = VFS_BCACHESTAT;
+	struct bcachestats bcstats;
+	size = sizeof(bcstats);
+	if (! sysctl(mib, 3, &bcstats, &size, NULL, 0)) {
+		info->cache_ram_kb = bcstats.numbufpages * pagesize_kb;
+	}
+
 	return 0;
 }
 
@@ -440,6 +453,13 @@ _print_sysinfo(struct pekwm_panel_sysinfo *info)
 	printf("sysinfo_mem_free %lu\n", info->free_ram_kb);
 	printf("sysinfo_mem_percent %u\n",
 	       _to_percent(info->ram_kb, info->free_ram_kb));
+	printf("sysinfo_mem_cache %lu\n", info->cache_ram_kb);
+	printf("sysinfo_mem_cache_percent %u\n",
+	       _to_percent(info->ram_kb, info->cache_ram_kb));
+	unsigned long free_ram_ec_kb = info->free_ram_kb + info->cache_ram_kb;
+	printf("sysinfo_mem_free_ec %lu\n", free_ram_ec_kb);
+	printf("sysinfo_mem_free_ec_percent %u\n",
+	       _to_percent(info->ram_kb, free_ram_ec_kb));
 	printf("sysinfo_swap_total %lu\n", info->swap_kb);
 	printf("sysinfo_swap_free %lu\n", info->free_swap_kb);
 	printf("sysinfo_swap_percent %u\n",
