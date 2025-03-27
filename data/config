@@ -36,6 +36,7 @@ Screen {
 //	Longitude = "0.0"
 //	XSettings = "True"
 //	NetTheme = ""
+//	NetIconTheme = ""
 //	XResources {
 //		Day {
 //			"XTerm*background" = "#ffffff"

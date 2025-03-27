@@ -40,6 +40,7 @@ public:
 	}
 
 	const std::string &getNetTheme() const { return _net_theme; }
+	const std::string &getNetIconTheme() const { return _net_icon_theme; }
 
 	const string_map &getXResources(TimeOfDay tod) const {
 		if (tod == TIME_OF_DAY_DAY) {
@@ -75,9 +76,11 @@ private:
 	/* Commands run whenever location changes */
 	string_vector _location_commands;
 
-	/* If set, update Net/Theme XSetting with no suffix or -dark suffix
-	 * depending on time of day */
+	/* If set, update Net/ThemeName XSetting with no suffix or -dark
+	 * suffix depending on time of day */
 	std::string _net_theme;
+	/* Set Net/IconThemeName if non-empty */
+	std::string _net_icon_theme;
 
 	/* X resources set on dawn */
 	string_map _x_resources_dawn;

@@ -46,6 +46,7 @@ SysConfig::parseConfig()
 		keys.add_numeric<double>("LONGITUDE", _longitude, 0.0);
 		keys.add_string("TIMEOFDAY", _tod, "AUTO");
 		keys.add_string("NETTHEME", _net_theme, "");
+		keys.add_string("NETICONTHEME", _net_icon_theme, "");
 		section->parseKeyValues(keys.begin(), keys.end());
 
 		parseCommands(section->findSection("DAYTIMECOMMANDS"),

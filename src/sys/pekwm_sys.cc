@@ -121,6 +121,11 @@ PekwmSys::main()
 	// set.
 	if (_cfg.isXSettingsEnabled()) {
 		_xsettings.setServerOwner();
+		if (! _cfg.getNetIconTheme().empty()) {
+			_xsettings.setString("Net/IconThemeName",
+					     _cfg.getNetIconTheme());
+			_xsettings.updateServer();
+		}
 	}
 
 	_select->add(STDIN_FILENO, OsSelect::OS_SELECT_READ);
