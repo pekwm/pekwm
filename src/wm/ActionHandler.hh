@@ -46,6 +46,10 @@ public:
 		_sys_process = sys_process;
 	}
 
+	static bool fillEdgeGeometry(const Geometry &head,
+				     OrientationType edge, int percent,
+				     Geometry &gm);
+
 private:
 	void handleAction(const ActionPerformed* ap, ActionEvent::it it);
 	bool handleWoAction(const ActionPerformed* ap, ActionEvent::it it);

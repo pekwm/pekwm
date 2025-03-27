@@ -13,6 +13,7 @@
 #include "Debug.hh"
 
 #include "test_Action.hh"
+#include "test_ActionHandler.hh"
 #include "test_AutoProperties.hh"
 #include "test_Config.hh"
 #include "test_ColorPalette.hh"
@@ -47,6 +48,7 @@ main_tests(int argc, char *argv[])
 	// Action
 	TestAction testAction;
 	TestActionConfig testActionConfig;
+	TestActionHandler testActionHandler;
 
 	// Config
 	TestConfig testConfig;

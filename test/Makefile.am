@@ -6,6 +6,7 @@ EXTRA_DIST = CMakeLists.txt \
 	     data/config.pekwm_sys \
 	     test.hh \
 	     test_Action.hh \
+	     test_ActionHandler.hh \
 	     test_AutoProperties.hh \
 	     test_Calendar.hh \
 	     test_CfgParser.hh \

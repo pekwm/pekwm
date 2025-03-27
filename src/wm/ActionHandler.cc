@@ -748,6 +748,28 @@ ActionHandler::actionFillEdge(Frame *frame, OrientationType edge, int percent)
 		return true;
 	}
 
+	uint head_nr = X11Util::getNearestHead(frame);
+	Geometry head;
+	pekwm::rootWo()->getHeadInfoWithEdge(head_nr, head);
+
+	Geometry gm;
+	if (! fillEdgeGeometry(head, edge, percent, gm)) {
+		return false;
+	}
+
+	P_TRACE("FillEdge " << edge << " " << gm);
+	if (! frame->isAnyFill()) {
+		frame->setOldGeometry(frame->getGeometry());
+	}
+	frame->moveResize(gm.x, gm.y, gm.width, gm.height);
+	frame->setEdgeFilled(edge);
+	return true;
+}
+
+bool
+ActionHandler::fillEdgeGeometry(const Geometry &head, OrientationType edge,
+				int percent, Geometry &gm)
+{
 	if (percent < 1) {
 		percent = 1;
 	} else if (percent > 100) {
@@ -755,10 +777,7 @@ ActionHandler::actionFillEdge(Frame *frame, OrientationType edge, int percent)
 	}
 	float fpercent = static_cast<float>(percent) / 100.0;
 
-	uint head_nr = X11Util::getNearestHead(frame);
-	Geometry head;
-	pekwm::rootWo()->getHeadInfoWithEdge(head_nr, head);
-	Geometry gm(head);
+	gm = head;
 	switch (edge) {
 	case TOP_EDGE:
 	case BOTTOM_EDGE:
@@ -766,8 +785,10 @@ ActionHandler::actionFillEdge(Frame *frame, OrientationType edge, int percent)
 		break;
 	case LEFT_EDGE:
 	case RIGHT_EDGE:
-		gm.width = static_cast<uint>(fpercent * gm.height);
+		gm.width = static_cast<uint>(fpercent * gm.width);
 		break;
+	case NO_EDGE:
+		return false;
 	default:
 		gm.width = static_cast<uint>(fpercent * gm.width);
 		gm.height = static_cast<uint>(fpercent * gm.height);
@@ -817,13 +838,6 @@ ActionHandler::actionFillEdge(Frame *frame, OrientationType edge, int percent)
 		// do nothing
 		break;
 	}
-
-	P_TRACE("FillEdge " << edge << " " << gm);
-	if (! frame->isAnyFill()) {
-		frame->setOldGeometry(frame->getGeometry());
-	}
-	frame->moveResize(gm.x, gm.y, gm.width, gm.height);
-	frame->setEdgeFilled(edge);
 	return true;
 }
 
