@@ -110,9 +110,7 @@ PanelTheme::unload()
 
 	_height = 0;
 	X11::returnColor(_bar_border);
-	_bar_border = nullptr;
 	X11::returnColor(_bar_fill);
-	_bar_fill = nullptr;
 	TextureHandler *th = pekwm::textureHandler();
 	if (_handle) {
 		th->returnTexture(&_handle);

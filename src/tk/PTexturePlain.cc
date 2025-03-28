@@ -85,12 +85,8 @@ PTextureSolid::setColor(const std::string &color)
 void
 PTextureSolid::unsetColor(void)
 {
-	if (_xc) {
-		X11::returnColor(_xc);
-
-		_xc = 0;
-		_ok = false;
-	}
+	X11::returnColor(_xc);
+	_ok = false;
 }
 
 // PTextureSolidRaised
@@ -230,13 +226,10 @@ PTextureSolidRaised::setColor(const std::string &base,
 void
 PTextureSolidRaised::unsetColor(void)
 {
-	_ok = false;
-
 	X11::returnColor(_xc_base);
 	X11::returnColor(_xc_hi);
 	X11::returnColor(_xc_lo);
-
-	_xc_base = _xc_hi = _xc_lo = 0;
+	_ok = false;
 }
 
 // PTextureLines

@@ -578,7 +578,8 @@ X11::getColor(const std::string &color)
 void
 X11::returnColor(XColor*& xc)
 {
-	if (&_xc_default == xc) { // no need to return default color
+	if (xc == nullptr || &_xc_default == xc) {
+		xc = nullptr;
 		return;
 	}
 

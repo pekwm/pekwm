@@ -25,9 +25,7 @@ BarWidget::BarWidget(const PanelWidgetData &data, const PWinObj* parent,
 
 BarWidget::~BarWidget()
 {
-	if (_checker_color) {
-		X11::returnColor(_checker_color);
-	}
+	X11::returnColor(_checker_color);
 	pekwm::observerMapping()->removeObserver(&_var_data, this);
 }
 

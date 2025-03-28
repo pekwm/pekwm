@@ -34,12 +34,8 @@ PFont::Color::Color(void)
 
 PFont::Color::~Color(void)
 {
-	if (_fg) {
-		X11::returnColor(_fg);
-	}
-	if (_bg) {
-		X11::returnColor(_bg);
-	}
+	X11::returnColor(_fg);
+	X11::returnColor(_bg);
 }
 
 // PFont::Descr
