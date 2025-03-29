@@ -63,7 +63,8 @@ InputBuffer::remove(void)
 		return;
 	}
 
-	Charset::Utf8Iterator it(_buf, _pos);
+	Charset::Utf8Iterator it(_buf);
+	it.setPos(_pos);
 	--it;
 	_buf.erase(it.pos(), _pos - it.pos());
 	_pos = it.pos();
@@ -101,7 +102,8 @@ InputBuffer::killFrom()
 void
 InputBuffer::changePos(int off)
 {
-	Charset::Utf8Iterator it(_buf, _pos);
+	Charset::Utf8Iterator it(_buf);
+	it.setPos(_pos);
 	if (off > 0) {
 		for (; off > 0; off--) {
 			++it;
@@ -254,10 +256,11 @@ InputDialog::handleButtonPress(XButtonEvent *ev)
 		}
 
 		uint last_pos = off;
-		Charset::Utf8Iterator it(c_buf, 0);
+		Charset::Utf8Iterator it(c_buf);
 		for (++it; it.ok(); ++it) {
 			uint pos = off
-				+ _data->getFont()->getWidth(c_buf, it.pos());
+				+ _data->getFont()->getWidth(
+					StringView(c_buf, it.pos()));
 			if (x < pos) {
 				uint half_width = (pos - last_pos) / 2;
 				if (x < (last_pos + half_width)) {
@@ -516,14 +519,14 @@ InputDialog::render()
 
 	// cursor in or at the end of the text, render after first part
 	if (_buf.pos() != 0) {
-		pos += font->getWidth(c_buf, _buf.pos());
+		pos += font->getWidth(StringView(c_buf, _buf.pos()));
 		pos += renderCursor(pos);
 		if (_buf_chars > _buf.pos()) {
 			c_buf += _buf.pos();
 			size_t buf_chars = _buf_chars - _buf.pos();
 			font->draw(&_text_wo, pos, _data->getPad(PAD_UP),
 				   c_buf, buf_chars);
-			pos += font->getWidth(c_buf, buf_chars);
+			pos += font->getWidth(StringView(c_buf, buf_chars));
 		}
 	}
 	_text_end = pos;
@@ -534,7 +537,7 @@ InputDialog::renderCursor(uint pos)
 {
 	_data->getFont()->draw(&_text_wo, pos, _data->getPad(PAD_UP), "|");
 	_cursor_begin = pos;
-	uint width = _data->getFont()->getWidth("|", 1);
+	uint width = _data->getFont()->getWidth(StringView("|", 1));
 	_cursor_end = pos + width;
 	return width;
 }
@@ -608,13 +611,13 @@ InputDialog::bufChanged(void)
 	// does not fit
 	if (_buf.pos() > 0
 	    && (font->getWidth(str()) > _text_wo.getWidth())
-	    && (font->getWidth(str(), _buf.pos()) > _text_wo.getWidth())) {
+	    && (font->getWidth(StringView(str(), _buf.pos()))
+		> _text_wo.getWidth())) {
 
 		// increase position until it all fits
-		Charset::Utf8Iterator it(_buf.str(), 0);
+		Charset::Utf8Iterator it(_buf.str());
 		for (; it.pos() < _buf.pos(); ++it) {
-			if (font->getWidth(_buf.str().c_str() + it.pos(),
-					   _buf.size() - it.pos())
+			if (font->getWidth(StringView(_buf.str(), 0, it.pos()))
 			    < _text_wo.getWidth()) {
 				break;
 			}

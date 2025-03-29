@@ -38,13 +38,12 @@ public:
 	PFontPangoCairo(float scale);
 	virtual ~PFontPangoCairo();
 
-	virtual uint getWidth(const std::string& text, uint chars = 0);
+	virtual uint getWidth(const StringView& text);
 	virtual void setColor(PFont::Color* color);
 
 private:
 	virtual void drawText(PSurface* dest, int x, int y,
-			      const std::string& text, uint chars,
-			      bool fg);
+			      const StringView& text, bool fg);
 
 	void ensureCairoSurface(PSurface* dest);
 

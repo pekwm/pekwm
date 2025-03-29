@@ -423,9 +423,6 @@ TestJson::testParseNumber()
 	value = parser.parseNumber("1.2.3", 1);
 	ASSERT_EQUAL("multiple .", "only one . is allowed in number",
 		     parser.getError());
-
-
-
 }
 
 void

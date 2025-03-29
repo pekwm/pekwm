@@ -219,13 +219,4 @@ PFontPango::toNativeDescrAddStretch(const PFont::Descr& descr,
 	ossAppend(native, stretch);
 }
 
-/**
- * Get pango compatible number of characters from PFont characters.
- */
-int
-PFontPango::charsToLen(uint chars)
-{
-	return chars ? static_cast<int>(chars) : -1;
-}
-
 #endif // PEKWM_HAVE_PANGO

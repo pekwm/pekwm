@@ -106,10 +106,10 @@ PFontPangoCairo::~PFontPangoCairo()
 }
 
 uint
-PFontPangoCairo::getWidth(const std::string& text, uint chars)
+PFontPangoCairo::getWidth(const StringView &text)
 {
 	PFontPangoCairoLayout layout(_cairo_surface, _font_description,
-				     text, charsToLen(chars));
+				     *text, static_cast<int>(text.size()));
 
 	PangoRectangle rect;
 	pango_layout_get_pixel_extents(*layout, NULL, &rect);
@@ -125,8 +125,7 @@ PFontPangoCairo::setColor(PFont::Color* color)
 }
 
 void
-PFontPangoCairo::drawText(PSurface* dest, int x, int y,
-			  const std::string& text, uint chars,
+PFontPangoCairo::drawText(PSurface* dest, int x, int y, const StringView& text,
 			  bool fg)
 {
 	PFontPangoCairo::Color& c = fg ? _fg : _bg;
@@ -140,7 +139,7 @@ PFontPangoCairo::drawText(PSurface* dest, int x, int y,
 					  dest->getWidth(), dest->getHeight());
 
 	PFontPangoCairoLayout layout(cairo_surface, _font_description,
-				     text, charsToLen(chars));
+				     *text, static_cast<int>(text.size()));
 	cairo_set_source_rgba(layout.getCairo(), c.r, c.g, c.b, c.a);
 	double dx = x;
 	double dy = y + _ascent;

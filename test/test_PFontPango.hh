@@ -22,12 +22,12 @@ public:
 
 	const std::string& getNative() const { return _native; }
 
-	virtual uint getWidth(const std::string&, uint chars=0) { return 0; }
+	virtual uint getWidth(const StringView&) { return 0; }
 	virtual void setColor(PFont::Color*) { }
 
 private:
-	virtual void drawText(PSurface*, int, int, const std::string&,
-			      uint, bool) { }
+	virtual void drawText(PSurface*, int, int, const StringView&,
+			      bool) { }
 
 private:
 	std::string _native;

@@ -22,16 +22,16 @@ public:
 
 	const std::string& getNative() const { return _native; }
 
-	virtual uint getWidth(const std::string&, uint chars=0) { return 0; }
+	virtual uint getWidth(const StringView&) { return 0; }
 	virtual void setColor(PFont::Color*) { }
 
 private:
 	virtual bool doLoadFont(const std::string& spec) { return true; }
 	virtual void doUnloadFont() { }
 
-	virtual void drawText(PSurface*, int, int, const std::string&,
-			      uint, bool) { }
-	virtual int doGetWidth(const std::string &text, int size) const
+	virtual void drawText(PSurface*, int, int, const StringView&,
+			      bool) { }
+	virtual int doGetWidth(const StringView &text) const
 	{
 		return 0;
 	}

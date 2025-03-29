@@ -30,20 +30,34 @@ public:
 		destruct();
 	}
 
+	/**
+	 * Return referenced data and drop the reference, caller is
+	 * responsible for calling delete on the returned data.
+	 */
+	T *take()
+	{
+		T *ptr = _ptr;
+		_ptr = nullptr;
+		return ptr;
+	}
+
+	/**
+	 * Immediate destruct of referenced data (if any).
+	 */
 	void destruct()
 	{
-		if (_ptr == nullptr) {
-			return;
+		if (_ptr != nullptr) {
+			if (_array) {
+				delete[] _ptr;
+			} else {
+				delete _ptr;
+			}
+			_ptr = nullptr;
 		}
-		if (_array) {
-			delete[] _ptr;
-		} else {
-			delete _ptr;
-		}
-		_ptr = nullptr;
 	}
 
 	T *operator*() const { return _ptr; }
+	T *operator->() const { return _ptr; }
 
 private:
 	Destruct(const Destruct&);

@@ -90,7 +90,7 @@ namespace StringUtil
 		std::vector<std::string> toks;
 
 		std::string tok;
-		Charset::Utf8Iterator it(str, 0);
+		Charset::Utf8Iterator it(str);
 		for (; ! it.end(); ++it) {
 			if (! in_tok && ! isspace((*it)[0])) {
 				in_tok = true;
@@ -424,7 +424,7 @@ namespace Util {
 		bool in_escape = false;
 		uint num_tokens = 1;
 
-		Charset::Utf8Iterator it(str, start);
+		Charset::Utf8Iterator it(StringView(str, 0, start));
 		for (; ! it.end() && (max == 0 || num_tokens < max); ++it) {
 			if (in_escape) {
 				token += *it;

@@ -16,7 +16,7 @@ public:
 	PFontX11(float scale, PPixmapSurface &surface);
 	virtual ~PFontX11();
 
-	virtual uint getWidth(const std::string &text, uint max_chars = 0);
+	virtual uint getWidth(const StringView &text);
 	virtual bool useAscentDescent() const;
 
 private:
@@ -24,10 +24,10 @@ private:
 	virtual void doUnloadFont();
 
 	virtual void drawText(PSurface *dest, int x, int y,
-			      const std::string &text, uint chars, bool fg);
+			      const StringView &text, bool fg);
 	virtual void doDrawText(Drawable draw, int x, int y,
-				const std::string &text, int size, GC gc);
-	virtual int doGetWidth(const std::string &text, int size) const;
+				const StringView &text, GC gc);
+	virtual int doGetWidth(const StringView &text) const;
 	virtual int doGetHeight() const;
 
 private:

@@ -57,19 +57,14 @@ PFontX11::doUnloadFont()
  * Gets the width the text would take using this font
  */
 uint
-PFontX11::getWidth(const std::string &text, uint max_chars)
+PFontX11::getWidth(const StringView &text)
 {
 	if (! text.size()) {
 		return 0;
 	}
 
-	// Make sure the max_chars has a decent value, if it's less than 1 wich
-	// it defaults to set it to the numbers of chars in the string text
-	if (! max_chars || (max_chars > text.size())) {
-		max_chars = text.size();
-	}
-	std::string mb_text = Charset::toSystem(text.substr(0, max_chars));
-	uint width = doGetWidth(mb_text, mb_text.size());
+	std::string mb_text = Charset::toSystem(text);
+	uint width = doGetWidth(mb_text);
 	return ThemeUtil::scaledPixelValue(_scale, width) + _offset_x;
 }
 
@@ -86,42 +81,35 @@ PFontX11::useAscentDescent() const
  * @param fg Bool, to use foreground or background colors
  */
 void
-PFontX11::drawText(PSurface *dest, int x, int y,
-		   const std::string &text, uint chars, bool fg)
+PFontX11::drawText(PSurface *dest, int x, int y, const StringView &text,
+		   bool fg)
 {
 	GC gc = fg ? _gc_fg : _gc_bg;
 	if (! _font || gc == None) {
 		return;
 	}
 
-	std::string mb_text;
-	if (chars == 0 || chars > text.size()) {
-		mb_text = Charset::toSystem(text);
-	} else {
-		mb_text = Charset::toSystem(text.substr(0, chars));
-	}
-
+	std::string mb_text = Charset::toSystem(text);
 	if (isScaled()) {
-		drawScaled(dest, x, y, mb_text, mb_text.size(), gc,
+		drawScaled(dest, x, y, mb_text, gc,
 			   fg ? _pixel_fg : _pixel_bg);
 	} else {
-		doDrawText(dest->getDrawable(), x, y, mb_text, mb_text.size(),
-			   gc);
+		doDrawText(dest->getDrawable(), x, y, mb_text, gc);
 	}
 }
 
 void
-PFontX11::doDrawText(Drawable draw, int x, int y, const std::string &text,
-		     int size, GC gc)
+PFontX11::doDrawText(Drawable draw, int x, int y, const StringView &text,
+		     GC gc)
 {
 	XDrawString(X11::getDpy(), draw, gc, x, y + _font->ascent,
-		    text.c_str(), size);
+		    *text, text.size());
 }
 
 int
-PFontX11::doGetWidth(const std::string &text, int size) const
+PFontX11::doGetWidth(const StringView &text) const
 {
-	return _font ? XTextWidth(_font, text.c_str(), size) : 0;
+	return _font ? XTextWidth(_font, *text, text.size()) : 0;
 }
 
 int

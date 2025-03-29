@@ -25,10 +25,10 @@ public:
 
 	// virtual interface
 	virtual bool load(const PFont::Descr& descr);
-	virtual void unload(void);
+	virtual void unload();
 
-	virtual uint getWidth(const std::string &text, uint max_chars = 0);
-	virtual bool useAscentDescent(void) const;
+	virtual uint getWidth(const StringView &text);
+	virtual bool useAscentDescent() const;
 
 	virtual void setColor(PFont::Color *color);
 
@@ -37,7 +37,7 @@ protected:
 
 private:
 	virtual void drawText(PSurface *dest, int x, int y,
-			      const std::string &text, uint chars, bool fg);
+			      const StringView &text, bool fg);
 
 	XftDraw *_draw;
 	XftFont *_font;

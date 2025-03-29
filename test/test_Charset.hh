@@ -42,7 +42,7 @@ TestUtf8Iterator::run_test(TestSpec spec, bool status)
 void
 TestUtf8Iterator::testOperatorEqual()
 {
-	Charset::Utf8Iterator it("räka", 0);
+	Charset::Utf8Iterator it("räka");
 	ASSERT_TRUE("equal ASCII char", it == 'r');
 	ASSERT_TRUE("equal string", it == "r");
 

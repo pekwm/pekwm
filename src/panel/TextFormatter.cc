@@ -56,7 +56,7 @@ TextFormatter::format(const std::string& pp_format, formatFun exp)
 	std::string formatted;
 
 	bool in_escape = false, in_var = false;
-	Charset::Utf8Iterator it(pp_format, 0);
+	Charset::Utf8Iterator it(pp_format);
 	std::string buf;
 	for (; it.ok(); ++it) {
 		if (in_escape) {

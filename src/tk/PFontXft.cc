@@ -67,28 +67,18 @@ PFontXft::unload(void)
  * Gets the width the text would take using this font.
  */
 uint
-PFontXft::getWidth(const std::string &text, uint max_chars)
+PFontXft::getWidth(const StringView &text)
 {
 	if (! text.size()) {
 		return 0;
 	}
 
-	// Make sure the max_chars has a decent value, if it's less than 1 wich
-	// it defaults to set it to the numbers of chars in the string text
-	if (! max_chars || (max_chars > text.size())) {
-		max_chars = text.size();
-	}
-
 	uint width = 0;
 	if (_font) {
-		std::string sub_text = text.substr(0, max_chars);
-
 		XGlyphInfo extents;
 		XftTextExtentsUtf8(X11::getDpy(), _font,
-				   reinterpret_cast<const XftChar8*>(
-					   sub_text.c_str()),
-				   sub_text.size(), &extents);
-
+				   reinterpret_cast<const XftChar8*>(*text),
+				   text.size(), &extents);
 		width = extents.xOff;
 	}
 
@@ -116,23 +106,15 @@ PFontXft::toNativeDescr(const PFont::Descr& descr) const
  * @param fg Bool, to use foreground or background colors
  */
 void
-PFontXft::drawText(PSurface *dest, int x, int y,
-		   const std::string &text, uint chars, bool fg)
+PFontXft::drawText(PSurface *dest, int x, int y, const StringView &text,
+		   bool fg)
 {
 	PXftColor& color = fg ? _color_fg : _color_bg;
 	if (_font && color.isSet()) {
-		std::string sub_text;
-		if (chars != 0) {
-			sub_text = text.substr(0, chars);
-		} else {
-			sub_text = text;
-		}
-
 		XftDrawChange(_draw, dest->getDrawable());
 		XftDrawStringUtf8(_draw, *color, _font, x, y + _ascent,
-				  reinterpret_cast<const XftChar8*>(
-					  sub_text.c_str()),
-				  sub_text.size());
+				  reinterpret_cast<const XftChar8*>(*text),
+				  text.size());
 	}
 }
 

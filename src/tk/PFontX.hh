@@ -25,7 +25,7 @@ protected:
 	std::string toNativeDescr(const PFont::Descr &descr) const;
 
 	void drawScaled(PSurface *dest, int x, int y,
-			const std::string &text, int size, GC gc, ulong color);
+			const StringView &text, GC gc, ulong color);
 
 	Drawable getShadowSurface(uint width, uint height);
 
@@ -38,8 +38,8 @@ private:
 	virtual bool doLoadFont(const std::string &spec) = 0;
 	virtual void doUnloadFont() = 0;
 	virtual void doDrawText(Drawable draw, int x, int y,
-				const std::string &text, int size, GC gc) = 0;
-	virtual int doGetWidth(const std::string &text, int size) const = 0;
+				const StringView &text, GC gc) = 0;
+	virtual int doGetWidth(const StringView &text) const = 0;
 	virtual int doGetHeight() const = 0;
 
 	/** Surface used as temporary destination when scaling output, shared

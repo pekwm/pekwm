@@ -119,10 +119,10 @@ namespace Charset
 		destruct();
 	}
 
-	Utf8Iterator::Utf8Iterator(const std::string& str, size_t pos)
+	Utf8Iterator::Utf8Iterator(const StringView& str)
 		: _begin(false),
 		  _str(str),
-		  _pos(pos > str.size() ? str.size() : pos)
+		  _pos(0)
 	{
 		_deref_buf[0] = '\0';
 	}
@@ -163,7 +163,7 @@ namespace Charset
 		if (ok()) {
 			if (_deref_buf[0] == '\0') {
 				size_t size = len(_pos);
-				memcpy(_deref_buf, _str.c_str() + _pos, size);
+				memcpy(_deref_buf, *_str + _pos, size);
 				_deref_buf[size] = '\0';
 			}
 		} else {
@@ -307,10 +307,10 @@ namespace Charset
 		return _is_utf8_locale == 1;
 	}
 
-	std::string toSystem(const std::string &str)
+	std::string toSystem(const StringView &str)
 	{
 		if (isUtf8Locale()) {
-			return str;
+			return str.str();
 		}
 
 		wchar_t wc = 0;
@@ -321,7 +321,7 @@ namespace Charset
 		int tmp = wctomb(nullptr, 0);
 		(void)tmp;
 
-		Utf8Iterator it(str, 0);
+		Utf8Iterator it(str);
 		for (; ! it.end(); ++it) {
 			utf8_to_char<wchar_t>(*it, wc);
 			int len = wctomb(mb, wc);
@@ -336,10 +336,10 @@ namespace Charset
 		return str_sys;
 	}
 
-	std::string fromSystem(const std::string &str)
+	std::string fromSystem(const StringView &str)
 	{
 		if (isUtf8Locale()) {
-			return str;
+			return str.str();
 		}
 
 		wchar_t wc;
@@ -348,8 +348,8 @@ namespace Charset
 
 		mbtowc(&wc, nullptr, 0);
 
-		const char *mb = str.c_str();
-		const char *mb_end = str.c_str() + str.size();
+		const char *mb = *str;
+		const char *mb_end = mb + str.size();
 		for (int len;
 		     (len = mbtowc(&wc, mb, mb_end - mb)) > 0;
 		     mb += len) {

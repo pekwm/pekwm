@@ -23,15 +23,15 @@ public:
 
 	virtual bool load(const PFont::Descr&) { return true; }
 	virtual void unload() { }
-	virtual uint getWidth(const std::string& text, uint max_chars = 0);
+	virtual uint getWidth(const StringView& text);
 	virtual void setColor(PFont::Color*) { }
 
 private:
 	virtual std::string toNativeDescr(const PFont::Descr& descr) const {
 		return descr.str();
 	}
-	virtual void drawText(PSurface*, int, int, const std::string&,
-			      uint, bool) { }
+	virtual void drawText(PSurface*, int, int, const StringView&,
+			      bool) { }
 
 private:
 	std::map<std::string, uint> _width_map;
@@ -45,19 +45,18 @@ MockPFont::MockPFont(WMP *width_map)
 	}
 }
 
-MockPFont::~MockPFont(void)
+MockPFont::~MockPFont()
 {
 }
 
 uint
-MockPFont::getWidth(const std::string& text, uint max_chars)
+MockPFont::getWidth(const StringView& text)
 {
-	std::string key = text + std::to_string(max_chars);
+	std::string key(*text + std::to_string(text.size()));
 	std::map<std::string, uint>::iterator it = _width_map.find(key);
 	if (it == _width_map.end()) {
 		std::cerr << "unexpected lookup " << key << std::endl;
-		std::cerr << "|" << text.substr(0, max_chars)
-			  << "|" << std::endl;
+		std::cerr << "|" << text.str() << "|" << std::endl;
 		exit(1);
 	}
 	return _width_map[key];
@@ -78,11 +77,11 @@ private:
 	static void testParseFull();
 
 	// trim
-	static void testTrimEndNoTrim(void);
-	static void testTrimEndTrim(void);
-	static void testTrimEndNoSpace(void);
-	static void testTrimEndUTF8(void);
-	static void testTrimMiddle(void);
+	static void testTrimEndNoTrim();
+	static void testTrimEndTrim();
+	static void testTrimEndNoSpace();
+	static void testTrimEndUTF8();
+	static void testTrimMiddle();
 };
 
 TestPFont::TestPFont(void)
@@ -157,9 +156,9 @@ TestPFont::testParseFull()
 }
 
 void
-TestPFont::testTrimEndNoTrim(void)
+TestPFont::testTrimEndNoTrim()
 {
-	WMP fontd[] = {{"test0", 100}, {nullptr, 0}};
+	WMP fontd[] = {{"test4", 100}, {nullptr, 0}};
 	MockPFont font(fontd);
 	std::string str("test");
 	font.trim(str, PFont::FONT_TRIM_END, 100);
@@ -167,10 +166,10 @@ TestPFont::testTrimEndNoTrim(void)
 }
 
 void
-TestPFont::testTrimEndTrim(void)
+TestPFont::testTrimEndTrim()
 {
 	WMP fontd[] = {
-		{"test0", 100},
+		{"test4", 100},
 		{"test3", 75},
 		{"test2", 50},
 		{nullptr, 0}
@@ -182,10 +181,13 @@ TestPFont::testTrimEndTrim(void)
 }
 
 void
-TestPFont::testTrimEndNoSpace(void)
+TestPFont::testTrimEndNoSpace()
 {
-	WMP fontd[] ={{"test0", 100}, {"test3", 75},
-		      {"test2", 50}, {"test1", 25},
+	WMP fontd[] ={{"test4", 100},
+		      {"test3", 75},
+		      {"test2", 50},
+		      {"test1", 25},
+		      {"test0", 0},
 		      {nullptr, 0}};
 	MockPFont font(fontd);
 	std::string str("test");
@@ -194,9 +196,9 @@ TestPFont::testTrimEndNoSpace(void)
 }
 
 void
-TestPFont::testTrimEndUTF8(void)
+TestPFont::testTrimEndUTF8()
 {
-	WMP fontd[] = {{"Räksmörgås — M0", 100},
+	WMP fontd[] = {{"Räksmörgås — M19", 100},
 		       {"Räksmörgås — M17", 90},
 		       {"Räksmörgås — M15", 80},
 		       {"Räksmörgås — M14", 70},
@@ -211,10 +213,10 @@ TestPFont::testTrimEndUTF8(void)
 }
 
 void
-TestPFont::testTrimMiddle(void)
+TestPFont::testTrimMiddle()
 {
-	WMP fontd[] = {{"testtest0", 80},
-		       {"..0", 20},
+	WMP fontd[] = {{"testtest8", 80},
+		       {"..2", 20},
 
 		       {"testtest7", 70},
 		       {"testtest6", 60},
@@ -223,14 +225,14 @@ TestPFont::testTrimMiddle(void)
 		       {"testtest3", 30},
 		       {"testtest2", 20},
 
-		       {"ttest0", 50},
-		       {"test0", 40},
-		       {"est0", 30},
-		       {"st0", 20},
+		       {"ttest5", 50},
+		       {"test4", 40},
+		       {"est3", 30},
+		       {"st2", 20},
 
 		       {"test2", 20},
 
-		       {"te..st0", 60},
+		       {"te..st6", 60},
 		       {nullptr, 0}};
 	MockPFont font(fontd);
 	std::string str("testtest");

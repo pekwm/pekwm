@@ -11,9 +11,8 @@
 
 #include "config.h"
 
-#include <string>
-
 #include "PSurface.hh"
+#include "String.hh"
 
 class PFont
 {
@@ -153,15 +152,15 @@ public:
 
 	// virtual interface
 	virtual bool load(const PFont::Descr &descr) = 0;
-	virtual void unload(void) = 0;
+	virtual void unload() = 0;
 
-	virtual uint getWidth(const std::string& text, uint max_chars = 0) = 0;
-	virtual bool useAscentDescent(void) const {
+	virtual uint getWidth(const StringView &text) = 0;
+	virtual bool useAscentDescent() const {
 		return _ascent > 0 && _descent > 0;
 	}
-	virtual uint getAscent(void) const { return _ascent; }
-	virtual uint getDescent(void) const { return _descent; }
-	virtual uint getHeight(void) const { return _height; }
+	virtual uint getAscent() const { return _ascent; }
+	virtual uint getDescent() const { return _descent; }
+	virtual uint getHeight() const { return _height; }
 
 	virtual void setColor(PFont::Color* color) = 0;
 
@@ -181,12 +180,11 @@ protected:
 
 private:
 	virtual void drawText(PSurface *dest, int x, int y,
-			      const std::string &text, uint chars,
-			      bool fg) = 0;
+			      const StringView &text, bool fg) = 0;
 };
 
 /**
- * Empty font provididing no drawing or size.
+ * Empty font providing no drawing or size.
  */
 class PFontEmpty : public PFont {
 public:
@@ -196,11 +194,7 @@ public:
 	// virtual interface
 	virtual bool load(const PFont::Descr&) { return true; }
 	virtual void unload(void) { }
-
-	virtual uint getWidth(const std::string&, uint max_chars = 0) {
-		return 0;
-	}
-
+	virtual uint getWidth(const StringView&) { return 0; }
 	virtual void setColor(PFont::Color *color) { }
 
 protected:
@@ -209,8 +203,7 @@ protected:
 	}
 
 private:
-	virtual void drawText(PSurface*, int, int, const std::string&, uint,
-			      bool) { }
+	virtual void drawText(PSurface*, int, int, const StringView&, bool) { }
 };
 
 #endif // _PEKWM_PFONT_HH_

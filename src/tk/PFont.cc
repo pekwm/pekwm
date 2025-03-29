@@ -255,19 +255,21 @@ PFont::draw(PSurface *dest, int x, int y, const std::string &text,
 	if (max_width == 0) {
 		max_width = dest->getWidth() - x;
 	}
+
 	// Make sure text fits in the available space
 	trim(real_text, trim_type, max_width);
-	offset += justify(real_text, max_width, 0);
+	if (! real_text.empty()) {
+		offset += justify(real_text, max_width, 0);
 
-	// Draw shadowed font if x or y offset is specified
-	if (_offset_x || _offset_y) {
-		drawText(dest, offset + _offset_x, y + _offset_y,
-			 real_text, real_text.size(), false /* bg */);
+		// Draw shadowed font if x or y offset is specified
+		if (_offset_x || _offset_y) {
+			drawText(dest, offset + _offset_x, y + _offset_y,
+				 real_text, false /* bg */);
+		}
+
+		// Draw main font
+		drawText(dest, offset, y, real_text, true /* fg */);
 	}
-
-	// Draw main font
-	drawText(dest, offset, y, real_text, real_text.size(),
-		 true /* fg */);
 
 	return offset;
 }
@@ -283,7 +285,7 @@ PFont::trim(std::string &text, PFont::TrimType trim_type, uint max_width)
 	}
 
 	if (getWidth(text) > max_width) {
-		if (_trim_string.size() > 0
+		if (_trim_string.size() > 1
 		    && trim_type == FONT_TRIM_MIDDLE
 		    && trimMiddle(text, max_width)) {
 			return;
@@ -294,16 +296,17 @@ PFont::trim(std::string &text, PFont::TrimType trim_type, uint max_width)
 }
 
 /**
- * Figures how many charachters to have before exceding max_width
+ * Figures how many characters to have before exceeding max_width
  */
 void
 PFont::trimEnd(std::string &text, uint max_width)
 {
-	Charset::Utf8Iterator it(text, text.size());
+	Charset::Utf8Iterator it(text);
+	it.setPos(text.size());
 	--it;
 	--it;
 	for (; ! it.begin(); --it) {
-		if (getWidth(text, it.pos()) <= max_width) {
+		if (getWidth(StringView(text, it.pos())) <= max_width) {
 			text.resize(it.pos());
 			return;
 		}
@@ -335,9 +338,10 @@ PFont::trimMiddle(std::string &text, uint max_width)
 	max_side -= sep_width / 2;
 
 	// Get numbers of chars before trim string (..)
-	Charset::Utf8Iterator it(text, text.size());
+	Charset::Utf8Iterator it(text);
+	it.setPos(text.size());
 	for (--it; ! it.begin(); --it) {
-		if (getWidth(text, it.pos()) <= max_side) {
+		if (getWidth(StringView(text, it.pos())) <= max_side) {
 			pos = it.pos();
 			dest.insert(0, text.substr(0, it.pos()));
 			break;
@@ -347,10 +351,9 @@ PFont::trimMiddle(std::string &text, uint max_width)
 	// get numbers of chars after ...
 	if (pos < text.size()) {
 		for (++it; ! it.end(); ++it) {
-			std::string second_part(text.substr(it.pos(),
-						text.size() - it.pos()));
-			if (getWidth(second_part, 0) <= max_side) {
-				dest.insert(dest.size(), second_part);
+			StringView second_part(text, 0, it.pos());
+			if (getWidth(second_part) <= max_side) {
+				dest.insert(dest.size(), second_part.str());
 				break;
 			}
 		}

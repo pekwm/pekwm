@@ -26,13 +26,12 @@ public:
 	virtual ~PFontPangoXft();
 
 	// virtual interface
-	virtual uint getWidth(const std::string& text, uint chars = 0);
+	virtual uint getWidth(const StringView& view);
 	virtual void setColor(PFont::Color* color);
 
 private:
 	virtual void drawText(PSurface* dest, int x, int y,
-			      const std::string& text, uint chars,
-			      bool fg);
+			      const StringView& text, bool fg);
 
 	void drawPangoLine(int x, int y, PangoLayoutLine* line,
 			   XftColor* color);

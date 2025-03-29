@@ -16,7 +16,7 @@ std::string
 _quote(const std::string &str_in)
 {
 	std::string str;
-	Charset::Utf8Iterator it(str_in, 0);
+	Charset::Utf8Iterator it(str_in);
 	for (; ! it.end(); ++it) {
 		const char *c = *it;
 		if (c[1] == '\0' && (c[0] == '\\' || c[0] == '"')) {

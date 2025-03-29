@@ -62,10 +62,10 @@ PFontPangoXft::~PFontPangoXft()
 }
 
 uint
-PFontPangoXft::getWidth(const std::string& text, uint chars)
+PFontPangoXft::getWidth(const StringView &text)
 {
-	PFontPangoXftLayout layout(_context, _font_description, text,
-				   charsToLen(chars));
+	PFontPangoXftLayout layout(_context, _font_description, *text,
+				   static_cast<int>(text.size()));
 
 	PangoRectangle rect;
 	pango_layout_get_pixel_extents(*layout, NULL, &rect);
@@ -91,8 +91,7 @@ PFontPangoXft::setColor(PFont::Color* color)
 }
 
 void
-PFontPangoXft::drawText(PSurface* dest, int x, int y,
-			const std::string& text, uint chars,
+PFontPangoXft::drawText(PSurface* dest, int x, int y, const StringView& text,
 			bool fg)
 {
 	XftColor* color;
@@ -106,8 +105,8 @@ PFontPangoXft::drawText(PSurface* dest, int x, int y,
 	}
 
 	XftDrawChange(_draw, dest->getDrawable());
-	PFontPangoXftLayout layout(_context, _font_description, text,
-				   charsToLen(chars));
+	PFontPangoXftLayout layout(_context, _font_description, *text,
+				   static_cast<int>(text.size()));
 	PangoLayoutLine* line = pango_layout_get_line_readonly(*layout, 0);
 	drawPangoLine(x, y + _ascent, line, color);
 }

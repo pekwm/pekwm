@@ -92,16 +92,12 @@ PFontXmb::doUnloadFont()
  * Gets the width the text would take using this font
  */
 uint
-PFontXmb::getWidth(const std::string &text, uint max_chars)
+PFontXmb::getWidth(const StringView &text)
 {
 	if (! text.size()) {
 		return 0;
 	}
-
-	if (! max_chars || (max_chars > text.size())) {
-		max_chars = text.size();
-	}
-	uint width = doGetWidth(text, max_chars);
+	uint width = doGetWidth(text);
 	return ThemeUtil::scaledPixelValue(_scale, width + _offset_x);
 }
 
@@ -118,45 +114,41 @@ PFontXmb::useAscentDescent(void) const
  * @param fg Bool, to use foreground or background colors
  */
 void
-PFontXmb::drawText(PSurface *dest, int x, int y,
-		   const std::string &text, uint chars, bool fg)
+PFontXmb::drawText(PSurface *dest, int x, int y, const StringView &text,
+		   bool fg)
 {
 	GC gc = fg ? _gc_fg : _gc_bg;
 	if (! _fontset || gc == None) {
 		return;
 	}
 
-	if (chars == 0 || chars > text.size()) {
-		chars = text.size();
-	}
 	if (isScaled()) {
-		drawScaled(dest, x, y, text, chars, gc,
-			   fg ? _pixel_fg : _pixel_bg);
+		drawScaled(dest, x, y, text, gc, fg ? _pixel_fg : _pixel_bg);
 	} else {
-		doDrawText(dest->getDrawable(), x, y, text, chars, gc);
+		doDrawText(dest->getDrawable(), x, y, text, gc);
 	}
 }
 
 void
-PFontXmb::doDrawText(Drawable draw, int x, int y, const std::string &text,
-		     int size, GC gc)
+PFontXmb::doDrawText(Drawable draw, int x, int y, const StringView &text,
+		     GC gc)
 {
 #ifdef X_HAVE_UTF8_STRING
 	Xutf8DrawString(X11::getDpy(), draw, _fontset, gc, x, y + _oascent,
-			text.c_str(), size);
+			*text, text.size());
 #else // ! X_HAVE_UTF8_STRING
 	XmbDrawString(X11::getDpy(), draw, _fontset, gc, x, y + _oascent,
-		      text.c_str(), size);
+		      *text, text.size());
 #endif // X_HAVE_UTF8_STRING
 }
 
 int
-PFontXmb::doGetWidth(const std::string &text, int size) const
+PFontXmb::doGetWidth(const StringView &text) const
 {
 	uint width = 0;
 	if (_fontset) {
 		XRectangle ink, logical;
-		XmbTextExtents(_fontset, text.c_str(), size, &ink, &logical);
+		XmbTextExtents(_fontset, *text, text.size(), &ink, &logical);
 		width = logical.width;
 	}
 	return width;

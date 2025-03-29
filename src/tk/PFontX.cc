@@ -184,11 +184,11 @@ PFontX::setColor(PFont::Color *color)
 }
 
 void
-PFontX::drawScaled(PSurface *dest, int x, int y, const std::string &text,
-		   int size, GC gc, ulong color)
+PFontX::drawScaled(PSurface *dest, int x, int y, const StringView &text,
+		   GC gc, ulong color)
 {
 	// Get actual width, getWidth will returned the scaled value.
-	uint width = doGetWidth(text, size);
+	uint width = doGetWidth(text);
 	uint height = doGetHeight();
 	Drawable sdraw = getShadowSurface(width, height);
 	X11Render srender(sdraw);
@@ -198,7 +198,7 @@ PFontX::drawScaled(PSurface *dest, int x, int y, const std::string &text,
 		? X11::getBlackPixel() : X11::getWhitePixel();
 	srender.setColor(trans_pixel);
 	srender.fill(0, 0, width, height);
-	doDrawText(sdraw, 0, 0, text, size, gc);
+	doDrawText(sdraw, 0, 0, text, gc);
 
 	XImage *ximage = srender.getImage(0, 0, width, height);
 	if (ximage) {

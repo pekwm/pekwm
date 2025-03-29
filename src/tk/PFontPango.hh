@@ -28,15 +28,13 @@ public:
 
 	// virtual interface
 	virtual bool load(const PFont::Descr& descr);
-	virtual void unload(void);
+	virtual void unload();
 
-	virtual uint getWidth(const std::string& text, uint chars = 0) = 0;
-	virtual bool useAscentDescent(void) const;
+	virtual bool useAscentDescent() const;
 	virtual void setColor(PFont::Color* color) = 0;
 
 protected:
 	virtual std::string toNativeDescr(const PFont::Descr &descr) const;
-	int charsToLen(uint chars);
 
 	PangoContext* _context;
 	PangoFontMap* _font_map;
@@ -50,10 +48,6 @@ private:
 				    std::ostringstream& native) const;
 	void toNativeDescrAddStretch(const PFont::Descr& descr,
 				     std::ostringstream& native) const;
-
-	virtual void drawText(PSurface* dest, int x, int y,
-			      const std::string& text, uint chars,
-			      bool fg) = 0;
 };
 
 #endif // PEKWM_HAVE_PANGO

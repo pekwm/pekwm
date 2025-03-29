@@ -8,6 +8,7 @@
 
 #include "Charset.hh"
 #include "Json.hh"
+#include "Mem.hh"
 
 #include <sstream>
 
@@ -182,7 +183,7 @@ jsonGetBoolean(JsonValue *value, const std::string &key)
  */
 JsonParser::JsonParser(const std::string &str)
 	: _data_buf(str),
-	  _data(_data_buf, 0),
+	  _data(_data_buf),
 	  _line(0),
 	  _pos(0)
 {
@@ -264,12 +265,12 @@ JsonParser::parseObject()
 {
 	if (! (_data == '{')) {
 		_error << "expected {, got: "
-		       << static_cast<int>(chr()[0]);
+		       << static_cast<int>(_data.str()[0]);
 		return nullptr;
 	}
 
 	bool end = false;
-	JsonValueObject *obj = new JsonValueObject();
+	Destruct<JsonValueObject> obj(new JsonValueObject());
 	char expect = '\0';
 	while (! end && ! isError() && skipWhitespace("\" or }")) {
 		if (_data == '}') {
@@ -277,17 +278,17 @@ JsonParser::parseObject()
 		} else if (expect != '\0' && _data == expect) {
 			expect = '\0';
 		} else if (_data == '"') {
-			JsonValueString *key = parseString();
-			if (key != nullptr) {
+			Destruct<JsonValueString> key(parseString());
+			if (*key != nullptr) {
 				skipWhitespace(":");
 				if (_data == ':') {
 					JsonValue *value = parseValue();
 					if (value != nullptr) {
-						obj->set(*(*key), value);
+						JsonValueString &skey = *(*key);
+						obj->set(*skey, value);
 						expect = ',';
 					}
 				}
-				delete key;
 			}
 		} else {
 			_error << "expected \" or }, got: "
@@ -299,10 +300,9 @@ JsonParser::parseObject()
 		if (! isError()) {
 			_error << "EOF reached while scanning for }";
 		}
-		delete obj;
 		return nullptr;
 	}
-	return obj;
+	return obj.take();
 }
 
 JsonValueArray*
@@ -314,7 +314,7 @@ JsonParser::parseArray()
 	}
 
 	bool end = false;
-	JsonValueArray *arr = new JsonValueArray();
+	Destruct<JsonValueArray> arr(new JsonValueArray());
 	char expect = '\0';
 	do {
 		if (_data == ']') {
@@ -337,10 +337,9 @@ JsonParser::parseArray()
 		if (! isError()) {
 			_error << "EOF reached while scanning for ]";
 		}
-		delete arr;
 		return nullptr;
 	}
-	return arr;
+	return arr.take();
 }
 
 JsonValueString*
