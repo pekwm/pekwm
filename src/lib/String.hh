@@ -20,14 +20,14 @@ extern "C" {
 class StringView {
 public:
 	StringView(const char *data)
-		: _data(data),
+		: _data(data ? data : ""),
 		  _size(data ? strlen(data) : 0)
 	{
 	}
 
 	StringView(const char *data, size_t size)
-		: _data(data),
-		  _size(size)
+		: _data(data ? data : ""),
+		  _size(data ? size : 0)
 	{
 	}
 
@@ -86,7 +86,7 @@ protected:
 				_size = size;
 			}
 		} else {
-			_data = nullptr;
+			_data = "";
 			_size = 0;
 		}
 
