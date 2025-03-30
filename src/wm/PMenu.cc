@@ -715,8 +715,8 @@ PMenu::buildMenuRenderItemNormal(PSurface *surf, ObjectState state,
 		   - md->getPad(PAD_UP) - md->getPad(PAD_DOWN)) / 2;
 
 	// Render item text.
-	font->draw(surf, start_x, start_y, item->getName().c_str(),
-		   0, item->getWidth() - _item_pad_horz);
+	font->draw(surf, start_x, start_y, item->getName(),
+		   item->getWidth() - _item_pad_horz);
 }
 
 void

@@ -36,6 +36,20 @@ namespace Charset
 		Utf8Iterator(const StringView& str);
 		~Utf8Iterator();
 
+		/**
+		 * Seek to logical character.
+		 */
+		void seek(size_t pos) {
+			_pos = 0;
+			for (; ok() && pos > 0; --pos) {
+				++(*this);
+			}
+		}
+
+		/**
+		 * Hard set of position, does not take multi-byte sequences
+		 * into account.
+		 */
 		void setPos(size_t pos) {
 			_pos = pos > _str.size() ? _str.size() : pos;
 		}

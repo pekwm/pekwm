@@ -82,6 +82,7 @@ private:
 	static void testTrimEndNoSpace();
 	static void testTrimEndUTF8();
 	static void testTrimMiddle();
+	static void testTrimMiddleNoTrim();
 };
 
 TestPFont::TestPFont(void)
@@ -106,6 +107,7 @@ TestPFont::run_test(TestSpec spec, bool status)
 	TEST_FN(spec, "trimEndNoSpace", testTrimEndNoSpace());
 	TEST_FN(spec, "trimEndUTF8", testTrimEndUTF8());
 	TEST_FN(spec, "trimMiddle", testTrimMiddle());
+	TEST_FN(spec, "trimMiddleNoTrim", testTrimMiddleNoTrim());
 	return status;
 }
 
@@ -158,85 +160,81 @@ TestPFont::testParseFull()
 void
 TestPFont::testTrimEndNoTrim()
 {
-	WMP fontd[] = {{"test4", 100}, {nullptr, 0}};
+	WMP fontd[] = {{"TeSt - 12310", 250},
+		       {"test4", 100},
+		       {nullptr, 0}};
 	MockPFont font(fontd);
-	std::string str("test");
-	font.trim(str, PFont::FONT_TRIM_END, 100);
-	ASSERT_EQUAL("no trim", "test", str);
+	StringView str = font.trim("test", PFont::FONT_TRIM_END, 100);
+	ASSERT_EQUAL("no trim", "test", str.str());
 }
 
 void
 TestPFont::testTrimEndTrim()
 {
-	WMP fontd[] = {
-		{"test4", 100},
-		{"test3", 75},
-		{"test2", 50},
-		{nullptr, 0}
-	};
+	WMP fontd[] = {{"TeSt - 12310", 250},
+		       {"test3", 75},
+		       {"test2", 50},
+		       {nullptr, 0}};
 	MockPFont font(fontd);
-	std::string str("test");
-	font.trim(str, PFont::FONT_TRIM_END, 50);
-	ASSERT_EQUAL("trim end", "te", str);
+	StringView str = font.trim("test", PFont::FONT_TRIM_END, 50);
+	ASSERT_EQUAL("trim end", "te", str.str());
 }
 
 void
 TestPFont::testTrimEndNoSpace()
 {
-	WMP fontd[] ={{"test4", 100},
-		      {"test3", 75},
-		      {"test2", 50},
-		      {"test1", 25},
-		      {"test0", 0},
-		      {nullptr, 0}};
+	WMP fontd[] = {{"TeSt - 12310", 250},
+		       {"test1", 25},
+		       {"test0", 0},
+		       {nullptr, 0}};
 	MockPFont font(fontd);
-	std::string str("test");
-	font.trim(str, PFont::FONT_TRIM_END, 10);
-	ASSERT_EQUAL("trim end, does not fit", "", str);
+	StringView str = font.trim("test", PFont::FONT_TRIM_END, 10);
+	ASSERT_EQUAL("trim end, does not fit", "", str.str());
 }
 
 void
 TestPFont::testTrimEndUTF8()
 {
-	WMP fontd[] = {{"Räksmörgås — M19", 100},
-		       {"Räksmörgås — M17", 90},
-		       {"Räksmörgås — M15", 80},
-		       {"Räksmörgås — M14", 70},
-		       {"Räksmörgås — M13", 60},
+	WMP fontd[] = {{"TeSt - 12310", 50},
 		       {"Räksmörgås — M12", 50},
 		       {"Räksmörgås — M10", 40},
+		       {"Räksmörgås — M9", 30},
 		       {nullptr, 0}};
 	MockPFont font(fontd);
-	std::string str("Räksmörgås — M");
-	font.trim(str, PFont::FONT_TRIM_END, 45);
-	ASSERT_EQUAL("trim end, UTF8", "Räksmörg", str);
+	StringView str =
+		font.trim("Räksmörgås — M", PFont::FONT_TRIM_END, 45);
+	ASSERT_EQUAL("trim end, UTF8", "Räksmörg", str.str());
 }
 
 void
 TestPFont::testTrimMiddle()
 {
-	WMP fontd[] = {{"testtest8", 80},
+	WMP fontd[] = {{"TeSt - 12310", 100},
+		       {"testtest8", 80},
 		       {"..2", 20},
 
-		       {"testtest7", 70},
-		       {"testtest6", 60},
-		       {"testtest5", 50},
-		       {"testtest4", 40},
 		       {"testtest3", 30},
 		       {"testtest2", 20},
 
-		       {"ttest5", 50},
-		       {"test4", 40},
 		       {"est3", 30},
 		       {"st2", 20},
-
-		       {"test2", 20},
 
 		       {"te..st6", 60},
 		       {nullptr, 0}};
 	MockPFont font(fontd);
-	std::string str("testtest");
 	font.setTrimString("..");
-	font.trim(str, PFont::FONT_TRIM_MIDDLE, 60);
-	ASSERT_EQUAL("trim middle", "te..st", str);
+	StringView str = font.trim("testtest", PFont::FONT_TRIM_MIDDLE, 60);
+	ASSERT_EQUAL("trim middle", "te..st", str.str());
+}
+
+void
+TestPFont::testTrimMiddleNoTrim()
+{
+	WMP fontd[] = {{"TeSt - 12310", 100},
+		       {"testtest8", 80},
+		       {nullptr, 0}};
+	MockPFont font(fontd);
+	font.setTrimString("..");
+	StringView str = font.trim("testtest", PFont::FONT_TRIM_MIDDLE, 120);
+	ASSERT_EQUAL("no trim", "testtest", str.str());
 }

@@ -11,6 +11,7 @@
 
 #include "config.h"
 
+#include "Charset.hh"
 #include "PSurface.hh"
 #include "String.hh"
 
@@ -138,17 +139,18 @@ public:
 	inline void setJustify(uint j) { _justify = j; }
 	inline void setOffset(uint x, uint y) { _offset_x = x; _offset_y = y; }
 
-	int draw(PSurface *dest, int x, int y, const std::string &text,
-		 uint max_chars = 0, uint max_width = 0,
+	int draw(PSurface *dest, int x, int y, const StringView &text,
+		 uint max_width = 0,
 		 PFont::TrimType trim_type = FONT_TRIM_END);
 
-	void trim(std::string &text, TrimType trim_type, uint max_width);
-	void trimEnd(std::string &text, uint max_width);
-	bool trimMiddle(std::string &text, uint max_width);
+	StringView trim(const StringView &text, TrimType trim_type,
+			uint max_width);
+	StringView trimEnd(const StringView &text, uint max_width);
+	StringView trimMiddle(const StringView &text, uint max_width);
 
 	static void setTrimString(const std::string &trim);
 
-	uint justify(const std::string &text, int max_width, int padding);
+	uint justify(const StringView &text, int max_width, int padding);
 
 	// virtual interface
 	virtual bool load(const PFont::Descr &descr) = 0;
@@ -177,10 +179,33 @@ protected:
 	uint _justify;
 
 	static std::string _trim_string;
+	static std::string _trim_buf;
 
 private:
+	StringView fitInWidth(const StringView &text, uint max_width);
+	StringView fitInWidthShrink(const StringView &text,
+				    Charset::Utf8Iterator &it,
+				    uint max_width);
+	StringView fitInWidthGrow(const StringView &text,
+				  Charset::Utf8Iterator &it,
+				  uint max_width);
+
+	StringView fitInWidthEnd(const StringView &text, uint max_width);
+	StringView fitInWidthEndShrink(const StringView &text,
+				       Charset::Utf8Iterator &it,
+				       uint max_width);
+	StringView fitInWidthEndGrow(const StringView &text,
+				     Charset::Utf8Iterator &it,
+				     uint max_width);
+
 	virtual void drawText(PSurface *dest, int x, int y,
 			      const StringView &text, bool fg) = 0;
+
+	uint getCWidth();
+	uint getTrimStringWidth();
+
+	uint _cwidth;
+	uint _trim_width;
 };
 
 /**

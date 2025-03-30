@@ -21,6 +21,7 @@ extern "C" {
 }
 
 std::string PFont::_trim_string = std::string();
+std::string PFont::_trim_buf = std::string();
 
 // PFont::Color
 
@@ -218,7 +219,9 @@ PFont::PFont(float scale)
 	  _descent(0),
 	  _offset_x(0),
 	  _offset_y(0),
-	  _justify(FONT_JUSTIFY_LEFT)
+	  _justify(FONT_JUSTIFY_LEFT),
+	  _cwidth(0),
+	  _trim_width(0)
 {
 }
 
@@ -239,8 +242,8 @@ PFont::~PFont()
  *        to FONT_TRIM_END
  */
 int
-PFont::draw(PSurface *dest, int x, int y, const std::string &text,
-	    uint max_chars, uint max_width, PFont::TrimType trim_type)
+PFont::draw(PSurface *dest, int x, int y, const StringView &text,
+	    uint max_width, PFont::TrimType trim_type)
 {
 	if (! text.size()
 	    || x > (dest->getX() + static_cast<int>(dest->getWidth()))) {
@@ -248,16 +251,12 @@ PFont::draw(PSurface *dest, int x, int y, const std::string &text,
 	}
 
 	uint offset = x;
-	if (max_chars == 0 || max_chars > text.size()) {
-		max_chars = text.size();
-	}
-	std::string real_text(text, 0, max_chars);
 	if (max_width == 0) {
 		max_width = dest->getWidth() - x;
 	}
 
 	// Make sure text fits in the available space
-	trim(real_text, trim_type, max_width);
+	StringView real_text = trim(text, trim_type, max_width);
 	if (! real_text.empty()) {
 		offset += justify(real_text, max_width, 0);
 
@@ -277,102 +276,57 @@ PFont::draw(PSurface *dest, int x, int y, const std::string &text,
 /**
  * Trims the text making it max max_width wide
  */
-void
-PFont::trim(std::string &text, PFont::TrimType trim_type, uint max_width)
+StringView
+PFont::trim(const StringView &text, PFont::TrimType trim_type, uint max_width)
 {
 	if (! text.size()) {
-		return;
+		return text;
 	}
 
-	if (getWidth(text) > max_width) {
-		if (_trim_string.size() > 1
-		    && trim_type == FONT_TRIM_MIDDLE
-		    && trimMiddle(text, max_width)) {
-			return;
-		}
-
-		trimEnd(text, max_width);
+	uint est_size = getCWidth() * text.size();
+	if (est_size <= max_width
+	    && getWidth(text) <= max_width) {
+		return text;
 	}
+
+	if (trim_type == FONT_TRIM_MIDDLE
+	    && ! _trim_string.empty()
+	    && getTrimStringWidth() < max_width) {
+		return trimMiddle(text, max_width);
+	}
+	return trimEnd(text, max_width);
 }
 
 /**
  * Figures how many characters to have before exceeding max_width
  */
-void
-PFont::trimEnd(std::string &text, uint max_width)
+StringView
+PFont::trimEnd(const StringView &text, uint max_width)
 {
-	Charset::Utf8Iterator it(text);
-	it.setPos(text.size());
-	--it;
-	--it;
-	for (; ! it.begin(); --it) {
-		if (getWidth(StringView(text, it.pos())) <= max_width) {
-			text.resize(it.pos());
-			return;
-		}
-	}
-	text = "";
+	return fitInWidth(text, max_width);
 }
 
 /**
  * Replace middle of string with _trim_string making it max_width wide
  */
-bool
-PFont::trimMiddle(std::string &text, uint max_width)
+StringView
+PFont::trimMiddle(const StringView &text, uint max_width)
 {
-	bool trimmed = false;
-
-	// Get max and separator width
-	uint max_side = (max_width / 2);
-	uint sep_width = getWidth(_trim_string);
-
-	uint pos = 0;
-	std::string dest;
-
-	// If the trim string is too large, do nothing and let trimEnd handle
-	// this.
-	if (sep_width > max_width) {
-		return false;
-	}
+	uint max_side = max_width / 2;
 	// Add space for the trim string
-	max_side -= sep_width / 2;
+	max_side -= getTrimStringWidth() / 2;
 
-	// Get numbers of chars before trim string (..)
-	Charset::Utf8Iterator it(text);
-	it.setPos(text.size());
-	for (--it; ! it.begin(); --it) {
-		if (getWidth(StringView(text, it.pos())) <= max_side) {
-			pos = it.pos();
-			dest.insert(0, text.substr(0, it.pos()));
-			break;
-		}
+	StringView before = fitInWidth(text, max_side);
+	StringView after = fitInWidthEnd(StringView(text, 0, before.size()),
+					 max_side);
+	if (before.empty() || after.empty()) {
+		return trimEnd(text, max_side);
 	}
 
-	// get numbers of chars after ...
-	if (pos < text.size()) {
-		for (++it; ! it.end(); ++it) {
-			StringView second_part(text, 0, it.pos());
-			if (getWidth(second_part) <= max_side) {
-				dest.insert(dest.size(), second_part.str());
-				break;
-			}
-		}
-
-		// Got a char after and before, if not do nothing and trimEnd
-		// will handle trimming after this call.
-		if (dest.size() > 1) {
-			if ((getWidth(dest) + getWidth(_trim_string))
-			    <= max_width) {
-				dest.insert(pos, _trim_string);
-				trimmed = true;
-			}
-
-			// Update original string
-			text = dest;
-		}
-	}
-
-	return trimmed;
+	_trim_buf = before.str();
+	_trim_buf.append(_trim_string);
+	_trim_buf.append(*after, after.size());
+	return StringView(_trim_buf);
 }
 
 void
@@ -382,10 +336,93 @@ PFont::setTrimString(const std::string &text)
 }
 
 /**
+ * Move iterator to position in string so that if fits as many characters as
+ * possible inside of max_width.
+ */
+StringView
+PFont::fitInWidth(const StringView &text, uint max_width)
+{
+	Charset::Utf8Iterator it(text);
+	it.seek(max_width / getCWidth());
+	uint width = getWidth(StringView(text, it.pos()));
+	if (width > max_width) {
+		return fitInWidthShrink(text, it, max_width);
+	}
+	return fitInWidthGrow(text, it, max_width);
+}
+
+StringView
+PFont::fitInWidthShrink(const StringView &text, Charset::Utf8Iterator &it,
+			uint max_width)
+{
+	for (--it; ! it.begin(); --it) {
+		if (getWidth(StringView(text, it.pos())) <= max_width) {
+			return StringView(text, it.pos());
+		}
+	}
+	return StringView("", 0);
+}
+
+StringView
+PFont::fitInWidthGrow(const StringView &text, Charset::Utf8Iterator &it,
+			uint max_width)
+{
+	for (++it; ! it.end(); ++it) {
+		if (getWidth(StringView(text, it.pos())) > max_width) {
+			return StringView(text, it.pos() - 1);
+		}
+	}
+	return text;
+}
+
+/**
+ * Move iterator to position in string so that it fits as many characters as
+ * possible inside of max_width, starting from the end of string.
+ */
+StringView
+PFont::fitInWidthEnd(const StringView &text, uint max_width)
+{
+	Charset::Utf8Iterator it(text);
+	size_t pos = max_width / getCWidth();
+	if (pos < text.size()) {
+		it.seek(text.size() - pos);
+	}
+	uint width = getWidth(StringView(text, 0, it.pos()));
+	if (width > max_width) {
+		return fitInWidthEndShrink(text, it, max_width);
+	}
+	return fitInWidthEndGrow(text, it, max_width);
+}
+
+StringView
+PFont::fitInWidthEndShrink(const StringView &text, Charset::Utf8Iterator &it,
+			   uint max_width)
+{
+	for (++it; ! it.end(); ++it) {
+		if (getWidth(StringView(text, 0, it.pos())) <= max_width) {
+			return StringView(text, 0, it.pos());
+		}
+	}
+	return StringView("", 0);
+}
+
+StringView
+PFont::fitInWidthEndGrow(const StringView &text, Charset::Utf8Iterator &it,
+			 uint max_width)
+{
+	for (--it; ! it.begin(); --it) {
+		if (getWidth(StringView(text, 0, it.pos())) > max_width) {
+			return StringView(text, 0, it.pos() + 1);
+		}
+	}
+	return text;
+}
+
+/**
  * Justifies the string based on _justify property of the Font
  */
 uint
-PFont::justify(const std::string &text, int max_width, int padding)
+PFont::justify(const StringView &text, int max_width, int padding)
 {
 	uint x;
 	int width = static_cast<int>(getWidth(text));
@@ -403,4 +440,28 @@ PFont::justify(const std::string &text, int max_width, int padding)
 	}
 
 	return x;
+}
+
+/**
+ * Get estimated character width.
+ */
+uint
+PFont::getCWidth()
+{
+	if (_cwidth == 0) {
+		_cwidth = getWidth("TeSt - 123") / 10;
+	}
+	return _cwidth;
+}
+
+/**
+ * Return width of the separator string.
+ */
+uint
+PFont::getTrimStringWidth()
+{
+	if (_trim_width == 0) {
+		_trim_width = getWidth(_trim_string);
+	}
+	return _trim_width;
 }

@@ -86,7 +86,8 @@ PanelWidget::renderText(Render &rend, PSurface *surface, PFont *font,
 			int x, const std::string& text, uint max_width)
 {
 	int y = (_theme.getHeight() - font->getHeight()) / 2;
-	return font->draw(surface, x, y, text, 0, max_width);
+	return font->draw(surface, x, y, text, max_width,
+			  PFont::FONT_TRIM_MIDDLE);
 }
 
 void

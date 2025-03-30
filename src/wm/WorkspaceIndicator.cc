@@ -90,7 +90,6 @@ WorkspaceIndicator::Display::render(void)
 			     - data->edge_padding
 			     - data->font->getHeight(),
 			 Workspaces::getActWorkspace().getName(),
-			 0 /* max_chars */,
 			 _gm.width - data->edge_padding * 2 /* max_width */);
 
 	// Refresh

@@ -509,24 +509,27 @@ InputDialog::render()
 	font->setColor(_data->getColor());
 
 	uint pos = _data->getPad(PAD_LEFT);
-	const char *c_buf = str().c_str() + _buf_off;
 
 	// cursor at the beginning, render before the text
 	if (_buf.pos() == 0) {
 		pos += renderCursor(pos);
 	}
-	font->draw(&_text_wo, pos, _data->getPad(PAD_UP), c_buf, _buf.pos());
+
+	const char *c_buf = str().c_str() + _buf_off;
+	StringView before_cursor(c_buf, _buf.pos());
+	font->draw(&_text_wo, pos, _data->getPad(PAD_UP), before_cursor);
 
 	// cursor in or at the end of the text, render after first part
 	if (_buf.pos() != 0) {
-		pos += font->getWidth(StringView(c_buf, _buf.pos()));
+		pos += font->getWidth(before_cursor);
 		pos += renderCursor(pos);
 		if (_buf_chars > _buf.pos()) {
 			c_buf += _buf.pos();
 			size_t buf_chars = _buf_chars - _buf.pos();
+			StringView after_cursor(c_buf, buf_chars);
 			font->draw(&_text_wo, pos, _data->getPad(PAD_UP),
-				   c_buf, buf_chars);
-			pos += font->getWidth(StringView(c_buf, buf_chars));
+				   after_cursor);
+			pos += font->getWidth(after_cursor);
 		}
 	}
 	_text_end = pos;

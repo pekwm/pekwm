@@ -1415,7 +1415,7 @@ PDecor::renderTitle(void)
 		font->draw(&title_bg,
 			   x + _data->getPad(PAD_LEFT), // X position
 			   _data->getPad(PAD_UP), // Y position
-			   _titles[i]->getVisible(), 0, // Text and max chars
+			   _titles[i]->getVisible(),
 			   _titles[i]->getWidth() - pad_horiz,
 			   trim); // Type of trim
 
