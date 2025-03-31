@@ -73,15 +73,20 @@ TestDaytime::testDaytime()
 		     725878939 - dt4.getSunRise());
 	ASSERT_EQUAL("daytime 1993-01-01 (65.5191, 18.8572)", 0,
 		     725891789 - dt4.getSunSet());
+
+	// 2025-06-30
+	Daytime dt5(1751234400, 65.5191, 18.8572);
+	ASSERT_EQUAL("no night", dt5.getDawn(), dt5.getSunRise());
+	ASSERT_EQUAL("no night", dt5.getNight(), dt5.getSunSet());
 }
 
 void
 TestDaytime::testGetTimeOfDay()
 {
 	Daytime dt(1736588028, 56.0449, 12.692);
-	ASSERT_EQUAL("night (before)", TIME_OF_DAY_NIGHT,
+	ASSERT_EQUAL("dawn (before)", TIME_OF_DAY_DAWN,
 		     dt.getTimeOfDay(1736580960));
-	ASSERT_EQUAL("night (after)", TIME_OF_DAY_NIGHT,
+	ASSERT_EQUAL("dusk (after)", TIME_OF_DAY_DUSK,
 		     dt.getTimeOfDay(1736607627));
 	ASSERT_EQUAL("day", TIME_OF_DAY_DAY,
 		     dt.getTimeOfDay(1736580961));

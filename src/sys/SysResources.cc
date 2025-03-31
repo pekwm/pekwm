@@ -100,6 +100,10 @@ SysResources::setXResources(const Daytime &daytime, TimeOfDay tod,
 			  Calendar(daytime.getSunRise()).toString());
 	X11::setXrmString("pekwm.location.sunset",
 			  Calendar(daytime.getSunSet()).toString());
+	X11::setXrmString("pekwm.location.dawn",
+			  Calendar(daytime.getDawn()).toString());
+	X11::setXrmString("pekwm.location.night",
+			  Calendar(daytime.getNight()).toString());
 	X11::setXrmString("pekwm.location.country", _location_country);
 	X11::setXrmString("pekwm.location.city", _location_city);
 

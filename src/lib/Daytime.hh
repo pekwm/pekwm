@@ -39,20 +39,24 @@ public:
 
 	Daytime &operator=(const Daytime &rhs);
 
+	time_t getDawn() const { return _dawn; }
 	time_t getSunRise() const { return _sun_rise; }
 	time_t getSunSet() const { return _sun_set; }
+	time_t getNight() const { return _night; }
 	int getDayLengthS() const { return _day_length_s; }
 
 	enum TimeOfDay getTimeOfDay(time_t ts = 0);
 	time_t getTimeOfDayEnd(time_t ts = 0);
 
 private:
-	void calculate(double julian_day, double latitude, double longitude,
-		       double elevation);
+	bool calculate(double julian_day, double latitude, double longitude,
+		       double elevation, time_t &sun_rise, time_t &sun_set);
 
 	time_t _now;
+	time_t _dawn;
 	time_t _sun_rise;
 	time_t _sun_set;
+	time_t _night;
 	int _day_length_s;
 };
 

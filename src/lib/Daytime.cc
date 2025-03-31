@@ -95,8 +95,10 @@ time_of_day_from_string(const std::string &str)
  */
 Daytime::Daytime()
 	: _now(0),
+	  _dawn(0),
 	  _sun_rise(0),
 	  _sun_set(0),
+	  _night(0),
 	  _day_length_s(0)
 {
 }
@@ -107,13 +109,17 @@ Daytime::Daytime()
 Daytime::Daytime(time_t ts, double latitude, double longitude,
 		 double elevation)
 	: _now(ts),
+	  _dawn(0),
 	  _sun_rise(0),
 	  _sun_set(0),
+	  _night(0),
 	  _day_length_s(0)
 {
 	double julian = _ts_to_j(ts);
 	double julian_day = _j_to_julian_day(julian);
-	calculate(julian_day, latitude, longitude, elevation);
+	double elevation_deg = -1.0 * (2.076 * sqrt(elevation) / 60.0);
+	calculate(julian_day, latitude, longitude, elevation_deg,
+		  _sun_rise, _sun_set);
 
 	// NOTE: this is just for working around failed Julian day conversions
 	//       issues, rounding errors.
@@ -128,13 +134,23 @@ Daytime::Daytime(time_t ts, double latitude, double longitude,
 		}
 		julian_day += static_cast<double>(
 			cal_ts.getYDay() - cal_sun_rise.getYDay());
-		calculate(julian_day, latitude, longitude, elevation);
+		calculate(julian_day, latitude, longitude, elevation_deg,
+			  _sun_rise, _sun_set);
+	}
+	_day_length_s = _sun_set - _sun_rise;
+
+	if (! calculate(julian_day, latitude, longitude, elevation - 6.0,
+			_dawn, _night)) {
+		// incorrectly setting dawn/night to the same as rise/set,
+		// no night time.
+		_dawn = _sun_rise;
+		_night = _sun_set;
 	}
 }
 
-void
+bool
 Daytime::calculate(double julian_day, double latitude, double longitude,
-		   double elevation)
+		   double elevation_deg, time_t &sun_rise, time_t &sun_set)
 {
 	double mean_solar_time = julian_day + 0.0009 - longitude / 360.0;
 
@@ -159,20 +175,21 @@ Daytime::calculate(double julian_day, double latitude, double longitude,
 		cos(asin(declination_of_the_sun_sin));
 
 	double hour_angle_cos =
-		(sin(_to_rad(-0.833 - 2.076 * sqrt(elevation) / 60.0))
+		(sin(_to_rad(-0.833 + elevation_deg))
 		 - sin(_to_rad(latitude)) * declination_of_the_sun_sin)
 		/ (cos(_to_rad(latitude)) * declination_of_the_sun_cos);
-	if (hour_angle_cos <= 1.0) {
-		double hour_angle_deg = _to_deg(acos(hour_angle_cos));
+	double hour_angle_deg = _to_deg(acos(hour_angle_cos));
+	if (! isnan(hour_angle_deg)) {
 		double solar_transit =
 			julian_day_20010101
 			+ mean_solar_time
 			+ 0.0053 * sin(solar_mean_anomaly)
 			- 0.0069 * sin(2 * ecliptic_longitude);
-		_sun_rise = _j_to_ts(solar_transit - hour_angle_deg / 360.0);
-		_sun_set = _j_to_ts(solar_transit + hour_angle_deg / 360.0);
-		_day_length_s = _sun_set - _sun_rise;
+		sun_rise = _j_to_ts(solar_transit - hour_angle_deg / 360.0);
+		sun_set = _j_to_ts(solar_transit + hour_angle_deg / 360.0);
+		return true;
 	}
+	return false;
 }
 
 Daytime::~Daytime()
@@ -183,8 +200,10 @@ Daytime&
 Daytime::operator=(const Daytime &rhs)
 {
 	_now = rhs._now;
+	_dawn = rhs.getDawn();
 	_sun_rise = rhs.getSunRise();
 	_sun_set = rhs.getSunSet();
+	_night = rhs.getNight();
 	_day_length_s = rhs.getDayLengthS();
 	return *this;
 }
@@ -199,10 +218,17 @@ Daytime::getTimeOfDay(time_t ts)
 	if (ts == 0) {
 		ts = _now;
 	}
-	if (ts < _sun_rise || ts > _sun_set) {
+	if (ts < _dawn) {
+		return TIME_OF_DAY_NIGHT;
+	} else if (ts < _sun_rise) {
+		return TIME_OF_DAY_DAWN;
+	} else if (ts < _sun_set) {
+		return TIME_OF_DAY_DAY;
+	} else if (ts < _night) {
+		return TIME_OF_DAY_DUSK;
+	} else {
 		return TIME_OF_DAY_NIGHT;
 	}
-	return TIME_OF_DAY_DAY;
 }
 
 /**
