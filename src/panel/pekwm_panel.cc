@@ -262,6 +262,20 @@ private:
 	void resizeWidgets(bool scale_changed=false);
 	void renderPred(renderPredFun pred, void *opaque);
 	void renderBackground();
+	int renderHandle(Drawable drawable)
+	{
+		PTexture *handle = _theme.getHandle();
+		if (! handle) {
+			return 0;
+		}
+		handle->render(drawable,
+			       0, 0,
+			       handle->getWidth(), handle->getHeight(), 0, 0);
+		handle->render(drawable,
+			       _gm.width - handle->getWidth(), 0,
+			       handle->getWidth(), handle->getHeight(), 0, 0);
+		return handle->getWidth();
+	}
 
 	static void ppAddFd(int fd, void *opaque)
 	{
@@ -598,10 +612,7 @@ PekwmPanel::renderPred(renderPredFun pred, void *opaque)
 		return;
 	}
 
-	PTexture *sep = _theme.getSep();
-	PTexture *handle = _theme.getHandle();
-
-	int x = handle ? handle->getWidth() : 0;
+	int x = renderHandle(getRenderDrawable());
 	PanelWidget *last_widget = _widgets.back();
 	X11Render rend(getRenderDrawable(), getRenderBackground());
 	RenderSurface surface(rend, _gm);
@@ -618,6 +629,7 @@ PekwmPanel::renderPred(renderPredFun pred, void *opaque)
 		x += (*it)->getWidth();
 
 		if (*it != last_widget) {
+			PTexture *sep = _theme.getSep();
 			if (do_render) {
 				sep->render(rend, x, 0,
 					    sep->getWidth(), sep->getHeight());
@@ -637,17 +649,7 @@ PekwmPanel::renderBackground()
 	}
 	_theme.getBackground()->render(_background.getDrawable(), 0, 0,
 				       _gm.width, _gm.height, _gm.x, _gm.y);
-	PTexture *handle = _theme.getHandle();
-	if (handle) {
-		handle->render(_background.getDrawable(),
-			       0, 0,
-			       handle->getWidth(), handle->getHeight(),
-			       0, 0); // root coordinates
-		handle->render(_background.getDrawable(),
-			       _gm.width - handle->getWidth(), 0,
-			       handle->getWidth(), handle->getHeight(),
-			       0, 0); // root coordinates
-	}
+	renderHandle(_background.getDrawable());
 }
 
 static bool loadConfig(PanelConfig& cfg, const std::string& file)
