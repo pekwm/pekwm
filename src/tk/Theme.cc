@@ -280,7 +280,8 @@ Theme::PDecorData::PDecorData(FontHandler* fh, TextureHandler* th,
 	  _title_width_min(0),
 	  _title_width_max(100),
 	  _title_width_symetric(true),
-	  _title_height_adapt(false)
+	  _title_height_adapt(false),
+	  _title_align_to_side(false)
 {
 	if (name) {
 		_name = name;
@@ -344,6 +345,7 @@ Theme::PDecorData::load(CfgParser::Entry *section)
 	keys.add_numeric<uint>("WIDTHMAX", _title_width_max, 100, 0, 100);
 	keys.add_bool("WIDTHSYMETRIC", _title_width_symetric, true);
 	keys.add_bool("HEIGHTADAPT", _title_height_adapt, false);
+	keys.add_bool("TITLEALIGNTOSIDE", _title_align_to_side, false);
 	keys.add_string("PAD", value_pad, "0 0 0 0", 7);
 	keys.add_bool("PADADAPT", title_pad_adapt, title_pad_adapt);
 	keys.add_string("FOCUSED", value_focused, "Empty",

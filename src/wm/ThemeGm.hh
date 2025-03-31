@@ -87,7 +87,8 @@ public:
 		// Top left corner has same height as top border, title should
 		// be placed right of the left border.
 		uint top_left = bdTopLeft(state);
-		if (top_left && bdTopLeftHeight(state) == bdTop(state)) {
+		if (_data->isTitleAlignToSide()
+		    || (top_left && bdTopLeftHeight(state) == bdTop(state))) {
 			return bdLeft(state);
 		}
 		return top_left;
@@ -99,7 +100,8 @@ public:
 		// Top right corner has same height as top border, title should
 		// be placed left of the right border.
 		uint top_right = bdTopRight(state);
-		if (top_right && bdTopRightHeight(state) == bdTop(state)) {
+		if (_data->isTitleAlignToSide()
+		    || (top_right && bdTopRightHeight(state) == bdTop(state))) {
 			return bdRight(state);
 		}
 		return top_right;

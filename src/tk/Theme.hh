@@ -111,25 +111,27 @@ public:
 		inline int getTitleWidthMin(void) const {
 			return _title_width_min;
 		}
-		//! @brief Returns title maximum width in procent.
+		/** Returns title maximum width in percent. */
 		inline int getTitleWidthMax(void) const {
 			return _title_width_max;
 		}
-		//! @brief Returns title text pad for dir.
+		/** Returns title text pad for direction. */
 		int getPad(PadType pad) const;
 
-		//! @brief Returns wheter all items in the title have same
-		//width.
+		/** Returns whether all items in the title have same width. */
 		inline bool isTitleWidthSymetric(void) const {
 			return _title_width_symetric;
 		}
 		/**
-		 * Returns wheter titlebar height should be relative the font
+		 * Returns whether titlebar height should be relative the font
 		 * height
 		 */
 		bool isTitleHeightAdapt(void) const {
 			return _title_height_adapt;
 		}
+		/** If true, align titlebar to side border width instead of
+		 *  corner width. */
+		bool isTitleAlignToSide() const { return _title_align_to_side; }
 
 		// Title textures
 
@@ -218,6 +220,7 @@ public:
 		int _pad[PAD_NO];
 		bool _title_width_symetric;
 		bool _title_height_adapt;
+		bool _title_align_to_side;
 
 		// elements with FOCUSED_STATE_NO
 		PTexture *_texture_tab[FOCUSED_STATE_NO];
