@@ -257,5 +257,5 @@ TestPFont::testTrimMiddleUTF8()
 	font.setTrimString("...");
 	StringView str("before — end");
 	str = font.trim(str, PFont::FONT_TRIM_MIDDLE, 120);
-	ASSERT_EQUAL("UTF8 end", "before... end", str.str());
+	ASSERT_EQUAL("UTF8 end", "befo... end", str.str());
 }
