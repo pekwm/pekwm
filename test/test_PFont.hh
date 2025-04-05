@@ -83,6 +83,7 @@ private:
 	static void testTrimEndUTF8();
 	static void testTrimMiddle();
 	static void testTrimMiddleNoTrim();
+	static void testTrimMiddleUTF8();
 };
 
 TestPFont::TestPFont(void)
@@ -108,6 +109,7 @@ TestPFont::run_test(TestSpec spec, bool status)
 	TEST_FN(spec, "trimEndUTF8", testTrimEndUTF8());
 	TEST_FN(spec, "trimMiddle", testTrimMiddle());
 	TEST_FN(spec, "trimMiddleNoTrim", testTrimMiddleNoTrim());
+	TEST_FN(spec, "trimMiddleUTF8", testTrimMiddleUTF8());
 	return status;
 }
 
@@ -237,4 +239,23 @@ TestPFont::testTrimMiddleNoTrim()
 	font.setTrimString("..");
 	StringView str = font.trim("testtest", PFont::FONT_TRIM_MIDDLE, 120);
 	ASSERT_EQUAL("no trim", "testtest", str.str());
+}
+
+void
+TestPFont::testTrimMiddleUTF8()
+{
+	WMP fontd[] = {{"TeSt - 12310", 100},
+		       {"...3", 30},
+		       {"before — end4", 40},
+		       {"before — end5", 50},
+		       {"nd2", 20},
+		       {"end3", 30},
+		       {" end4", 40},
+		       {"— end7", 50},
+		       {nullptr, 0}};
+	MockPFont font(fontd);
+	font.setTrimString("...");
+	StringView str("before — end");
+	str = font.trim(str, PFont::FONT_TRIM_MIDDLE, 120);
+	ASSERT_EQUAL("UTF8 end", "before... end", str.str());
 }
