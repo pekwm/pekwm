@@ -14,15 +14,18 @@
 SysConfig::SysConfig(Os *os)
 	: _os(os),
 	  _enable_xsettings(true),
+	  _xsettings_path("~/.pekwm/xsettings.save"),
 	  _location_lookup(false),
 	  _latitude(0.0),
 	  _longitude(0.0)
 {
+	Util::expandFileName(_xsettings_path);
 }
 
 SysConfig::SysConfig(const SysConfig &cfg)
 	: _os(cfg._os),
 	  _enable_xsettings(cfg._enable_xsettings),
+	  _xsettings_path(cfg._xsettings_path),
 	  _location_lookup(cfg._location_lookup),
 	  _latitude(cfg._latitude),
 	  _longitude(cfg._longitude),
@@ -57,6 +60,8 @@ SysConfig::parseConfig()
 
 	CfgParserKeys keys;
 	keys.add_bool("XSETTINGS", _enable_xsettings, true);
+	keys.add_path("XSETTINGSPATH", _xsettings_path,
+		      "~/.pekwm/xsettings.save");
 	keys.add_bool("LOCATIONLOOKUP", _location_lookup, false);
 	keys.add_numeric<double>("LATITUDE", _latitude, 0.0);
 	keys.add_numeric<double>("LONGITUDE", _longitude, 0.0);

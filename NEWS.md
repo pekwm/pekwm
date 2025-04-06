@@ -102,3 +102,10 @@ Removed
 * New process acting as an XSETTINGS daemon, tracks daytime changes and updates
   X resources/XSETTINGS on daytime change in order to support automatic
   light/dark mode changing.
+* Controlled from pekwm with the `Sys` command that supports the following
+  sub-commands:
+  * `TimeOfDay`, override time of day. Can be `Dawn`, `Day`, `Dusk`, `Night`
+    and `Auto`.
+  * `XSet`, set XSETTING String value.
+  * `XSave`, save all XSETTING values to `~/.pekwm/xsettings.save`. Settings
+    will be loaded on start.

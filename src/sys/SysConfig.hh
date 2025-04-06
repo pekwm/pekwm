@@ -25,6 +25,7 @@ public:
 	bool parseConfig();
 
 	bool isXSettingsEnabled() const { return _enable_xsettings; }
+	const std::string& getXSettingsPath() const { return _xsettings_path; }
 
 	bool isLocationLookup() const { return _location_lookup; }
 	double getLatitude() const { return _latitude; }
@@ -80,13 +81,13 @@ public:
 					  string_map &resources,
 					  const std::string &key);
 
-
 private:
 	void parseCommands(CfgParser::Entry *section, string_vector &commands);
 
 	Os *_os;
 
 	bool _enable_xsettings;
+	std::string _xsettings_path;
 
 	bool _location_lookup;
 	double _latitude;

@@ -149,6 +149,7 @@ TestXSettings::testSave()
 	std::stringstream buf;
 	xs.save(buf);
 	ASSERT_EQUAL("save",
+		     "# written by pekwm_sys, overwritten by Sys XSave\n"
 		     "Settings {\n"
 		     "\t\"Key1\" = \"sStringValue\"\n"
 		     "\t\"Key2\" = \"i42\"\n"

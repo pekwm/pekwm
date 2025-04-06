@@ -287,6 +287,7 @@ XSettings::selectOwnerDestroyInput()
 bool
 XSettings::load(const std::string &source, CfgParserSource::Type type)
 {
+	P_TRACE("loading XSETTINGS from " << source);
 	CfgParser cfg(CfgParserOpt(""));
 	if (! cfg.parse(source, type)) {
 		return false;
@@ -324,6 +325,7 @@ XSettings::load(const std::string &source, CfgParserSource::Type type)
 bool
 XSettings::save(const std::string &path)
 {
+	P_TRACE("saving XSETTINGS to " << path);
 	std::ofstream os(path.c_str());
 	if (! os.good()) {
 		return false;
@@ -333,9 +335,10 @@ XSettings::save(const std::string &path)
 	return true;
 }
 
-	void
+void
 XSettings::save(std::ostream &os)
 {
+	os << "# written by pekwm_sys, overwritten by Sys XSave" << std::endl;
 	os << "Settings {" << std::endl;
 	map::iterator it(_settings.begin());
 	for (; it != _settings.end(); ++it) {

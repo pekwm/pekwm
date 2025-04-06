@@ -73,6 +73,7 @@ private:
 	void handleXEvent(XEvent &ev);
 	void handleStdin();
 	void handleSetXSETTING(const std::vector<std::string> &args);
+	void handleXSave();
 	void handleSetTimeOfDay(const std::vector<std::string> &args);
 	void handleTheme(const StringView &theme);
 
@@ -167,6 +168,9 @@ PekwmSys::main(const std::string &theme)
 
 	// run after first time of day change to get properties initial values
 	// set.
+	if (! _cfg.getXSettingsPath().empty()) {
+		_xsettings.load(_cfg.getXSettingsPath());
+	}
 	if (_cfg.isXSettingsEnabled()) {
 		_xsettings.setServerOwner();
 		if (! _cfg.getNetIconTheme().empty()) {
@@ -266,6 +270,8 @@ PekwmSys::handleStdin()
 		handleSetTimeOfDay(args);
 	} else if (pekwm::ascii_ncase_equal(command, "XSET")) {
 		handleSetXSETTING(args);
+	} else if (pekwm::ascii_ncase_equal(command, "XSAVE")) {
+		handleXSave();
 	} else {
 		// unknown command
 		P_DBG("unknown command: " << command);
@@ -280,6 +286,16 @@ PekwmSys::handleSetXSETTING(const std::vector<std::string> &args)
 	}
 	_xsettings.setString(args[0], args[1]);
 	_xsettings.updateServer();
+}
+
+void
+PekwmSys::handleXSave()
+{
+	if (_cfg.getXSettingsPath().empty()) {
+		P_WARN("can not save XSETTINGS, path not set");
+	} else {
+		_xsettings.save(_cfg.getXSettingsPath());
+	}
 }
 
 void
