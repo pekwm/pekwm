@@ -10,6 +10,7 @@
 #define _PEKWM_STRING_HH_
 
 #include "Compat.hh"
+#include "Types.hh"
 
 #include <iostream>
 #include <string>
