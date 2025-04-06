@@ -451,15 +451,15 @@ _print_sysinfo(struct pekwm_panel_sysinfo *info)
 	printf("sysinfo_load15 %.2f\n", info->load15);
 	printf("sysinfo_mem_total %lu\n", info->ram_kb);
 	printf("sysinfo_mem_free %lu\n", info->free_ram_kb);
-	printf("sysinfo_mem_percent %u\n",
-	       _to_percent(info->ram_kb, info->free_ram_kb));
-	printf("sysinfo_mem_cache %lu\n", info->cache_ram_kb);
-	printf("sysinfo_mem_cache_percent %u\n",
-	       _to_percent(info->ram_kb, info->cache_ram_kb));
 	unsigned long free_ram_ec_kb = info->free_ram_kb + info->cache_ram_kb;
 	printf("sysinfo_mem_free_ec %lu\n", free_ram_ec_kb);
-	printf("sysinfo_mem_free_ec_percent %u\n",
+	printf("sysinfo_mem_percent %u\n",
+	       _to_percent(info->ram_kb, info->free_ram_kb));
+	printf("sysinfo_mem_percent_ec %u\n",
 	       _to_percent(info->ram_kb, free_ram_ec_kb));
+	printf("sysinfo_mem_cache %lu\n", info->cache_ram_kb);
+	printf("sysinfo_mem_cache_percent %u\n",
+	       _to_percent(info->ram_kb, info->ram_kb - info->cache_ram_kb));
 	printf("sysinfo_swap_total %lu\n", info->swap_kb);
 	printf("sysinfo_swap_free %lu\n", info->free_swap_kb);
 	printf("sysinfo_swap_percent %u\n",
