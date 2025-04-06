@@ -2,34 +2,99 @@
 # use, sell or distribute for any purpose, commercial or non-commercial, and by
 # any means.
 
+Define = "FullResourceColors" {
+  Colors {
+    Percent = "0" {
+      Color = "#cc0000"
+    }
+    Percent = "10" {
+      Color = "#ff7f50"
+    }
+    Percent = "50" {
+      Color = "#f0e68c"
+    }
+    Percent = "75" {
+      Color = "#00cc00"
+    }
+  }
+}
+
+Define = "ResourceColors" {
+  Colors {
+    Percent = "0" {
+      Color = "#00cc00"
+    }
+    Percent = "50" {
+      Color = "#f0e68c"
+    }
+    Percent = "75" {
+      Color = "#ff7f50"
+    }
+    Percent = "90" {
+      Color = "#cc0000"
+    }
+  }
+}
+
 Panel {
-  Placement = "Top"
+	Placement = "Top"
 }
 
 Commands {
-  Command = "uptime | sed 's/.*:/load/'" {
-    Interval = "15"
-  }
-  # Command = "$_PEKWM_SCRIPT_PATH/pekwm_panel_battery.sh" {
-  #   Interval = "60"
-  # }
+	Command = "$_PEKWM_SCRIPT_PATH/pekwm_panel_battery.sh" {
+		Interval = "60"
+	}
+	Command = "$_PEKWM_SCRIPT_PATH/pekwm_panel_sysinfo" {
+		Interval = "15"
+	}
 }
 
 Widgets {
-  Text = "%:WORKSPACE_NUMBER:" {
-    Size = "TextWidth _00_"
-  }
-  Text = "%load" {
-    Size = "TextWidth _0.00, 0.00, 0.00_"
-  }
-  # Text = "battery" {
-  #   Size = "TextWidth _100%_"
-  # }
-  ClientList {
-    Size = "*"
-  }
-  DateTime = "%Y-%m-%d %H:%M" {
-    Size = "Required"
-    Interval = "60"
-  }
+	Text = "%:WORKSPACE_NUMBER:" {
+		Size = "TextWidth _00_"
+		Click = "5" { PekwmAction = "GotoWorkspace Prev" }
+		Click = "4" { PekwmAction = "GotoWorkspace Next" }
+	}
+	Text = "%sysinfo_load1" {
+		Size = "TextWidth _0.00_"
+	}
+	Bar = "sysinfo_mem_percent sysinfo_mem_cache_percent" {
+		Size = "Pixels 24"
+		Text = "M"
+		@ResourceColors
+	}
+	Bar = "sysinfo_swap_percent" {
+		Size = "Pixels 24"
+		Text = "S"
+		@ResourceColors
+	}
+	Bar = "battery" {
+		If = "%battery_count > 0"
+		Size = "Pixels 24"
+		Text = "B"
+		@FullResourceColors
+	}
+	Icon = "battery_state" {
+		If = "%battery_count > 0"
+		Icon = "battery.png"
+		Scale = "false"
+	}
+	ClientList {
+		Size = "*"
+	}
+	Icon = "ATOM__XKB_RULES_NAMES" {
+		Icon = "flag.png"
+		# convert key list into the layout only skipping device and
+		# keyboard type. evdev,pc105,us,, -> us
+		Transform = "/^[^,]*,[^,]*,([^,]*),.*/\\1/"
+		Scale = "false"
+		Exec = "$_PEKWM_SCRIPT_PATH/pekwm_toggle_kbd_layout.sh"
+	}
+	DateTime = "%Y-%m-%d %H:%M" {
+		Size = "Required"
+		Interval = "60"
+	}
+	Systray {
+		Size = "Required"
+	}
 }
