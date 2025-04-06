@@ -147,6 +147,7 @@ public:
 	Atom getAtom() const { return _session_atom; }
 
 	bool setServerOwner();
+	void clearServerOwner();
 	void updateServer();
 	void selectOwnerDestroyInput();
 
@@ -161,6 +162,7 @@ public:
 	void setInt32(const std::string &name, int32_t value);
 	void setColor(const std::string &name, uint16_t r, uint16_t g,
 		      uint16_t b, uint16_t a);
+	void remove(const std::string &name);
 
 protected:
 	void writeProp(std::ostream &os, unsigned long serial);

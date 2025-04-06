@@ -19,6 +19,7 @@ public:
 	typedef std::map<std::string, std::string> string_map;
 
 	SysConfig(Os *os);
+	SysConfig(const SysConfig &cfg);
 	~SysConfig();
 
 	bool parseConfig();
