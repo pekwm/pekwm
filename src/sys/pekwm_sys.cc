@@ -255,15 +255,17 @@ PekwmSys::handleStdin()
 	std::string command = args[0];
 	args.erase(args.begin());
 
-	if (pekwm::ascii_ncase_equal(command, "TIMEOFDAY")) {
-		handleSetTimeOfDay(args);
-	} else if (pekwm::ascii_ncase_equal(command, "XSET")) {
-		handleSetXSETTING(args);
+	if (pekwm::ascii_ncase_equal(command, "EXIT")) {
+		_stop = true;
+	} else if (pekwm::ascii_ncase_equal(command, "RELOAD")) {
+		reload();
 	} else if (pekwm::ascii_ncase_equal(command, "THEME")) {
 		handleTheme(StringView(*buf, 0, 6));
 		_resources.notifyXTerms();
-	} else if (pekwm::ascii_ncase_equal(command, "EXIT")) {
-		_stop = true;
+	} else if (pekwm::ascii_ncase_equal(command, "TIMEOFDAY")) {
+		handleSetTimeOfDay(args);
+	} else if (pekwm::ascii_ncase_equal(command, "XSET")) {
+		handleSetXSETTING(args);
 	} else {
 		// unknown command
 		P_DBG("unknown command: " << command);
@@ -339,6 +341,7 @@ PekwmSys::reload()
 	}
 
 	if (old_cfg.isXSettingsEnabled() != _cfg.isXSettingsEnabled()) {
+		P_TRACE("XSETTINGS changed to " << _cfg.isXSettingsEnabled());
 		if (_cfg.isXSettingsEnabled()) {
 			_xsettings.setServerOwner();
 		} else {
@@ -350,26 +353,38 @@ PekwmSys::reload()
 		old_cfg.getLatitude() != _cfg.getLatitude()
 		|| old_cfg.getLongitude() != _cfg.getLongitude();
 	if (! old_cfg.isLocationLookup() && _cfg.isLocationLookup()) {
+		P_TRACE("location lookup changed to "
+			<< _cfg.isLocationLookup());
 		updateLocation();
 		update_tod = true;
 	}
 	if (old_cfg.getTimeOfDay() != _cfg.getTimeOfDay()) {
+		P_TRACE("time of day changed to " << _cfg.getTimeOfDay());
 		if (pekwm::ascii_ncase_equal(_cfg.getTimeOfDay(), "AUTO")) {
 			_tod_override = static_cast<TimeOfDay>(-1);
 		} else {
 			_tod_override =
 				time_of_day_from_string(_cfg.getTimeOfDay());
 		}
+		update_tod = true;
+	}
+
+	if (update_tod) {
+		_daytime = updateDaytime(time(NULL));
+		_tod = _daytime.getTimeOfDay();
 	}
 
 	TimeOfDay tod = getEffectiveTimeOfDay();
 	if (old_cfg.getNetTheme() != _cfg.getNetTheme()
 	    || old_cfg.getNetIconTheme() != _cfg.getNetIconTheme()) {
+		P_TRACE("NetTheme/NetIconTheme changed to "
+			<< _cfg.getNetTheme() << "/" << _cfg.getNetIconTheme());
 		setNetTheme(tod);
 		setNetIconTheme();
 		_xsettings.updateServer();
 	}
 	if (old_cfg.getXResources(tod) != _cfg.getXResources(tod)) {
+		P_TRACE("X resources for changed");
 		_resources.setConfiguredXResources(tod);
 	}
 }
