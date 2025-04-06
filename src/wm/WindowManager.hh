@@ -74,7 +74,7 @@ protected:
 			     const std::string& texture);
 	void stopBackground();
 
-	void startSys();
+	bool startSys();
 	void stopSys();
 	void writeSysCommand(const std::string &cmd);
 
