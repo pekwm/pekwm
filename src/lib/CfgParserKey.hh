@@ -170,10 +170,17 @@ private:
 class CfgParserKeys : public std::vector<CfgParserKey*>
 {
 public:
-	CfgParserKeys(void) { }
-	virtual ~CfgParserKeys(void)
+	CfgParserKeys() { }
+	virtual ~CfgParserKeys()
 	{
 		clear();
+	}
+
+	void set_defaults()
+	{
+		for (iterator it(begin()); it != end(); ++it) {
+			(*it)->parseValue("", true);
+		}
 	}
 
 	void add_bool(const char *key, bool &value,

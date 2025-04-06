@@ -239,6 +239,17 @@ XSettings::setServerOwner()
 }
 
 void
+XSettings::clearServerOwner()
+{
+	if (_owner) {
+		Time timestamp;
+		getTime(timestamp);
+		X11::setSelectionOwner(_session_atom, None);
+	}
+	_owner = false;
+}
+
+void
 XSettings::sendOwnerMessage(Time timestamp)
 {
 	X11::sendEvent(X11::getRoot(), X11::getRoot(), X11::getAtom(MANAGER),
@@ -413,6 +424,19 @@ XSettings::set(const std::string &name, XSetting *setting)
 		}
 		delete it->second;
 		it->second = setting;
+	}
+}
+
+/**
+ * Remove setting, independent of type, from configured settings.
+ */
+void
+XSettings::remove(const std::string &name)
+{
+	map::iterator it(_settings.find(name));
+	if (it != _settings.end()) {
+		delete it->second;
+		_settings.erase(it);
 	}
 }
 

@@ -477,7 +477,10 @@ WindowManager::doReload(void)
 	// (re)start pekwm_sys if it is enabled and not running, either because
 	// a crash or it was not previously enabled.
 	if (pekwm::config()->isSysEnabled()) {
-		startSys();
+		if (! startSys()) {
+			// already running, send reload
+			writeSysCommand("RELOAD");
+		}
 	} else {
 		stopSys();
 	}
@@ -622,11 +625,11 @@ WindowManager::stopBackground(void)
 /**
  * Start pekwm_sys process if it is enabled in the configuration.
  */
-void
+bool
 WindowManager::startSys()
 {
 	if (! pekwm::config()->isSysEnabled() || _sys_process) {
-		return;
+		return false;
 	}
 	std::vector<std::string> args;
 	args.push_back(BINDIR "/pekwm_sys");
@@ -638,6 +641,7 @@ WindowManager::startSys()
 		      << _sys_process->getPid());
 		pekwm::actionHandler()->setSysProcess(_sys_process);
 	}
+	return true;
 }
 
 void

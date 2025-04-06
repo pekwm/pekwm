@@ -42,6 +42,10 @@ Verify resource changes on daytime changes.
 [shell Xvfb]
 	[call start-xvfb]
 
+[shell test]
+	[log reset pekwm.config.sys]
+	[call sh-eval "cp pekwm.config pekwm.config.sys"]
+
 [process pekwm_sys ./pekwm_sys.sh]
 	?time of day changed to (.*)$
 	[global tod=$1]
@@ -60,6 +64,32 @@ Verify resource changes on daytime changes.
 
 [shell resources]
 	[call verify-resources-$tod]
+
+[shell test]
+	[log reload, disable XSETTINGS]
+	[call sh-eval "sed 's/XSettings = \"True\"/XSettings = \"False\"/' pekwm.config > pekwm.config.sys"]
+
+[shell pekwm_sys]
+	%%u32[len(0)]%s[0] -- "RELOAD"
+	?XSETTINGS changed to 0
+	?got X11 event SelectionClear
+
+[shell test]
+	[log reload, enable XSETTINGS]
+	[call sh-eval "cp pekwm.config pekwm.config.sys"]
+
+[shell pekwm_sys]
+	%%u32[len(0)]%s[0] -- "RELOAD"
+	?XSETTINGS changed to 1
+	?updated xsettings owner _XSETTINGS_S0 to
+
+[shell test]
+	[log reload, change NetTheme/NetIconTheme]
+	[call sh-eval "sed 's/Net\\(.*\\)Theme =.*/Net\\1Theme = \"Gnome\"/' pekwm.config > pekwm.config.sys"]
+
+[shell pekwm_sys]
+	%%u32[len(0)]%s[0] -- "RELOAD"
+	?NetTheme/NetIconTheme changed to Gnome/Gnome
 
 [shell pekwm_sys]
 	%%u32[len(0)]%s[0] -- "Exit"

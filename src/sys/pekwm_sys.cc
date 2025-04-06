@@ -76,6 +76,12 @@ private:
 	void handleSetTimeOfDay(const std::vector<std::string> &args);
 	void handleTheme(const StringView &theme);
 
+	void reload();
+
+	TimeOfDay getEffectiveTimeOfDay() const
+	{
+		return isTimeOfDayOverride() ? _tod_override : _tod;
+	}
 	bool isTimeOfDayOverride() const
 	{
 		return _tod_override != static_cast<TimeOfDay>(-1);
@@ -87,6 +93,26 @@ private:
 	std::string themeSuffix(enum TimeOfDay tod)
 	{
 		return tod == TIME_OF_DAY_DAY ? "" : "-Dark";
+	}
+
+	void setNetTheme(TimeOfDay tod)
+	{
+		const std::string &theme = _cfg.getNetTheme();
+		if (theme.empty()) {
+			_xsettings.remove("Net/ThemeName");
+		} else {
+			_xsettings.setString("Net/ThemeName",
+					     theme + themeSuffix(tod));
+		}
+	}
+	void setNetIconTheme()
+	{
+		const std::string &theme = _cfg.getNetIconTheme();
+		if (theme.empty()) {
+			_xsettings.remove("Net/IconThemeName");
+		} else {
+			_xsettings.setString("Net/IconThemeName", theme);
+		}
 	}
 
 	bool _stop;
@@ -123,6 +149,9 @@ PekwmSys::main(const std::string &theme)
 		std::cerr << "failed to parse configuration" << std::endl;
 		return 1;
 	}
+	if (pekwm::ascii_ncase_equal(_cfg.getTimeOfDay(), "AUTO")) {
+		_tod_override = time_of_day_from_string(_cfg.getTimeOfDay());
+	}
 
 	// load theme before time of day detection, to get the right resources
 	// set the first time around
@@ -141,8 +170,7 @@ PekwmSys::main(const std::string &theme)
 	if (_cfg.isXSettingsEnabled()) {
 		_xsettings.setServerOwner();
 		if (! _cfg.getNetIconTheme().empty()) {
-			_xsettings.setString("Net/IconThemeName",
-					     _cfg.getNetIconTheme());
+			setNetIconTheme();
 			_xsettings.updateServer();
 		}
 	}
@@ -227,15 +255,17 @@ PekwmSys::handleStdin()
 	std::string command = args[0];
 	args.erase(args.begin());
 
-	if (pekwm::ascii_ncase_equal(command, "TIMEOFDAY")) {
-		handleSetTimeOfDay(args);
-	} else if (pekwm::ascii_ncase_equal(command, "XSET")) {
-		handleSetXSETTING(args);
+	if (pekwm::ascii_ncase_equal(command, "EXIT")) {
+		_stop = true;
+	} else if (pekwm::ascii_ncase_equal(command, "RELOAD")) {
+		reload();
 	} else if (pekwm::ascii_ncase_equal(command, "THEME")) {
 		handleTheme(StringView(*buf, 0, 6));
 		_resources.notifyXTerms();
-	} else if (pekwm::ascii_ncase_equal(command, "EXIT")) {
-		_stop = true;
+	} else if (pekwm::ascii_ncase_equal(command, "TIMEOFDAY")) {
+		handleSetTimeOfDay(args);
+	} else if (pekwm::ascii_ncase_equal(command, "XSET")) {
+		handleSetXSETTING(args);
 	} else {
 		// unknown command
 		P_DBG("unknown command: " << command);
@@ -302,6 +332,64 @@ PekwmSys::handleTheme(const StringView &theme)
 }
 
 void
+PekwmSys::reload()
+{
+	SysConfig old_cfg(_cfg);
+	if (! _cfg.parseConfig()) {
+		P_WARN("failed to parse configuration");
+		return;
+	}
+
+	if (old_cfg.isXSettingsEnabled() != _cfg.isXSettingsEnabled()) {
+		P_TRACE("XSETTINGS changed to " << _cfg.isXSettingsEnabled());
+		if (_cfg.isXSettingsEnabled()) {
+			_xsettings.setServerOwner();
+		} else {
+			_xsettings.clearServerOwner();
+		}
+	}
+
+	bool update_tod =
+		old_cfg.getLatitude() != _cfg.getLatitude()
+		|| old_cfg.getLongitude() != _cfg.getLongitude();
+	if (! old_cfg.isLocationLookup() && _cfg.isLocationLookup()) {
+		P_TRACE("location lookup changed to "
+			<< _cfg.isLocationLookup());
+		updateLocation();
+		update_tod = true;
+	}
+	if (old_cfg.getTimeOfDay() != _cfg.getTimeOfDay()) {
+		P_TRACE("time of day changed to " << _cfg.getTimeOfDay());
+		if (pekwm::ascii_ncase_equal(_cfg.getTimeOfDay(), "AUTO")) {
+			_tod_override = static_cast<TimeOfDay>(-1);
+		} else {
+			_tod_override =
+				time_of_day_from_string(_cfg.getTimeOfDay());
+		}
+		update_tod = true;
+	}
+
+	if (update_tod) {
+		_daytime = updateDaytime(time(NULL));
+		_tod = _daytime.getTimeOfDay();
+	}
+
+	TimeOfDay tod = getEffectiveTimeOfDay();
+	if (old_cfg.getNetTheme() != _cfg.getNetTheme()
+	    || old_cfg.getNetIconTheme() != _cfg.getNetIconTheme()) {
+		P_TRACE("NetTheme/NetIconTheme changed to "
+			<< _cfg.getNetTheme() << "/" << _cfg.getNetIconTheme());
+		setNetTheme(tod);
+		setNetIconTheme();
+		_xsettings.updateServer();
+	}
+	if (old_cfg.getXResources(tod) != _cfg.getXResources(tod)) {
+		P_TRACE("X resources for changed");
+		_resources.setConfiguredXResources(tod);
+	}
+}
+
+void
 PekwmSys::updateLocation()
 {
 	if (! _cfg.isLocationLookup()) {
@@ -340,8 +428,7 @@ PekwmSys::timeOfDayChanged(enum TimeOfDay tod)
 
 	// automatic XSETTINGS theme switch
 	if (! _cfg.getNetTheme().empty()) {
-		_xsettings.setString("Net/ThemeName",
-				     _cfg.getNetTheme() + themeSuffix(tod));
+		setNetTheme(tod);
 		_xsettings.updateServer();
 	}
 
