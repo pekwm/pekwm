@@ -83,7 +83,8 @@ private:
 	static void testTrimEndUTF8();
 	static void testTrimMiddle();
 	static void testTrimMiddleNoTrim();
-	static void testTrimMiddleUTF8();
+	static void testTrimMiddleUTF8FromBegin();
+	static void testTrimMiddleUTF8FromEnd();
 };
 
 TestPFont::TestPFont(void)
@@ -109,7 +110,8 @@ TestPFont::run_test(TestSpec spec, bool status)
 	TEST_FN(spec, "trimEndUTF8", testTrimEndUTF8());
 	TEST_FN(spec, "trimMiddle", testTrimMiddle());
 	TEST_FN(spec, "trimMiddleNoTrim", testTrimMiddleNoTrim());
-	TEST_FN(spec, "trimMiddleUTF8", testTrimMiddleUTF8());
+	TEST_FN(spec, "trimMiddleUTF8FromBegin", testTrimMiddleUTF8FromBegin());
+	TEST_FN(spec, "trimMiddleUTF8FromEnd", testTrimMiddleUTF8FromEnd());
 	return status;
 }
 
@@ -242,7 +244,25 @@ TestPFont::testTrimMiddleNoTrim()
 }
 
 void
-TestPFont::testTrimMiddleUTF8()
+TestPFont::testTrimMiddleUTF8FromBegin()
+{
+	WMP fontd[] = {{"TeSt - 12310", 100},
+		       {"...3", 30},
+		       {"Asbjørnsen, Kristin4", 40},
+		       {"Asbjørnsen, Kristin6", 50},
+		       {"tin3", 30},
+		       {"stin4", 40},
+		       {"istin5", 50},
+		       {nullptr, 0}};
+	MockPFont font(fontd);
+	font.setTrimString("...");
+	StringView str("Asbjørnsen, Kristin");
+	str = font.trim(str, PFont::FONT_TRIM_MIDDLE, 120);
+	ASSERT_EQUAL("UTF8 end", "Asbj...stin", str.str());
+}
+
+void
+TestPFont::testTrimMiddleUTF8FromEnd()
 {
 	WMP fontd[] = {{"TeSt - 12310", 100},
 		       {"...3", 30},

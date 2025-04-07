@@ -369,7 +369,7 @@ PFont::fitInWidthGrow(const StringView &text, Charset::Utf8Iterator &it,
 {
 	for (++it; ! it.end(); ++it) {
 		if (getWidth(StringView(text, it.pos())) > max_width) {
-			return StringView(text, it.pos() - 1);
+			return StringView(text, (--it).pos());
 		}
 	}
 	return text;
