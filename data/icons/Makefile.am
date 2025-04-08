@@ -6,8 +6,11 @@ icon_files = battery.png \
 	     flag-dk.png \
 	     flag-fi.png \
 	     flag-fr.png \
+	     flag-hu.png \
 	     flag-is.png \
 	     flag-no.png \
+	     flag-pl.png \
+	     flag-pt.png \
 	     flag-se.png \
 	     flag-us.png
 EXTRA_DIST = CMakeLists.txt $(icon_files)

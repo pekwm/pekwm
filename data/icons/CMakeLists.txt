@@ -9,8 +9,11 @@ install(FILES
 	flag-dk.png
 	flag-fi.png
 	flag-fr.png
+	flag-hu.png
 	flag-is.png
 	flag-no.png
+	flag-pl.png
+	flag-pt.png
 	flag-se.png
 	flag-us.png
 	DESTINATION share/pekwm/icons)
