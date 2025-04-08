@@ -7,6 +7,7 @@
 //
 
 #include "test.hh"
+#include "test_Mock.hh"
 #include "wm/Config.hh"
 #include "wm/WindowManager.hh"
 
@@ -18,64 +19,6 @@ extern "C" {
 
 #define UNITTEST
 #include "ctrl/pekwm_ctrl.cc"
-
-class TestOs : public Os {
-public:
-	TestOs() :
-		_pid(0),
-		_signal_count(0)
-	{
-	}
-	virtual ~TestOs() { }
-
-	virtual bool getEnv(const std::string &, std::string &val,
-			    const std::string &val_default = "")
-	{
-		val = val_default;
-		return false;
-	}
-	virtual bool setEnv(const std::string &, const std::string &)
-	{
-		return false;
-	}
-
-	virtual pid_t processExec(const std::vector<std::string> &args,
-				  OsEnv *env)
-	{
-		std::string exec;
-		std::vector<std::string>::const_iterator it(args.begin());
-		for (; it != args.end(); ++it) {
-			if (it != args.begin()) {
-				exec += " ";
-			}
-			exec += *it;
-		}
-		_exec.push_back(exec);
-		return ++_pid;
-	}
-
-	virtual ChildProcess *childExec(const std::vector<std::string>&,
-					int flags, OsEnv *env)
-	{
-		return nullptr;
-	}
-
-	virtual bool processSignal(pid_t pid, int signal)
-	{
-		_signal_count++;
-		return true;
-	}
-
-	bool isProcessAlive(pid_t pid) { return !_exec.empty(); }
-
-	int getSignalCount() const { return _signal_count; }
-	std::vector<std::string>& getExec() { return _exec; }
-
-private:
-	pid_t _pid;
-	int _signal_count;
-	std::vector<std::string> _exec;
-};
 
 class TestWindowManager : public TestSuite,
 			  public WindowManager {
@@ -93,7 +36,7 @@ public:
 
 TestWindowManager::TestWindowManager()
 	: TestSuite("WindowManager"),
-	  WindowManager(new TestOs())
+	  WindowManager(new OsMock())
 {
 }
 
@@ -156,7 +99,7 @@ TestWindowManager::assertSendRecvCommand(const std::string& msg,
 void
 TestWindowManager::testStartBackground()
 {
-	TestOs *os = static_cast<TestOs*>(_os);
+	OsMock *os = static_cast<OsMock*>(_os);
 
 	// no running process, ensure started
 	startBackground("./test", "Plain #cccccc");

@@ -9,6 +9,8 @@
 #ifndef _PEKWM_TYPES_HH_
 #define _PEKWM_TYPES_HH_
 
+#include "config.h"
+
 extern "C" {
 #include <sys/types.h>
 #ifdef PEKWM_HAVE_STDINT_H

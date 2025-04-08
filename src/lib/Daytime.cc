@@ -8,7 +8,9 @@
 
 #include "Calendar.hh"
 #include "Daytime.hh"
+#include "Debug.hh"
 #include "String.hh"
+#include "Types.hh"
 
 extern "C" {
 #include <math.h>
@@ -146,6 +148,10 @@ Daytime::Daytime(time_t ts, double latitude, double longitude,
 		_dawn = _sun_rise;
 		_night = _sun_set;
 	}
+
+	P_TRACE("DayTime ts: " << ts << " dawn: " << _dawn
+		<< " sun_rise: " << _sun_rise << " sun_set: " << _sun_set
+		<< " night: " << _night);
 }
 
 bool

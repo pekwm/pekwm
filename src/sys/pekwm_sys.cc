@@ -134,6 +134,7 @@ PekwmSys::PekwmSys(Os *os)
 	  _select(mkOsSelect()),
 	  _cfg(os),
 	  _resources(_cfg),
+	  _tod(static_cast<TimeOfDay>(-1)),
 	  _tod_override(static_cast<TimeOfDay>(-1))
 {
 }
@@ -150,7 +151,7 @@ PekwmSys::main(const std::string &theme)
 		std::cerr << "failed to parse configuration" << std::endl;
 		return 1;
 	}
-	if (pekwm::ascii_ncase_equal(_cfg.getTimeOfDay(), "AUTO")) {
+	if (! pekwm::ascii_ncase_equal(_cfg.getTimeOfDay(), "AUTO")) {
 		_tod_override = time_of_day_from_string(_cfg.getTimeOfDay());
 	}
 
@@ -163,12 +164,13 @@ PekwmSys::main(const std::string &theme)
 
 	// init time of day
 	_daytime = updateDaytime(time(NULL));
-	timeOfDayChanged(isTimeOfDayOverride()
-			 ? _tod_override : _daytime.getTimeOfDay());
+	_tod = timeOfDayChanged(isTimeOfDayOverride()
+				? _tod_override : _daytime.getTimeOfDay());
 
 	// run after first time of day change to get properties initial values
 	// set.
-	if (! _cfg.getXSettingsPath().empty()) {
+	if (! _cfg.getXSettingsPath().empty()
+	    && _os->pathExists(_cfg.getXSettingsPath())) {
 		_xsettings.load(_cfg.getXSettingsPath());
 	}
 	if (_cfg.isXSettingsEnabled()) {
@@ -439,7 +441,13 @@ PekwmSys::updateDaytime(time_t now)
 enum TimeOfDay
 PekwmSys::timeOfDayChanged(enum TimeOfDay tod)
 {
-	P_LOG("time of day changed to " << time_of_day_to_string(tod));
+	if (_tod == static_cast<TimeOfDay>(-1)) {
+		P_LOG("initial time of day: " << time_of_day_to_string(tod));
+	} else {
+		P_LOG("time of day changed from "
+		      << time_of_day_to_string(_tod) << " to "
+		      << time_of_day_to_string(tod));
+	}
 	_resources.update(_daytime, tod);
 
 	// automatic XSETTINGS theme switch

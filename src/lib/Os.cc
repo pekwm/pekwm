@@ -10,6 +10,8 @@
 #include "Os.hh"
 
 extern "C" {
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <assert.h>
 #include <errno.h>
 #include <signal.h>
@@ -374,6 +376,15 @@ public:
 	{
 		int err = setenv(key.c_str(), val.c_str(), 1 /* overwrite */);
 		return ! err;
+	}
+
+	/**
+	 * Check if file/directory exists.
+	 */
+	virtual bool pathExists(const std::string &path)
+	{
+		struct stat stat_buf;
+		return ! path.empty() && stat(path.c_str(), &stat_buf) == 0;
 	}
 
 	/**

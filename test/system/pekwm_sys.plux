@@ -47,10 +47,12 @@ Verify resource changes on daytime changes.
 	[call sh-eval "cp pekwm.config pekwm.config.sys"]
 
 [process pekwm_sys ./pekwm_sys.sh]
-	?time of day changed to (.*)$
+	?initial time of day: (.*)$
 	[global tod=$1]
+	[global starttod=$1]
 	[log time of day at startup: $tod]
 	?Enter event loop.
+	?got X11 event PropertyNotify
 
 [shell resources]
 	[call verify-resources-$tod]
@@ -60,7 +62,7 @@ Verify resource changes on daytime changes.
 
 [shell pekwm_sys]
 	%%u32[len(0)]%s[0] -- "TimeOfDay $tod"
-	?time of day changed to $tod
+	?time of day changed from $starttod to $tod
 
 [shell resources]
 	[call verify-resources-$tod]
@@ -90,6 +92,16 @@ Verify resource changes on daytime changes.
 [shell pekwm_sys]
 	%%u32[len(0)]%s[0] -- "RELOAD"
 	?NetTheme/NetIconTheme changed to Gnome/Gnome
+
+[shell test]
+	[log reload, change TimeOfDay override]
+	[call sh-eval "sed 's/TimeOfDay = \"Auto\"/TimeOfDay = \"Night\"/' pekwm.config > pekwm.config.sys"]
+
+[shell pekwm_sys]
+	%%u32[len(0)]%s[0] -- "RELOAD"
+	?time of day changed to Night
+	# configuration changed back to original as config is replaced
+	?NetTheme/NetIconTheme changed to Raleigh/Tango
 
 [shell pekwm_sys]
 	%%u32[len(0)]%s[0] -- "Exit"
