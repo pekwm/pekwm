@@ -96,11 +96,11 @@ public:
 			T value_for_type = static_cast<T>(value);
 
 			if (value_for_type < _value_min) {
-				_set = _value_min;
+				_set = _default;
 				throw std::string("value to low, min value "
 						  + std::to_string(_value_min));
 			} if (value_for_type > _value_max)  {
-				_set = _value_max;
+				_set = _default;
 				throw std::string("value to high, max value "
 						  + std::to_string(_value_max));
 			}

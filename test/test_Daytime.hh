@@ -9,6 +9,10 @@
 #include "test.hh"
 #include "Daytime.hh"
 
+extern "C" {
+#include <math.h>
+}
+
 class TestDaytime : public TestSuite {
 public:
 	TestDaytime();
@@ -17,6 +21,7 @@ public:
 	virtual bool run_test(TestSpec spec, bool status);
 
 private:
+	static void testIsValid();
 	static void testDaytime();
 	static void testGetTimeOfDay();
 };
@@ -33,9 +38,31 @@ TestDaytime::~TestDaytime()
 bool
 TestDaytime::run_test(TestSpec spec, bool status)
 {
+	TEST_FN(spec, "isValid", testIsValid());
 	TEST_FN(spec, "daytime", testDaytime());
 	TEST_FN(spec, "getTimeOfDay", testGetTimeOfDay());
 	return status;
+}
+
+void
+TestDaytime::testIsValid()
+{
+	time_t now = time(NULL);
+	ASSERT_TRUE("valid", Daytime(now, 0, 0.0, 0.0).isValid());
+
+	ASSERT_FALSE("latitude < -90.0",
+		     Daytime(now, -91.0, 0.0, 0.0).isValid());
+	ASSERT_FALSE("latitude > 90.0",
+		     Daytime(now, 91.0, 0.0, 0.0).isValid());
+	ASSERT_FALSE("latitude NAN",
+		     Daytime(now, NAN, 0.0, 0.0).isValid());
+	ASSERT_FALSE("longitude < -180.0",
+		     Daytime(now, -181.0, 0.0, 0.0).isValid());
+	ASSERT_FALSE("longitude > 180.0",
+		     Daytime(now, 181.0, 0.0, 0.0).isValid());
+	ASSERT_FALSE("longitude NAN",
+		     Daytime(now, NAN, 0.0, 0.0).isValid());
+
 }
 
 void

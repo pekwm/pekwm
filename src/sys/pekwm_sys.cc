@@ -6,19 +6,15 @@
 // See the LICENSE file for more information.
 //
 
+#include "pekwm_sys.hh"
 #include "Calendar.hh"
 #include "Compat.hh"
 #include "CfgParser.hh"
-#include "Daytime.hh"
 #include "Debug.hh"
 #include "String.hh"
-#include "SysConfig.hh"
-#include "SysResources.hh"
-#include "Timeouts.hh"
 #include "Location.hh"
 #include "Mem.hh"
 #include "X11.hh"
-#include "XSettings.hh"
 
 #include "../tk/ThemeUtil.hh"
 
@@ -31,11 +27,13 @@ enum PekwmSysAction {
 	PEKWM_SYS_DAY_CHANGED
 };
 
+static bool _is_sigchld = false;
+
+#ifndef UNITTEST
+
 static const char *progname = nullptr;
 
 extern "C" {
-
-static bool _is_sigchld = false;
 
 static void sigHandler(int signal)
 {
@@ -48,7 +46,10 @@ static void sigHandler(int signal)
 		break;
 	}
 }
+
 }
+
+#endif // UNITTEST
 
 /** static pekwm resources, accessed via the pekwm namespace. */
 static std::string _config_script_path;
@@ -60,73 +61,6 @@ namespace pekwm
 		return _config_script_path;
 	}
 }
-
-class PekwmSys {
-public:
-	PekwmSys(Os *os);
-	~PekwmSys();
-
-	int main(const std::string &theme);
-
-private:
-	void handleSigchld();
-	void handleXEvent(XEvent &ev);
-	void handleStdin();
-	void handleSetXSETTING(const std::vector<std::string> &args);
-	void handleXSave();
-	void handleSetTimeOfDay(const std::vector<std::string> &args);
-	void handleTheme(const StringView &theme);
-
-	void reload();
-
-	TimeOfDay getEffectiveTimeOfDay() const
-	{
-		return isTimeOfDayOverride() ? _tod_override : _tod;
-	}
-	bool isTimeOfDayOverride() const
-	{
-		return _tod_override != static_cast<TimeOfDay>(-1);
-	}
-
-	void updateLocation();
-	Daytime updateDaytime(time_t now);
-	enum TimeOfDay timeOfDayChanged(enum TimeOfDay tod);
-	std::string themeSuffix(enum TimeOfDay tod)
-	{
-		return tod == TIME_OF_DAY_DAY ? "" : "-Dark";
-	}
-
-	void setNetTheme(TimeOfDay tod)
-	{
-		const std::string &theme = _cfg.getNetTheme();
-		if (theme.empty()) {
-			_xsettings.remove("Net/ThemeName");
-		} else {
-			_xsettings.setString("Net/ThemeName",
-					     theme + themeSuffix(tod));
-		}
-	}
-	void setNetIconTheme()
-	{
-		const std::string &theme = _cfg.getNetIconTheme();
-		if (theme.empty()) {
-			_xsettings.remove("Net/IconThemeName");
-		} else {
-			_xsettings.setString("Net/IconThemeName", theme);
-		}
-	}
-
-	bool _stop;
-	Timeouts _timeouts;
-	Os *_os;
-	OsSelect *_select;
-	SysConfig _cfg;
-	SysResources _resources;
-	XSettings _xsettings;
-	Daytime _daytime;
-	TimeOfDay _tod;
-	TimeOfDay _tod_override;
-};
 
 PekwmSys::PekwmSys(Os *os)
 	: _stop(false),
@@ -152,6 +86,7 @@ PekwmSys::main(const std::string &theme)
 		return 1;
 	}
 	if (! pekwm::ascii_ncase_equal(_cfg.getTimeOfDay(), "AUTO")) {
+		P_TRACE("using static time of day " << _cfg.getTimeOfDay());
 		_tod_override = time_of_day_from_string(_cfg.getTimeOfDay());
 	}
 
@@ -163,9 +98,8 @@ PekwmSys::main(const std::string &theme)
 	updateLocation();
 
 	// init time of day
-	_daytime = updateDaytime(time(NULL));
-	_tod = timeOfDayChanged(isTimeOfDayOverride()
-				? _tod_override : _daytime.getTimeOfDay());
+	TimeOfDay tod = updateDaytime(time(NULL));
+	_tod = timeOfDayChanged(getEffectiveTimeOfDay(tod));
 
 	// run after first time of day change to get properties initial values
 	// set.
@@ -196,9 +130,8 @@ PekwmSys::main(const std::string &theme)
 		TimeoutAction action;
 		if (_timeouts.getNextTimeout(&tv, action)) {
 			// only action handled is time of day change
-			_daytime = updateDaytime(time(NULL));
-			_tod = timeOfDayChanged(isTimeOfDayOverride()
-						? _tod_override : _daytime.getTimeOfDay());
+			tod = updateDaytime(time(NULL));
+			_tod = timeOfDayChanged(getEffectiveTimeOfDay(tod));
 		} else if (X11::pending() > 0) {
 			X11::getNextEvent(ev);
 			handleXEvent(ev);
@@ -326,8 +259,7 @@ PekwmSys::handleSetTimeOfDay(const std::vector<std::string> &args)
 		_tod_override = time_of_day_from_string(args[1]);
 	}
 
-	_tod = timeOfDayChanged(isTimeOfDayOverride()
-				? _tod_override : _daytime.getTimeOfDay());
+	_tod = timeOfDayChanged(getEffectiveTimeOfDay(_daytime.getTimeOfDay()));
 }
 
 void
@@ -388,8 +320,7 @@ PekwmSys::reload()
 	}
 
 	if (update_tod) {
-		_daytime = updateDaytime(time(NULL));
-		_tod = _daytime.getTimeOfDay();
+		_tod = updateDaytime(time(NULL));
 	}
 
 	TimeOfDay tod = getEffectiveTimeOfDay();
@@ -428,14 +359,21 @@ PekwmSys::updateLocation()
 	}
 }
 
-Daytime
+TimeOfDay
 PekwmSys::updateDaytime(time_t now)
 {
-	Daytime daytime(now, _cfg.getLatitude(), _cfg.getLongitude());
-	time_t next = std::min(Calendar(now).nextDay().getTimestamp(),
-			       daytime.getTimeOfDayEnd(now));
+	TimeOfDay tod = TIME_OF_DAY_DAY;
+	time_t next = Calendar(now).nextDay().getTimestamp();
+	if (isTimeOfDayOverride()) {
+		tod = _tod_override;
+	} else if (_cfg.haveLocation()) {
+		_daytime =
+			Daytime(now, _cfg.getLatitude(), _cfg.getLongitude());
+		next = std::min(next, _daytime.getTimeOfDayEnd(now));
+		tod = _daytime.getTimeOfDay(now);
+	}
 	_timeouts.replaceTime(PEKWM_SYS_DAY_CHANGED, next);
-	return daytime;
+	return tod;
 }
 
 enum TimeOfDay
@@ -443,10 +381,13 @@ PekwmSys::timeOfDayChanged(enum TimeOfDay tod)
 {
 	if (_tod == static_cast<TimeOfDay>(-1)) {
 		P_LOG("initial time of day: " << time_of_day_to_string(tod));
-	} else {
+	} else if (_tod != tod) {
 		P_LOG("time of day changed from "
 		      << time_of_day_to_string(_tod) << " to "
 		      << time_of_day_to_string(tod));
+	} else {
+		P_TRACE("not updating time of day, not changed");
+		return tod;
 	}
 	_resources.update(_daytime, tod);
 
@@ -470,6 +411,8 @@ PekwmSys::timeOfDayChanged(enum TimeOfDay tod)
 
 	return tod;
 }
+
+#ifndef UNITTEST
 
 static void
 usage(int ret)
@@ -544,3 +487,5 @@ main(int argc, char *argv[])
 	PekwmSys sys(*os);
 	return sys.main(theme);
 }
+
+#endif // UNITTEST

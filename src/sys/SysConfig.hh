@@ -13,6 +13,10 @@
 #include "Daytime.hh"
 #include "Os.hh"
 
+extern "C" {
+#include <math.h>
+}
+
 class SysConfig {
 public:
 	typedef std::vector<std::string> string_vector;
@@ -28,6 +32,10 @@ public:
 	const std::string& getXSettingsPath() const { return _xsettings_path; }
 
 	bool isLocationLookup() const { return _location_lookup; }
+	bool haveLocation() const
+	{
+		return ! isnan(_latitude) && ! isnan(_longitude);
+	}
 	double getLatitude() const { return _latitude; }
 	void setLatitude(double latitude) { _latitude = latitude; }
 	double getLongitude() const { return _longitude; }

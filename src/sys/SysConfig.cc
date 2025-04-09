@@ -11,13 +11,17 @@
 #include "SysConfig.hh"
 #include "Util.hh"
 
+extern "C" {
+#include <math.h>
+}
+
 SysConfig::SysConfig(Os *os)
 	: _os(os),
 	  _enable_xsettings(true),
 	  _xsettings_path("~/.pekwm/xsettings.save"),
 	  _location_lookup(false),
-	  _latitude(0.0),
-	  _longitude(0.0)
+	  _latitude(NAN),
+	  _longitude(NAN)
 {
 	Util::expandFileName(_xsettings_path);
 }
@@ -63,8 +67,8 @@ SysConfig::parseConfig()
 	keys.add_path("XSETTINGSPATH", _xsettings_path,
 		      "~/.pekwm/xsettings.save");
 	keys.add_bool("LOCATIONLOOKUP", _location_lookup, false);
-	keys.add_numeric<double>("LATITUDE", _latitude, 0.0);
-	keys.add_numeric<double>("LONGITUDE", _longitude, 0.0);
+	keys.add_numeric<double>("LATITUDE", _latitude, NAN, -90.0, 90.0);
+	keys.add_numeric<double>("LONGITUDE", _longitude, NAN, -180.0, 180.0);
 	keys.add_string("TIMEOFDAY", _tod, "AUTO");
 	keys.add_string("NETTHEME", _net_theme, "");
 	keys.add_string("NETICONTHEME", _net_icon_theme, "");

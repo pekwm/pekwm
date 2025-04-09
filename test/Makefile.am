@@ -4,6 +4,8 @@ EXTRA_DIST = CMakeLists.txt \
 	     data/cfg_parser_command.sh \
 	     data/cfg_parser_include.cfg \
 	     data/config.pekwm_sys \
+	     data/config.pekwm_sys.invalid_lat \
+	     data/config.pekwm_sys.invalid_long \
 	     test.hh \
 	     test_Action.hh \
 	     test_ActionHandler.hh \
@@ -23,8 +25,10 @@ EXTRA_DIST = CMakeLists.txt \
 	     test_Location.hh \
 	     test_ManagerWindows.hh \
 	     test_Mem.hh \
+	     test_Mock.hh \
 	     test_Observable.hh \
 	     test_Os.hh \
+	     test_PekwmSys.hh \
 	     test_PFont.hh \
 	     test_PFontPango.hh \
 	     test_PFontXmb.hh \
@@ -32,6 +36,7 @@ EXTRA_DIST = CMakeLists.txt \
 	     test_RegexString.hh \
 	     test_String.hh \
 	     test_SysConfig.hh \
+	     test_SysResources.hh \
 	     test_Theme.hh \
 	     test_Timeouts.hh \
 	     test_Tokenizer.hh \
