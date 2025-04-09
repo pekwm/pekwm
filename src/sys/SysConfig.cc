@@ -115,7 +115,8 @@ SysConfig::parseConfigXResources(CfgParser::Entry *xresources,
 				 string_map &resources, const std::string &key)
 {
 	resources.clear();
-	CfgParser::Entry *section = xresources->findSection(key);
+	CfgParser::Entry *section =
+		xresources ? xresources->findSection(key) : nullptr;
 	if (! section) {
 		return;
 	}
