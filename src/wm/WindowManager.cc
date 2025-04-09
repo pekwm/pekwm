@@ -108,7 +108,8 @@ extern "C" {
  */
 WindowManager*
 WindowManager::start(const std::string &config_file,
-		     bool replace, bool skip_start, bool synchronous)
+		     bool replace, bool skip_start, bool synchronous,
+		     bool standalone)
 {
 	Display *dpy = XOpenDisplay(0);
 	if (! dpy) {
@@ -120,10 +121,10 @@ WindowManager::start(const std::string &config_file,
 
 	// Setup window manager
 	Os *os = mkOs();
-	WindowManager *wm = new WindowManager(os);
+	WindowManager *wm = new WindowManager(os, standalone);
 	Workspaces::init();
 	if (! pekwm::init(wm, wm, os, dpy, config_file, replace,
-			  synchronous)) {
+			  synchronous, standalone)) {
 		delete wm;
 		wm = nullptr;
 
@@ -153,8 +154,9 @@ WindowManager::start(const std::string &config_file,
 	return wm;
 }
 
-WindowManager::WindowManager(Os *os)
+WindowManager::WindowManager(Os *os, bool standalone)
 	: _os(os),
+	  _standalone(standalone),
 	  _shutdown(false),
 	  _reload(false),
 	  _restart(false),

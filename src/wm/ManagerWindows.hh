@@ -47,7 +47,7 @@ private:
 class RootWO : public PWinObj
 {
 public:
-	RootWO(Window root, HintWO *hint_wo, Config *cfg);
+	RootWO(Window root, HintWO *hint_wo, Config *cfg, bool standalone);
 	virtual ~RootWO(void);
 
 	/** Resize root window, does no actual resizing but updates the

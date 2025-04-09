@@ -28,7 +28,7 @@ namespace pekwm
 
 	bool init(AppCtrl* app_ctrl, EventLoop* event_loop, Os *os,
 		  Display* dpy, const std::string& config_file,
-		  bool replace, bool synchronous);
+		  bool replace, bool synchronous, bool standalone);
 	void cleanup(void);
 
 	bool isStarting(void);

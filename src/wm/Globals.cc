@@ -58,7 +58,7 @@ namespace pekwm
 
 	bool init(AppCtrl* app_ctrl, EventLoop* event_loop, Os *os,
 		  Display* dpy, const std::string& config_file,
-		  bool replace, bool synchronous)
+		  bool replace, bool synchronous, bool standalone)
 	{
 		initNoDisplay();
 
@@ -85,7 +85,8 @@ namespace pekwm
 		}
 
 		// Create root PWinObj
-		_root_wo = new RootWO(X11::getRoot(), _hint_wo, _config);
+		_root_wo = new RootWO(X11::getRoot(), _hint_wo, _config,
+				      standalone);
 		PWinObj::setRootPWinObj(_root_wo);
 
 		_key_grabber = new KeyGrabber();

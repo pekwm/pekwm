@@ -190,7 +190,7 @@ main(int argc, char **argv)
 
 	WindowManager *wm =
 		WindowManager::start(config_file, replace, skip_start,
-				     synchronous);
+				     synchronous, standalone);
 
 	// Further limit access (on OpenBSD) after the X11 connection has
 	// been setup.

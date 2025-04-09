@@ -35,7 +35,7 @@ class WindowManager : public AppCtrl,
 public:
 	static WindowManager *start(const std::string &config_file,
 				    bool replace, bool skip_start,
-				    bool synchronous);
+				    bool synchronous, bool standalone);
 	virtual ~WindowManager();
 
 	void doEventLoop(void);
@@ -65,7 +65,7 @@ public:
 	void handleButtonReleaseEvent(XButtonEvent *ev);
 
 protected:
-	WindowManager(Os *os);
+	WindowManager(Os *os, bool standalone);
 
 	void handlePekwmCmd(XClientMessageEvent *ev);
 	bool recvPekwmCmd(XClientMessageEvent *ev);
@@ -147,6 +147,7 @@ protected:
 	std::string _pekwm_cmd_buf;
 
 private:
+	bool _standalone;
 	bool _shutdown; //!< Set to wheter we want to shutdown.
 	bool _reload; //!< Set to wheter we want to reload.
 	bool _restart;

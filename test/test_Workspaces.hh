@@ -153,7 +153,7 @@ TestWorkspaces::testLayoutOnHeadTypes()
 	Workspaces::init();
 	HintWO hint_wo(None);
 	Config cfg;
-	pekwm::setRootWO(new RootWO(None, &hint_wo, &cfg));
+	pekwm::setRootWO(new RootWO(None, &hint_wo, &cfg, true));
 
 	// not using MouseTopCenter will result in being placed at 0x0
 	std::vector<std::string> models;

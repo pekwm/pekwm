@@ -187,7 +187,7 @@ HintWO::claimDisplayOwner(Window session_atom, Time timestamp)
 /**
  * Root window constructor, reads geometry and sets basic atoms.
  */
-RootWO::RootWO(Window root, HintWO *hint_wo, Config *cfg)
+RootWO::RootWO(Window root, HintWO *hint_wo, Config *cfg, bool standalone)
 	: PWinObj(false),
 	  _hint_wo(hint_wo),
 	  _cfg(cfg)
@@ -217,7 +217,8 @@ RootWO::RootWO(Window root, HintWO *hint_wo, Config *cfg)
 
 	// Set hits on the hint window, these are not updated so they are
 	// set in the constructor.
-	X11::setCardinal(_window, NET_WM_PID, static_cast<Cardinal>(getpid()));
+	pid_t pid = standalone ? getpid() : getppid();
+	X11::setCardinal(_window, NET_WM_PID, static_cast<Cardinal>(pid));
 	X11::setString(_window, WM_CLIENT_MACHINE, Util::getHostname());
 
 	X11::setWindow(_window, NET_SUPPORTING_WM_CHECK, _hint_wo->getWindow());

@@ -509,6 +509,22 @@ in one go.
 
 [endfunction]
 
+[function test_net_wm_pid]
+	[shell xprop]
+		[log get _NET_WM_PID]
+		!xprop -root _NET_WM_PID
+		?_NET_WM_PID.* = (.*)
+		[global net_wm_pid=$1]
+		?SH-PROMPT:
+
+	[shell test]
+		# should be pekwm and not pekwm_wm
+		-pekwm_wm
+		!ps $net_wm_pid
+		[call sh-ok]
+		-
+[endfunction]
+
 [shell Xvfb]
 	[call start-xvfb]
 
@@ -522,6 +538,7 @@ in one go.
 	[call test_client_frame_geometry_property]
 	[call test_icon_property]
 	[call test_transient_for]
+	[call test_net_wm_pid]
 	[call test_cfg_deny_resize_inc]
 	[call test_warp_pointer]
 	[call test_net_request_frame_extents]

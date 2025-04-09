@@ -23,7 +23,7 @@ public:
 
 TestRootWO::TestRootWO(HintWO *hint_wo, Config *cfg)
 	: TestSuite("RootWO"),
-	  RootWO(None, hint_wo, cfg)
+	  RootWO(None, hint_wo, cfg, true)
 {
 }
 
