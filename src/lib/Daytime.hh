@@ -39,6 +39,7 @@ public:
 
 	Daytime &operator=(const Daytime &rhs);
 
+	bool isValid() const { return _valid; }
 	time_t getDawn() const { return _dawn; }
 	time_t getSunRise() const { return _sun_rise; }
 	time_t getSunSet() const { return _sun_set; }
@@ -52,6 +53,7 @@ private:
 	bool calculate(double julian_day, double latitude, double longitude,
 		       double elevation, time_t &sun_rise, time_t &sun_set);
 
+	bool _valid;
 	time_t _now;
 	time_t _dawn;
 	time_t _sun_rise;

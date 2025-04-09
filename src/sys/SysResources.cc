@@ -93,20 +93,24 @@ SysResources::setXResources(const Daytime &daytime, TimeOfDay tod,
 	X11::loadXrmResources();
 	X11::setXrmString("pekwm.daylight", daylight);
 	X11::setXrmString("pekwm.theme.variant", theme_variant);
-	X11::setXrmString("pekwm.location.latitude",
-			  std::to_string(_cfg.getLatitude()));
-	X11::setXrmString("pekwm.location.longitude",
-			  std::to_string(_cfg.getLongitude()));
-	X11::setXrmString("pekwm.location.sunrise",
-			  Calendar(daytime.getSunRise()).toString());
-	X11::setXrmString("pekwm.location.sunset",
-			  Calendar(daytime.getSunSet()).toString());
-	X11::setXrmString("pekwm.location.dawn",
-			  Calendar(daytime.getDawn()).toString());
-	X11::setXrmString("pekwm.location.night",
-			  Calendar(daytime.getNight()).toString());
-	X11::setXrmString("pekwm.location.country", _location_country);
-	X11::setXrmString("pekwm.location.city", _location_city);
+	if (_cfg.haveLocation()) {
+		X11::setXrmString("pekwm.location.latitude",
+				  std::to_string(_cfg.getLatitude()));
+		X11::setXrmString("pekwm.location.longitude",
+				  std::to_string(_cfg.getLongitude()));
+		X11::setXrmString("pekwm.location.country", _location_country);
+		X11::setXrmString("pekwm.location.city", _location_city);
+	}
+	if (daytime.isValid()) {
+		X11::setXrmString("pekwm.location.sunrise",
+				  Calendar(daytime.getSunRise()).toString());
+		X11::setXrmString("pekwm.location.sunset",
+				  Calendar(daytime.getSunSet()).toString());
+		X11::setXrmString("pekwm.location.dawn",
+				  Calendar(daytime.getDawn()).toString());
+		X11::setXrmString("pekwm.location.night",
+				  Calendar(daytime.getNight()).toString());
+	}
 
 	setConfiguredXResources(tod);
 

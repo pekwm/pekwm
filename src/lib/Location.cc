@@ -12,6 +12,7 @@
 #include "Debug.hh"
 #include "Json.hh"
 #include "Location.hh"
+#include "Mem.hh"
 
 static const char *GEOIP_PW_V2_LOOKUP_SELF =
 	"https://geoip.pw/api/v2/lookup/self?pretty=false";
@@ -56,29 +57,28 @@ Location::lookup()
 	}
 
 	JsonParser parser(os.str());
-	JsonValueObject *value = parser.parse();
-	if (value == nullptr) {
+	Destruct<JsonValueObject> value(parser.parse());
+	if (*value == nullptr) {
 		P_WARN("failed to parse location JSON: " << parser.getError());
 		return false;
 	}
 
-	JsonValueNumber *json_latitude = jsonGetNumber(value, "latitude");
-	JsonValueNumber *json_longitude = jsonGetNumber(value, "longitude");
+	JsonValueNumber *json_latitude = jsonGetNumber(*value, "latitude");
+	JsonValueNumber *json_longitude = jsonGetNumber(*value, "longitude");
 	if (json_latitude && json_longitude) {
 		_latitude = *(*json_latitude);
 		_longitude = *(*json_longitude);
 		_looked_up = true;
 	}
 
-	JsonValueString *json_country = jsonGetString(value, "country");
+	JsonValueString *json_country = jsonGetString(*value, "country");
 	if (json_country) {
 		_country = *(*json_country);
 	}
-	JsonValueString *json_city = jsonGetString(value, "city");
+	JsonValueString *json_city = jsonGetString(*value, "city");
 	if (json_city) {
 		_city = *(*json_city);
 	}
 
-	delete value;
 	return _looked_up;
 }

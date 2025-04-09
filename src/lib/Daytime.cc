@@ -96,7 +96,8 @@ time_of_day_from_string(const std::string &str)
  * Default constructor, inits 0 daytime object
  */
 Daytime::Daytime()
-	: _now(0),
+	: _valid(false),
+	  _now(0),
 	  _dawn(0),
 	  _sun_rise(0),
 	  _sun_set(0),
@@ -110,13 +111,18 @@ Daytime::Daytime()
  */
 Daytime::Daytime(time_t ts, double latitude, double longitude,
 		 double elevation)
-	: _now(ts),
+	: _valid(! isnan(latitude) && ! isnan(longitude)),
+	  _now(ts),
 	  _dawn(0),
 	  _sun_rise(0),
 	  _sun_set(0),
 	  _night(0),
 	  _day_length_s(0)
 {
+	if (! _valid) {
+		return;
+	}
+
 	double julian = _ts_to_j(ts);
 	double julian_day = _j_to_julian_day(julian);
 	double elevation_deg = -1.0 * (2.076 * sqrt(elevation) / 60.0);
