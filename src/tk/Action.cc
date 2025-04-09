@@ -100,7 +100,7 @@ static Util::StringTo<std::pair<ActionType, uint> > action_map[] =
 	 {"Restart", action_pair(ACTION_RESTART, KEYGRABBER_OK|ROOTMENU_OK)},
 	 {"RestartOther",
 	  action_pair(ACTION_RESTART_OTHER, KEYGRABBER_OK|ROOTMENU_OK)},
-	 {"Exit", action_pair(ACTION_EXIT, KEYGRABBER_OK|ROOTMENU_OK)},
+	 {"Exit", action_pair(ACTION_EXIT, KEYGRABBER_OK|ROOTMENU_OK|CMD_OK)},
 	 {"ShowCmdDialog",
 	  action_pair(ACTION_SHOW_CMD_DIALOG,
 		      KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK|ROOTMENU_OK|
