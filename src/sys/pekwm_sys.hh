@@ -23,7 +23,9 @@ public:
 
 	int main(const std::string &theme);
 
+#ifndef UNITTEST
 private:
+#endif // UNITTEST
 	void handleSigchld();
 	void handleXEvent(XEvent &ev);
 	void handleStdin();

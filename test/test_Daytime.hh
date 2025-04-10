@@ -9,6 +9,10 @@
 #include "test.hh"
 #include "Daytime.hh"
 
+extern "C" {
+#include <math.h>
+}
+
 class TestDaytime : public TestSuite {
 public:
 	TestDaytime();

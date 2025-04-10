@@ -43,4 +43,24 @@ TestPekwmSys::testUpdateDaytime()
 {
 	OsMock os;
 	PekwmSys sys(&os);
+
+	time_t now = time(NULL);
+	time_t next_day = Calendar(now).nextDay().getTimestamp();
+	time_t next_day_timeout = next_day - now - 1;
+	struct timeval *tv;
+	TimeoutAction action;
+
+	ASSERT_EQUAL("default to day", TIME_OF_DAY_DAY, sys.updateDaytime(now));
+	sys._timeouts.getNextTimeout(&tv, action);
+	ASSERT_EQUAL("timeout next day", next_day_timeout, tv->tv_sec);
+
+	sys._cfg.setLatitude(0.0);
+	sys._cfg.setLongitude(0.0);
+	sys._tod_override = TIME_OF_DAY_DUSK;
+	ASSERT_EQUAL("use override", TIME_OF_DAY_DUSK, sys.updateDaytime(now));
+	ASSERT_EQUAL("timeout next day", next_day_timeout, tv->tv_sec);
+
+	sys._tod_override = static_cast<TimeOfDay>(-1);
+	// based on current time, just know timeout is <= next day timeout
+	ASSERT_EQUAL("timeout next day", next_day_timeout, tv->tv_sec);
 }

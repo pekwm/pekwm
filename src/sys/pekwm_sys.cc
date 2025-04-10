@@ -362,10 +362,13 @@ PekwmSys::updateLocation()
 TimeOfDay
 PekwmSys::updateDaytime(time_t now)
 {
-	TimeOfDay tod = isTimeOfDayOverride() ? _tod_override : TIME_OF_DAY_DAY;
+	TimeOfDay tod = TIME_OF_DAY_DAY;
 	time_t next = Calendar(now).nextDay().getTimestamp();
-	if (_cfg.haveLocation()) {
-		_daytime = Daytime(now, _cfg.getLatitude(), _cfg.getLongitude());
+	if (isTimeOfDayOverride()) {
+		tod = _tod_override;
+	} else if (_cfg.haveLocation()) {
+		_daytime =
+			Daytime(now, _cfg.getLatitude(), _cfg.getLongitude());
 		next = std::min(next, _daytime.getTimeOfDayEnd(now));
 		tod = _daytime.getTimeOfDay(now);
 	}
