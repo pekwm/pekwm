@@ -129,17 +129,21 @@ public: // Public Member Functions
 	virtual void warpPointer();
 	virtual void reparent(PWinObj *parent, int x, int y);
 
-	virtual ActionEvent *handleButtonPress(XButtonEvent *ev)  {
-		if (_parent) { return _parent->handleButtonPress(ev); }
-		return 0;
+	virtual const ActionEvent *handleButtonPress(XButtonEvent *ev)  {
+		if (_parent) {
+			return _parent->handleButtonPress(ev);
+		}
+		return nullptr;
 	}
-	virtual ActionEvent *handleButtonRelease(XButtonEvent *ev) {
-		if (_parent) { return _parent->handleButtonRelease(ev); }
-		return 0;
+	virtual const ActionEvent *handleButtonRelease(XButtonEvent *ev) {
+		if (_parent) {
+			return _parent->handleButtonRelease(ev);
+		}
+		return nullptr;
 	}
 
-	virtual ActionEvent *handleMapRequest(XMapRequestEvent *ev);
-	virtual ActionEvent *handleUnmapEvent(XUnmapEvent *ev);
+	virtual const ActionEvent *handleMapRequest(XMapRequestEvent *ev);
+	virtual const ActionEvent *handleUnmapEvent(XUnmapEvent *ev);
 	// END - PWinObj interface.
 
 #ifdef PEKWM_HAVE_SHAPE

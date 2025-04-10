@@ -42,12 +42,12 @@ public:
 	virtual void setWorkspace(unsigned int workspace);
 	virtual void setLayer(Layer layer);
 
-	virtual ActionEvent *handleMotionEvent(XMotionEvent *ev);
-	virtual ActionEvent *handleEnterEvent(XCrossingEvent *ev);
-	virtual ActionEvent *handleLeaveEvent(XCrossingEvent *ev);
+	virtual const ActionEvent *handleMotionEvent(XMotionEvent *ev);
+	virtual const ActionEvent *handleEnterEvent(XCrossingEvent *ev);
+	virtual const ActionEvent *handleLeaveEvent(XCrossingEvent *ev);
 
-	virtual ActionEvent *handleMapRequest(XMapRequestEvent *ev);
-	virtual ActionEvent *handleUnmapEvent(XUnmapEvent *ev);
+	virtual const ActionEvent *handleMapRequest(XMapRequestEvent *ev);
+	virtual const ActionEvent *handleUnmapEvent(XUnmapEvent *ev);
 	// END - PWinObj interface.
 
 #ifdef PEKWM_HAVE_SHAPE
@@ -150,8 +150,8 @@ public:
 	// client message handling
 	void handleConfigureRequest(XConfigureRequestEvent *ev,
 				    Client *client);
-	ActionEvent *handleClientMessage(XClientMessageEvent *ev,
-					 Client *client);
+	const ActionEvent *handleClientMessage(XClientMessageEvent *ev,
+					       Client *client);
 	void handlePropertyChange(XPropertyEvent *ev, Client *client);
 
 	static Frame *getTagFrame(void) { return _tag_frame; }

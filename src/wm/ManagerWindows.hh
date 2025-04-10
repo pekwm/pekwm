@@ -57,11 +57,11 @@ public:
 		_gm.height = height;
 	}
 
-	virtual ActionEvent *handleButtonPress(XButtonEvent *ev);
-	virtual ActionEvent *handleButtonRelease(XButtonEvent *ev);
-	virtual ActionEvent *handleMotionEvent(XMotionEvent *ev);
-	virtual ActionEvent *handleEnterEvent(XCrossingEvent *ev);
-	virtual ActionEvent *handleLeaveEvent(XCrossingEvent *ev);
+	virtual const ActionEvent *handleButtonPress(XButtonEvent *ev);
+	virtual const ActionEvent *handleButtonRelease(XButtonEvent *ev);
+	virtual const ActionEvent *handleMotionEvent(XMotionEvent *ev);
+	virtual const ActionEvent *handleEnterEvent(XCrossingEvent *ev);
+	virtual const ActionEvent *handleLeaveEvent(XCrossingEvent *ev);
 
 	void placeInsideScreen(Geometry &gm,
 			       bool without_edge=false,
@@ -123,9 +123,9 @@ public:
 
 	virtual void mapWindow(void);
 
-	virtual ActionEvent *handleButtonPress(XButtonEvent *ev);
-	virtual ActionEvent *handleButtonRelease(XButtonEvent *ev);
-	virtual ActionEvent *handleEnterEvent(XCrossingEvent *ev);
+	virtual const ActionEvent *handleButtonPress(XButtonEvent *ev);
+	virtual const ActionEvent *handleButtonRelease(XButtonEvent *ev);
+	virtual const ActionEvent *handleEnterEvent(XCrossingEvent *ev);
 
 	inline EdgeType getEdge(void) const { return _edge; }
 

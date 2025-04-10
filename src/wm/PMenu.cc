@@ -1,6 +1,6 @@
 //
 // PMenu.cc for pekwm
-// Copyright (C) 2022-2024 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2025 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2004-2020 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -29,15 +29,34 @@
 #include <algorithm>
 #include <cstdlib>
 
+ActionEvent _ae_select_item = ActionEvent(Action(ACTION_MENU_GOTO));
+
+static bool
+_filter_reg(PMenu::Item *item)
+{
+	return item->getType() == PMenu::Item::MENU_ITEM_NORMAL;
+}
+
 PMenu::Item::Item(const std::string &name, PWinObj *wo_ref, PTexture *icon)
 	: PWinObjReference(wo_ref),
-	  _name(name),
+	  _keycode(0),
 	  _type(MENU_ITEM_NORMAL),
 	  _icon(icon),
 	  _creator(0)
 {
 	if (_icon) {
 		pekwm::textureHandler()->referenceTexture(_icon);
+	}
+
+	for  (Charset::Utf8Iterator it(name); ! it.end(); ++it) {
+		if (it.charLen() == 1 && *(*it) == '_') {
+			++it;
+			if (! it.end()) {
+				KeySym sym = XStringToKeysym(*it);
+				_keycode = XKeysymToKeycode(X11::getDpy(), sym);
+			}
+		}
+		_name.append(*it, it.charLen());
 	}
 }
 
@@ -173,7 +192,7 @@ PMenu::setFocusable(bool focusable)
 	_menu_wo->setFocusable(focusable);
 }
 
-ActionEvent*
+const ActionEvent*
 PMenu::handleButtonPress(XButtonEvent *ev)
 {
 	if (*_menu_wo == ev->window) {
@@ -196,7 +215,7 @@ PMenu::handleButtonPress(XButtonEvent *ev)
 /**
  * Handle button release.
  */
-ActionEvent*
+const ActionEvent*
 PMenu::handleButtonRelease(XButtonEvent *ev)
 {
 	if (_window == ev->subwindow) {
@@ -233,10 +252,29 @@ PMenu::handleButtonRelease(XButtonEvent *ev)
 	}
 }
 
+const ActionEvent*
+PMenu::handleKeyPress(XKeyEvent *ev)
+{
+	if (! ev) {
+		return nullptr;
+	}
+
+	FilterIt<item_it, PMenu::Item*> it(_items.begin(), _items.end(),
+					   _filter_reg);
+	for (int item = 0; it.isValid(); item++) {
+		if ((*(*it))->matchKeycode(ev->keycode)) {
+			_ae_select_item.action_list[0].setParamI(0, item);
+			return &_ae_select_item;
+		}
+		it.next();
+	}
+	return nullptr;
+}
+
 /**
  * Handle Expose event, just redraw the currently selected menu item.
  */
-ActionEvent*
+const ActionEvent*
 PMenu::handleExposeEvent(XExposeEvent*)
 {
 	renderSelectedItem();
@@ -248,7 +286,7 @@ PMenu::handleExposeEvent(XExposeEvent*)
  *
  * @param ev Handle motion event.
  */
-ActionEvent*
+const ActionEvent*
 PMenu::handleMotionEvent(XMotionEvent *ev)
 {
 	if (_window == ev->subwindow) {
@@ -287,7 +325,7 @@ PMenu::handleMotionEvent(XMotionEvent *ev)
 	}
 }
 
-ActionEvent*
+const ActionEvent*
 PMenu::handleEnterEvent(XCrossingEvent *ev)
 {
 	if (*_menu_wo == ev->window) {
@@ -301,7 +339,7 @@ PMenu::handleEnterEvent(XCrossingEvent *ev)
 	}
 }
 
-ActionEvent*
+const ActionEvent*
 PMenu::handleLeaveEvent(XCrossingEvent *ev)
 {
 	if (*_menu_wo == ev->window) {
@@ -1061,12 +1099,6 @@ PMenu::select(PMenu::Item *item, bool unmap_submenu)
 {
 	selectItem(std::find(_items.begin(), _items.end(), item),
 		   unmap_submenu);
-}
-
-static bool
-_filter_reg(PMenu::Item *item)
-{
-	return item->getType() == PMenu::Item::MENU_ITEM_NORMAL;
 }
 
 /**

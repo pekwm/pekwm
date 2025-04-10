@@ -65,13 +65,13 @@ PDecor::Button::~Button(void)
 }
 
 //! @brief Searches the PDecorButtonData for an action matching ev
-ActionEvent*
+const ActionEvent*
 PDecor::Button::findAction(XButtonEvent *ev)
 {
 	std::vector<ActionEvent>::iterator it = _data->begin();
 	for (; it != _data->end(); ++it) {
 		if (it->mod == ev->state && it->sym == ev->button)
-			return &*it;
+			return &(*it);
 	}
 	return nullptr;
 }
@@ -626,7 +626,7 @@ PDecor::warpPointer()
 /**
  * Handle button press events.
  */
-ActionEvent*
+const ActionEvent*
 PDecor::handleButtonPress(XButtonEvent *ev)
 {
 	X11::stripStateModifiers(&ev->state);
@@ -640,7 +640,7 @@ PDecor::handleButtonPress(XButtonEvent *ev)
 	return handleButtonPressDecor(ev);
 }
 
-ActionEvent*
+const ActionEvent*
 PDecor::handleButtonPressDecor(XButtonEvent *ev)
 {
 	// Allow us to get clicks from anywhere on the window.
@@ -680,13 +680,13 @@ PDecor::handleButtonPressDecor(XButtonEvent *ev)
 /**
  * Handle button press events pressing decor buttons.
  */
-ActionEvent*
+const ActionEvent*
 PDecor::handleButtonPressButton(XButtonEvent *ev, PDecor::Button *button)
 {
 	// Keep track of pressed button.
 	_button->setState(BUTTON_STATE_PRESSED);
 
-	ActionEvent *ae = _button->findAction(ev);
+	const ActionEvent *ae = _button->findAction(ev);
 
 	// if the button is used for resizing, we don't want to wait for release
 	if (ae && ae->isOnlyAction(ACTION_RESIZE)) {
@@ -704,7 +704,7 @@ PDecor::handleButtonPressButton(XButtonEvent *ev, PDecor::Button *button)
 /**
  * Handle button release events.
  */
-ActionEvent*
+const ActionEvent*
 PDecor::handleButtonRelease(XButtonEvent *ev)
 {
 	// Remove state modifiers from event
@@ -718,7 +718,7 @@ PDecor::handleButtonRelease(XButtonEvent *ev)
 	return handleButtonReleaseDecor(ev);
 }
 
-ActionEvent*
+const ActionEvent*
 PDecor::handleButtonReleaseDecor(XButtonEvent *ev)
 {
 	// ensure that the button was released on the same window as it
@@ -767,7 +767,7 @@ PDecor::handleButtonReleaseDecor(XButtonEvent *ev)
 /**
  * Handle button release events when button is in pressed state.
  */
-ActionEvent*
+const ActionEvent*
 PDecor::handleButtonReleaseButton(XButtonEvent *ev, PDecor::Button *button)
 {
 	// First restore the pressed buttons state
@@ -775,7 +775,7 @@ PDecor::handleButtonReleaseButton(XButtonEvent *ev, PDecor::Button *button)
 			  ? BUTTON_STATE_FOCUSED
 			  : BUTTON_STATE_UNFOCUSED);
 
-	ActionEvent *ae = nullptr;
+	const ActionEvent *ae = nullptr;
 
 	// Then see if the button was released over ( to execute an action )
 	if (*_button == ev->subwindow) {
@@ -792,7 +792,7 @@ PDecor::handleButtonReleaseButton(XButtonEvent *ev, PDecor::Button *button)
 	return ae;
 }
 
-ActionEvent*
+const ActionEvent*
 PDecor::handleMotionEvent(XMotionEvent *ev)
 {
 	uint button = X11::getButtonFromState(ev->state);
@@ -806,7 +806,7 @@ PDecor::handleMotionEvent(XMotionEvent *ev)
  * Handle enter event, find action and toggle hoover state if enter
  * was on a button.
  */
-ActionEvent*
+const ActionEvent*
 PDecor::handleEnterEvent(XCrossingEvent *ev)
 {
 	PDecor::Button *button = findButton(ev->window);
@@ -824,7 +824,7 @@ PDecor::handleEnterEvent(XCrossingEvent *ev)
  * Handle leave event, find action and toggle hoover state if leave
  * was from a button.
  */
-ActionEvent*
+const ActionEvent*
 PDecor::handleLeaveEvent(XCrossingEvent *ev)
 {
 	PDecor::Button *button = findButton(ev->window);

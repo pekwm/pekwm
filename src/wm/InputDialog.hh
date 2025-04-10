@@ -60,9 +60,9 @@ public:
 	virtual void mapWindow(void);
 
 	// PWinObj event interface
-	ActionEvent *handleButtonPress(XButtonEvent *ev);
-	ActionEvent *handleKeyPress(XKeyEvent *ev);
-	ActionEvent *handleExposeEvent(XExposeEvent *ev);
+	const ActionEvent *handleButtonPress(XButtonEvent *ev);
+	const ActionEvent *handleKeyPress(XKeyEvent *ev);
+	const ActionEvent *handleExposeEvent(XExposeEvent *ev);
 	// END - PWinObj interface
 
 	void setTitle(const std::string &title);
@@ -78,9 +78,9 @@ public:
 	virtual void moveCentered(const Geometry &head, const Geometry &gm);
 
 protected:
-	ActionEvent *handleAction(XKeyEvent *ev, const Action &ae);
-	virtual ActionEvent *close(void);
-	virtual ActionEvent *exec(void) { return 0; }
+	const ActionEvent *handleAction(XKeyEvent *ev, const Action &ae);
+	virtual const ActionEvent *close(void);
+	virtual const ActionEvent *exec(void) { return nullptr; }
 	virtual void complete(void);
 	virtual void completeAbort(void);
 	virtual void completeReset(void);
