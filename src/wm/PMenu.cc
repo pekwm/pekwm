@@ -47,9 +47,21 @@ PMenu::Item::Item(const std::string &name, PWinObj *wo_ref, PTexture *icon)
 	if (_icon) {
 		pekwm::textureHandler()->referenceTexture(_icon);
 	}
+	parseName(name);
+}
 
+PMenu::Item::~Item()
+{
+	if (_icon) {
+		pekwm::textureHandler()->returnTexture(&_icon);
+	}
+}
+
+void
+PMenu::Item::parseName(const std::string &name)
+{
 	for  (Charset::Utf8Iterator it(name); ! it.end(); ++it) {
-		if (it.charLen() == 1 && *(*it) == '_') {
+		if (_keycode == 0 && it.charLen() == 1 && *(*it) == '_') {
 			++it;
 			if (! it.end()) {
 				KeySym sym = XStringToKeysym(*it);
@@ -57,13 +69,6 @@ PMenu::Item::Item(const std::string &name, PWinObj *wo_ref, PTexture *icon)
 			}
 		}
 		_name.append(*it, it.charLen());
-	}
-}
-
-PMenu::Item::~Item(void)
-{
-	if (_icon) {
-		pekwm::textureHandler()->returnTexture(&_icon);
 	}
 }
 

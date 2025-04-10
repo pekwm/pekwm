@@ -63,6 +63,9 @@ public:
 		inline void setCreator(PMenu::Item *c) { _creator = c; }
 		inline PMenu::Item *getCreator(void) const { return _creator; }
 
+	protected:
+		void parseName(const std::string &name);
+
 	private:
 		Geometry _gm;
 		std::string _name;
