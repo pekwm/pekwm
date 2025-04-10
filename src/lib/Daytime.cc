@@ -111,7 +111,7 @@ Daytime::Daytime()
  */
 Daytime::Daytime(time_t ts, double latitude, double longitude,
 		 double elevation)
-	: _valid(! isnan(latitude) && ! isnan(longitude)),
+	: _valid(true),
 	  _now(ts),
 	  _dawn(0),
 	  _sun_rise(0),
@@ -119,7 +119,9 @@ Daytime::Daytime(time_t ts, double latitude, double longitude,
 	  _night(0),
 	  _day_length_s(0)
 {
-	if (! _valid) {
+	if (isnan(latitude) || latitude < -90.0 || latitude > 90.0
+	    || isnan(longitude) || longitude < -180.0 || longitude > 180.0) {
+		_valid = false;
 		return;
 	}
 

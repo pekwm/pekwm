@@ -1,9 +1,13 @@
 build
+core
 .cache
 test/system/plux
 *.a
+*.core
 *.log
 *.o
+*.orig
+*.swp
 *~
 .#*
 \#*#

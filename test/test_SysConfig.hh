@@ -18,6 +18,7 @@ public:
 	virtual bool run_test(TestSpec spec, bool status);
 private:
 	static void testParseConfig();
+	static void testParseConfigInvalidLatLong();
 	static void testParseConfigXResources();
 };
 TestSysConfig::TestSysConfig(void)
@@ -33,6 +34,8 @@ bool
 TestSysConfig::run_test(TestSpec spec, bool status)
 {
 	TEST_FN(spec, "parseConfig", testParseConfig());
+	TEST_FN(spec, "parseConfigInvalidLatLong",
+		testParseConfigInvalidLatLong());
 	TEST_FN(spec, "parseConfigXResources", testParseConfigXResources());
 	return status;
 }
@@ -47,6 +50,7 @@ TestSysConfig::testParseConfig()
 	ASSERT_EQUAL("parseConfig", false, cfg.isLocationLookup());
 	ASSERT_DOUBLE_EQUAL("parseConfig", 32.01, cfg.getLatitude());
 	ASSERT_DOUBLE_EQUAL("parseConfig", 16.01, cfg.getLongitude());
+	ASSERT_TRUE("haveLocation", cfg.haveLocation());
 	ASSERT_EQUAL("parseConfig", "AUTO", cfg.getTimeOfDay());
 	ASSERT_EQUAL("parseConfig", "Raleigh", cfg.getNetTheme());
 	const SysConfig::string_vector &dcmds = cfg.getDaytimeCommands();
@@ -73,6 +77,27 @@ TestSysConfig::testParseConfig()
 		 cfg.getXResources(TIME_OF_DAY_NIGHT);
 	ASSERT_EQUAL("xrsrc night", 1, night_xsrcs.size());
 	ASSERT_EQUAL("xrsrc", "#333333", night_xsrcs.at("XTerm*background"));
+}
+
+void
+TestSysConfig::testParseConfigInvalidLatLong()
+{
+	OsMock os;
+	SysConfig cfg(&os);
+
+	os.setEnv("PEKWM_CONFIG_FILE",
+		  "../test/data/config.pekwm_sys.invalid_lat");
+	ASSERT_TRUE("parseConfig", cfg.parseConfig());
+	ASSERT_FALSE("haveLocation", cfg.haveLocation());
+	ASSERT_TRUE("latitude NAN", isnan(cfg.getLatitude()));
+	ASSERT_FALSE("longitude NAN", isnan(cfg.getLongitude()));
+
+	os.setEnv("PEKWM_CONFIG_FILE",
+		  "../test/data/config.pekwm_sys.invalid_long");
+	ASSERT_TRUE("parseConfig", cfg.parseConfig());
+	ASSERT_FALSE("haveLocation", cfg.haveLocation());
+	ASSERT_FALSE("latitude NAN", isnan(cfg.getLatitude()));
+	ASSERT_TRUE("longitude NAN", isnan(cfg.getLongitude()));
 }
 
 void

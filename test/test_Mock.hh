@@ -9,8 +9,11 @@
 #ifndef _TEST_MOCK_HH_
 #define _TEST_MOCK_HH_
 
+#include <map>
 #include <string>
 #include <vector>
+
+#include "Os.hh"
 
 class OsMock : public Os {
 public:
@@ -19,23 +22,26 @@ public:
 		_pid(0),
 		_signal_count(0)
 	{
+		_env["PEKWM_CONFIG_FILE"] = "../test/data/config.pekwm_sys";
 	}
 	virtual ~OsMock() { }
 
 	virtual bool getEnv(const std::string &key, std::string &val,
 			    const std::string &val_default)
 	{
-		if (key == "PEKWM_CONFIG_FILE") {
-			val = "../test/data/config.pekwm_sys";
-			return true;
+		std::map<std::string, std::string>::iterator it(_env.find(key));
+		if (it == _env.end()) {
+			val = val_default;
+			return false;
 		}
-		val = val_default;
-		return false;
+		val = it->second;
+		return true;
 	}
 
-	virtual bool setEnv(const std::string&, const std::string&)
+	virtual bool setEnv(const std::string& key, const std::string& val)
 	{
-		return false;
+		_env[key] = val;
+		return true;
 	}
 
 	virtual bool pathExists(const std::string&) { return false; }
@@ -72,6 +78,7 @@ public:
 	std::vector<std::string>& getExec() { return _exec; }
 
 private:
+	std::map<std::string, std::string> _env;
 	pid_t _pid;
 	int _signal_count;
 	std::vector<std::string> _exec;

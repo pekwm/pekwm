@@ -10,6 +10,7 @@
 #include "Charset.hh"
 #include "test.hh"
 
+#include "test_PekwmSys.hh"
 #include "test_SysConfig.hh"
 #include "test_SysResources.hh"
 #include "test_XSettings.hh"
@@ -19,6 +20,7 @@ main(int argc, char *argv[])
 {
 	Charset::WithCharset charset;
 
+	TestPekwmSys testPekwmSys;
 	TestSysConfig testSysConfig;
 	TestSysResources testSysResources;
 	TestXSettings testXSettings;

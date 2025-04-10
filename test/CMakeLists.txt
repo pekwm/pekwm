@@ -57,6 +57,6 @@ add_test(NAME pekwm_sys
 target_include_directories(test_pekwm_sys PUBLIC
 			   ${PROJECT_SOURCE_DIR}/src
 			   ${common_INCLUDE_DIRS})
-target_link_libraries(test_pekwm_sys lib ${common_LIBRARIES})
+target_link_libraries(test_pekwm_sys tk lib ${common_LIBRARIES})
 
 add_subdirectory(system)

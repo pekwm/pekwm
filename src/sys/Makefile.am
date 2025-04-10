@@ -1,5 +1,5 @@
 bin_PROGRAMS = pekwm_sys
-pekwm_sys_SOURCES = pekwm_sys.cc \
+pekwm_sys_SOURCES = pekwm_sys.cc pekwm_sys.hh \
 		    SysConfig.cc SysConfig.hh \
 		    SysResources.cc SysResources.hh \
 		    XSettings.cc XSettings.hh

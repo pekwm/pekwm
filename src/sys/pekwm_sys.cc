@@ -6,19 +6,15 @@
 // See the LICENSE file for more information.
 //
 
+#include "pekwm_sys.hh"
 #include "Calendar.hh"
 #include "Compat.hh"
 #include "CfgParser.hh"
-#include "Daytime.hh"
 #include "Debug.hh"
 #include "String.hh"
-#include "SysConfig.hh"
-#include "SysResources.hh"
-#include "Timeouts.hh"
 #include "Location.hh"
 #include "Mem.hh"
 #include "X11.hh"
-#include "XSettings.hh"
 
 #include "../tk/ThemeUtil.hh"
 
@@ -31,11 +27,13 @@ enum PekwmSysAction {
 	PEKWM_SYS_DAY_CHANGED
 };
 
+static bool _is_sigchld = false;
+
+#ifndef UNITTEST
+
 static const char *progname = nullptr;
 
 extern "C" {
-
-static bool _is_sigchld = false;
 
 static void sigHandler(int signal)
 {
@@ -48,7 +46,10 @@ static void sigHandler(int signal)
 		break;
 	}
 }
+
 }
+
+#endif // UNITTEST
 
 /** static pekwm resources, accessed via the pekwm namespace. */
 static std::string _config_script_path;
@@ -60,79 +61,6 @@ namespace pekwm
 		return _config_script_path;
 	}
 }
-
-class PekwmSys {
-public:
-	PekwmSys(Os *os);
-	~PekwmSys();
-
-	int main(const std::string &theme);
-
-private:
-	void handleSigchld();
-	void handleXEvent(XEvent &ev);
-	void handleStdin();
-	void handleSetXSETTING(const std::vector<std::string> &args);
-	void handleXSave();
-	void handleSetTimeOfDay(const std::vector<std::string> &args);
-	void handleTheme(const StringView &theme);
-
-	void reload();
-
-	TimeOfDay getEffectiveTimeOfDay() const
-	{
-		return getEffectiveTimeOfDay(_tod);
-	}
-
-	TimeOfDay getEffectiveTimeOfDay(TimeOfDay tod) const
-	{
-		return isTimeOfDayOverride() ? _tod_override : tod;
-	}
-
-	bool isTimeOfDayOverride() const
-	{
-		return _tod_override != static_cast<TimeOfDay>(-1);
-	}
-
-	void updateLocation();
-	TimeOfDay updateDaytime(time_t now);
-	enum TimeOfDay timeOfDayChanged(enum TimeOfDay tod);
-	std::string themeSuffix(enum TimeOfDay tod)
-	{
-		return tod == TIME_OF_DAY_DAY ? "" : "-Dark";
-	}
-
-	void setNetTheme(TimeOfDay tod)
-	{
-		const std::string &theme = _cfg.getNetTheme();
-		if (theme.empty()) {
-			_xsettings.remove("Net/ThemeName");
-		} else {
-			_xsettings.setString("Net/ThemeName",
-					     theme + themeSuffix(tod));
-		}
-	}
-	void setNetIconTheme()
-	{
-		const std::string &theme = _cfg.getNetIconTheme();
-		if (theme.empty()) {
-			_xsettings.remove("Net/IconThemeName");
-		} else {
-			_xsettings.setString("Net/IconThemeName", theme);
-		}
-	}
-
-	bool _stop;
-	Timeouts _timeouts;
-	Os *_os;
-	OsSelect *_select;
-	SysConfig _cfg;
-	SysResources _resources;
-	XSettings _xsettings;
-	Daytime _daytime;
-	TimeOfDay _tod;
-	TimeOfDay _tod_override;
-};
 
 PekwmSys::PekwmSys(Os *os)
 	: _stop(false),
@@ -481,6 +409,8 @@ PekwmSys::timeOfDayChanged(enum TimeOfDay tod)
 	return tod;
 }
 
+#ifndef UNITTEST
+
 static void
 usage(int ret)
 {
@@ -554,3 +484,5 @@ main(int argc, char *argv[])
 	PekwmSys sys(*os);
 	return sys.main(theme);
 }
+
+#endif // UNITTEST

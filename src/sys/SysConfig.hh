@@ -13,6 +13,10 @@
 #include "Daytime.hh"
 #include "Os.hh"
 
+extern "C" {
+#include <math.h>
+}
+
 class SysConfig {
 public:
 	typedef std::vector<std::string> string_vector;
