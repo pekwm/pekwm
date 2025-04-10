@@ -229,7 +229,7 @@ InputDialog::addKeysymToKeysymMap(KeySym keysym, const std::string& chr)
 /**
  * Handles ButtonPress, moving the text cursor
  */
-ActionEvent*
+const ActionEvent*
 InputDialog::handleButtonPress(XButtonEvent *ev)
 {
 	if (_text_wo != ev->window || ev->x < 0) {
@@ -279,16 +279,16 @@ InputDialog::handleButtonPress(XButtonEvent *ev)
 /**
  * Handles KeyPress, editing the buffer
  */
-ActionEvent*
+const ActionEvent*
 InputDialog::handleKeyPress(XKeyEvent *ev)
 {
 	bool matched;
-	ActionEvent *c_ae;
-	ActionEvent *r_ae = nullptr;
+	const ActionEvent *c_ae;
+	const ActionEvent *r_ae = nullptr;
 	if ((c_ae = pekwm::keyGrabber()->findAction(ev, _type, matched))) {
 		ActionEvent::it it(c_ae->action_list.begin());
 		for (; it != c_ae->action_list.end(); ++it) {
-			ActionEvent *ae = handleAction(ev, *it);
+			const ActionEvent *ae = handleAction(ev, *it);
 			if (ae) {
 				r_ae = ae;
 			}
@@ -304,7 +304,7 @@ InputDialog::handleKeyPress(XKeyEvent *ev)
 	return r_ae;
 }
 
-ActionEvent*
+const ActionEvent*
 InputDialog::handleAction(XKeyEvent *ev, const Action &action)
 {
 	switch (action.getAction()) {
@@ -370,14 +370,13 @@ InputDialog::handleAction(XKeyEvent *ev, const Action &action)
 /**
  * Handles ExposeEvent, redraw when ev->count == 0
  */
-ActionEvent*
+const ActionEvent*
 InputDialog::handleExposeEvent(XExposeEvent *ev)
 {
-	if (ev->count > 0) {
-		return 0;
+	if (ev->count < 1) {
+		render();
 	}
-	render();
-	return 0;
+	return nullptr;
 }
 
 /**
@@ -550,8 +549,8 @@ InputDialog::renderCursor(uint pos)
  *
  * @return Pointer to ActionEvent.
  */
-ActionEvent*
-InputDialog::close(void)
+const ActionEvent*
+InputDialog::close()
 {
 	_ae.action_list.back().setAction(ACTION_NO);
 	return &_ae;

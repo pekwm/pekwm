@@ -638,7 +638,7 @@ Client::reparent(PWinObj *parent, int x, int y)
 				  FocusChangeMask);
 }
 
-ActionEvent*
+const ActionEvent*
 Client::handleMapRequest(XMapRequestEvent *ev)
 {
 	if (_parent && dynamic_cast<PDecor *>(_parent)) {
@@ -647,7 +647,7 @@ Client::handleMapRequest(XMapRequestEvent *ev)
 	return 0;
 }
 
-ActionEvent*
+const ActionEvent*
 Client::handleUnmapEvent(XUnmapEvent *ev)
 {
 	if ((ev->window != ev->event) && (ev->send_event != true)) {

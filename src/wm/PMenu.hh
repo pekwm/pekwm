@@ -1,6 +1,6 @@
 //
 // PMenu.hh for pekwm
-// Copyright (C) 2004-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2004-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -26,6 +26,9 @@ class PTexture;
 class ActionEvent;
 class Theme;
 
+std::string parsePMenuName(const std::string &name, uint &keycode,
+			   uint &key_pos);
+
 class PMenu : public PDecor {
 public:
 	class Item : public PWinObjReference {
@@ -47,6 +50,9 @@ public:
 		inline const ActionEvent &getAE(void) const { return _ae; }
 		inline PTexture *getIcon(void) { return _icon; }
 		inline PMenu::Item::Type getType(void) const { return _type; }
+		uint getKeycode() const { return _keycode; }
+		void setKeycode(uint keycode) { _keycode = keycode; }
+		uint getKeyPos() const { return _key_pos; }
 
 		inline void setX(int x) { _gm.x = x; }
 		inline void setY(int y) { _gm.y = y; }
@@ -62,6 +68,8 @@ public:
 	private:
 		Geometry _gm;
 		std::string _name;
+		uint _keycode;
+		uint _key_pos;
 
 		ActionEvent _ae; // used for specifying action of the entry
 
@@ -87,12 +95,13 @@ public:
 	virtual void setFocused(bool focused);
 	virtual void setFocusable(bool focusable);
 
-	virtual ActionEvent *handleButtonPress(XButtonEvent *ev);
-	virtual ActionEvent *handleButtonRelease(XButtonEvent *ev);
-	virtual ActionEvent *handleExposeEvent(XExposeEvent*);
-	virtual ActionEvent *handleMotionEvent(XMotionEvent *ev);
-	virtual ActionEvent *handleEnterEvent(XCrossingEvent *ev);
-	virtual ActionEvent *handleLeaveEvent(XCrossingEvent *ev);
+	virtual const ActionEvent *handleButtonPress(XButtonEvent *ev);
+	virtual const ActionEvent *handleButtonRelease(XButtonEvent *ev);
+	virtual const ActionEvent *handleKeyPress(XKeyEvent *ev);
+	virtual const ActionEvent *handleExposeEvent(XExposeEvent*);
+	virtual const ActionEvent *handleMotionEvent(XMotionEvent *ev);
+	virtual const ActionEvent *handleEnterEvent(XCrossingEvent *ev);
+	virtual const ActionEvent *handleLeaveEvent(XCrossingEvent *ev);
 	// END - PWinObj interface.
 
 	// START - PDecor interface.
@@ -172,9 +181,9 @@ private:
 	void buildMenuRender(void);
 	void buildMenuRenderState(PSurface *surf, ObjectState state);
 	void buildMenuRenderItem(PSurface *surf, ObjectState state,
-				 PMenu::Item* item);
+				 PMenu::Item* item, ulong color);
 	void buildMenuRenderItemNormal(PSurface *surf, ObjectState state,
-				       PMenu::Item* item);
+				       PMenu::Item* item, ulong color);
 	void buildMenuRenderItemSeparator(PSurface *surf, ObjectState state,
 					  PMenu::Item* item);
 

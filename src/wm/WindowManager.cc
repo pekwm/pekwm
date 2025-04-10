@@ -871,8 +871,7 @@ WindowManager::getEvent(XEvent &ev)
 	if (pekwm::timeouts()->getNextTimeout(&tv, ta)) {
 		ActionHandler *action_handler = pekwm::actionHandler();
 
-		Action action(static_cast<enum ActionType>(ta.getKey()));
-		ActionEvent ae(action);
+		ActionEvent ae(1, static_cast<enum ActionType>(ta.getKey()));
 		ActionPerformed ap(nullptr, ae);
 		action_handler->handleAction(&ap);
 	} else if (_select->wait(tv)) {
@@ -1033,9 +1032,9 @@ void
 WindowManager::handleKeyEvent(XKeyEvent *ev)
 {
 	bool matched = false;
-	ActionEvent *ae = 0;
-	PWinObj *wo, *wo_orig;
-	wo = wo_orig = PWinObj::getFocusedPWinObj();
+	const ActionEvent *ae = nullptr;
+	PWinObj *wo = PWinObj::getFocusedPWinObj();
+	PWinObj *wo_orig = wo;
 	PWinObj::Type type = (wo) ? wo->getType() : PWinObj::WO_SCREEN_ROOT;
 
 	if (wo && wo->getWindow() == ev->window) {
@@ -1049,6 +1048,9 @@ WindowManager::handleKeyEvent(XKeyEvent *ev)
 	case PWinObj::WO_MENU:
 		if (ev->type == KeyPress) {
 			ae = pekwm::keyGrabber()->findAction(ev, type, matched);
+			if (ae == nullptr && type == PWinObj::WO_MENU) {
+				ae = wo->handleKeyPress(ev);
+			}
 		}
 		break;
 	case PWinObj::WO_CMD_DIALOG:
@@ -1071,7 +1073,9 @@ WindowManager::handleKeyEvent(XKeyEvent *ev)
 		break;
 	}
 
-	handleKeyEventAction(ev, ae, wo, wo_orig);
+	if (ae) {
+		handleKeyEventAction(ev, ae, wo, wo_orig);
+	}
 
 	// Flush Enter events caused by keygrabbing
 	if (matched) {
@@ -1085,13 +1089,9 @@ WindowManager::handleKeyEvent(XKeyEvent *ev)
 }
 
 void
-WindowManager::handleKeyEventAction(XKeyEvent *ev, ActionEvent *ae,
+WindowManager::handleKeyEventAction(XKeyEvent *ev, const ActionEvent *ae,
 				    PWinObj *wo, PWinObj *wo_orig)
 {
-	if (!ae) {
-		return;
-	}
-
 	// HACK: Always close CmdDialog and SearchDialog before actions
 	if (wo_orig
 	    && (wo_orig->getType() == PWinObj::WO_CMD_DIALOG
@@ -1115,7 +1115,7 @@ WindowManager::handleKeyEventAction(XKeyEvent *ev, ActionEvent *ae,
 void
 WindowManager::handleButtonPressEvent(XButtonEvent *ev)
 {
-	ActionEvent *ae = nullptr;
+	const ActionEvent *ae = nullptr;
 	PWinObj *wo = PWinObj::findPWinObj(ev->window);
 	if (wo == pekwm::rootWo() && ev->subwindow != None) {
 		wo = PWinObj::findPWinObj(ev->subwindow);
@@ -1148,7 +1148,7 @@ WindowManager::handleButtonPressEvent(XButtonEvent *ev)
 void
 WindowManager::handleButtonReleaseEvent(XButtonEvent *ev)
 {
-	ActionEvent *ae = nullptr;
+	const ActionEvent *ae = nullptr;
 	PWinObj *wo = PWinObj::findPWinObj(ev->window);
 	if (wo == pekwm::rootWo() && ev->subwindow != None) {
 		wo = PWinObj::findPWinObj(ev->subwindow);
@@ -1248,7 +1248,7 @@ WindowManager::handleMotionEvent(XMotionEvent *ev)
 	}
 
 	if (wo) {
-		ActionEvent *ae = nullptr;
+		const ActionEvent *ae = nullptr;
 		if (wo->getType() == PWinObj::WO_CLIENT) {
 			ae = wo->getParent()->handleMotionEvent(ev);
 
@@ -1389,8 +1389,7 @@ WindowManager::handleEnterNotify(XCrossingEvent *ev)
 			wo = wo->getParent();
 		}
 
-		ActionEvent *ae = wo->handleEnterEvent(ev);
-
+		const ActionEvent *ae = wo->handleEnterEvent(ev);
 		if (ae) {
 			ActionPerformed ap(wo, *ae);
 			ap.type = ev->type;
@@ -1418,7 +1417,7 @@ WindowManager::handleLeaveNotify(XCrossingEvent *ev)
 
 	PWinObj *wo = PWinObj::findPWinObj(ev->window);
 	if (wo) {
-		ActionEvent *ae = wo->handleLeaveEvent(ev);
+		const ActionEvent *ae = wo->handleLeaveEvent(ev);
 		if (ae) {
 			ActionPerformed ap(wo, *ae);
 			ap.type = ev->type;
@@ -1541,7 +1540,7 @@ WindowManager::handleClientMessageEvent(XClientMessageEvent *ev)
 		if (client) {
 			Frame *frame =
 				static_cast<Frame*>(client->getParent());
-			ActionEvent *ae =
+			const ActionEvent *ae =
 				frame->handleClientMessage(ev, client);
 			if (ae) {
 				ActionPerformed ap(frame, *ae);
@@ -1679,8 +1678,7 @@ WindowManager::handleMappingEvent(XMappingEvent *ev)
 void
 WindowManager::handleExposeEvent(XExposeEvent *ev)
 {
-	ActionEvent *ae = 0;
-
+	const ActionEvent *ae = nullptr;
 	PWinObj *wo = PWinObj::findPWinObj(ev->window);
 	if (wo) {
 		ae = wo->handleExposeEvent(ev);

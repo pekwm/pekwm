@@ -7,23 +7,23 @@ INCLUDE = "vars"
 INCLUDE = "$_PEKWM_ETC_PATH/menu_windowmenu"
 
 RootMenu = "pekwm" {
-	Entry = "Terminal" { Actions = "Exec $TERM" }
-	Entry = "Run.." { Actions = "ShowCmdDialog" }
+	Entry = "_Terminal" { Actions = "Exec $TERM" }
+	Entry = "_Run.." { Actions = "ShowCmdDialog" }
 
 	Separator {}
 
-	Entry = "Browser" { Actions = "Exec $BROWSER" }
-	Entry = "Editor" { Actions = "Exec $EDITOR" }
-	Entry = "File Manager" { Actions = "Exec $FILEMANAGER" }
+	Entry = "_Browser" { Actions = "Exec $BROWSER" }
+	Entry = "_Editor" { Actions = "Exec $EDITOR" }
+	Entry = "_File Manager" { Actions = "Exec $FILEMANAGER" }
 
 	Separator {}
 
-	Entry = "Take screenshot" { Actions = "Exec pekwm_screenshot" }
+	Entry = "Take _Screenshot" { Actions = "Exec pekwm_screenshot" }
 
 	Separator {}
 
-	Submenu = "Go to" {
-		SubMenu = "Workspace" {
+	Submenu = "_Go to" {
+		SubMenu = "_Workspace" {
 			# Create goto menu once per pekwm config reload. The fast way that
 			# will work for most if not all users.
 			COMMAND = "$_PEKWM_SCRIPT_PATH/pekwm_ws_menu.sh goto"
@@ -33,18 +33,18 @@ RootMenu = "pekwm" {
 			# ~/.pekwm/config. You will know if you want this.
 			# Entry = "" { Actions = "Dynamic $_PEKWM_SCRIPT_PATH/pekwm_ws_menu.sh goto dynamic" }
 		}
-		Entry = "Window.." { Actions = "ShowMenu GotoClient True" }
+		Entry = "W_indow.." { Actions = "ShowMenu GotoClient True" }
 	}
 
-	Submenu = "pekwm" {
-		Submenu = "Themes" {
+	Submenu = "_pekwm" {
+		Submenu = "_Themes" {
 			Entry { Actions = "Dynamic $_PEKWM_SCRIPT_PATH/pekwm_themeset.sh $_PEKWM_THEME_PATH" }
 			Entry { Actions = "Dynamic $_PEKWM_SCRIPT_PATH/pekwm_themeset.sh $_PEKWM_CONFIG_PATH/themes" }
 		}
-		Entry = "Reload" { Actions = "Reload" }
-		Entry = "Restart" { Actions = "Restart" }
+		Entry = "_Reload" { Actions = "Reload" }
+		Entry = "Re_start" { Actions = "Restart" }
 		Entry = "Exit" { Actions = "Exit" }
-		Submenu = "Exit to" {
+		Submenu = "_Exit to" {
 			Entry = "Xterm" { Actions = "RestartOther xterm" }
 			Entry = "TWM" { Actions = "RestartOther twm" }
 		}

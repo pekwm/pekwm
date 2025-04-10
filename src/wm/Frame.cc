@@ -35,9 +35,9 @@ extern "C" {
 std::vector<Frame*> Frame::_frames;
 std::vector<uint> Frame::_frameid_list;
 
-ActionEvent Frame::_ae_move = ActionEvent(Action(ACTION_MOVE));
-ActionEvent Frame::_ae_resize = ActionEvent(Action(ACTION_RESIZE));
-ActionEvent Frame::_ae_move_resize = ActionEvent(Action(ACTION_MOVE_RESIZE));
+ActionEvent Frame::_ae_move = ActionEvent(1, ACTION_MOVE);
+ActionEvent Frame::_ae_resize = ActionEvent(1, ACTION_RESIZE);
+ActionEvent Frame::_ae_move_resize = ActionEvent(1, ACTION_MOVE_RESIZE);
 
 Frame* Frame::_tag_frame = nullptr;
 bool Frame::_tag_behind = false;
@@ -298,7 +298,7 @@ Frame::setLayer(Layer layer)
 
 // event handlers
 
-ActionEvent*
+const ActionEvent*
 Frame::handleMotionEvent(XMotionEvent *ev)
 {
 	// This is true when we have a title button pressed and then we don't
@@ -329,9 +329,9 @@ Frame::handleMotionEvent(XMotionEvent *ev)
 		}
 	}
 
-	ActionEvent* ae = ActionHandler::findMouseAction(button, ev->state,
-							 MOUSE_EVENT_MOTION,
-							 al);
+	const ActionEvent* ae =
+		ActionHandler::findMouseAction(button, ev->state,
+					       MOUSE_EVENT_MOTION, al);
 
 	// check motion threshold
 	if (ae && (ae->threshold > 0)) {
@@ -345,7 +345,7 @@ Frame::handleMotionEvent(XMotionEvent *ev)
 	return ae;
 }
 
-ActionEvent*
+const ActionEvent*
 Frame::handleEnterEvent(XCrossingEvent *ev)
 {
 	// Run event handler to get hoovering to work but ignore action
@@ -370,7 +370,7 @@ Frame::handleEnterEvent(XCrossingEvent *ev)
 					      MOUSE_EVENT_ENTER, al);
 }
 
-ActionEvent*
+const ActionEvent*
 Frame::handleLeaveEvent(XCrossingEvent *ev)
 {
 	// Run event handler to get hoovering to work but ignore action
@@ -387,24 +387,24 @@ Frame::handleLeaveEvent(XCrossingEvent *ev)
 					      MOUSE_EVENT_LEAVE, al);
 }
 
-ActionEvent*
+const ActionEvent*
 Frame::handleMapRequest(XMapRequestEvent *ev)
 {
 	if (ev->window != _client->getWindow()) {
-		return 0;
+		return nullptr;
 	}
 
 	if (! _sticky && _workspace != Workspaces::getActive()) {
 		P_LOG("Ignoring MapRequest, not on current workspace!");
-		return 0;
+		return nullptr;
 	}
 
 	mapWindow();
 
-	return 0;
+	return nullptr;
 }
 
-ActionEvent*
+const ActionEvent*
 Frame::handleUnmapEvent(XUnmapEvent *ev)
 {
 	std::vector<PWinObj*>::iterator it = _children.begin();
@@ -1854,7 +1854,7 @@ Frame::isRequestGeometryFullscreen(XConfigureRequestEvent *ev)
 /**
  * Handle client message.
  */
-ActionEvent*
+const ActionEvent*
 Frame::handleClientMessage(XClientMessageEvent *ev, Client *client)
 {
 	ActionEvent *ae = nullptr;

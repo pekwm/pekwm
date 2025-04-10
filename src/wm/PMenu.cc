@@ -1,6 +1,6 @@
 //
 // PMenu.cc for pekwm
-// Copyright (C) 2022-2024 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2025 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2004-2020 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -24,14 +24,52 @@
 #include "tk/PWinObj.hh"
 #include "tk/TextureHandler.hh"
 #include "tk/Theme.hh"
+#include "tk/ThemeUtil.hh"
 #include "tk/X11Util.hh"
 
 #include <algorithm>
 #include <cstdlib>
 
+ActionEvent _ae_select_item =
+	ActionEvent(2, ACTION_MENU_GOTO, ACTION_MENU_SELECT);
+
+static bool
+_filter_reg(PMenu::Item *item)
+{
+	return item->getType() == PMenu::Item::MENU_ITEM_NORMAL;
+}
+
+std::string
+parsePMenuName(const std::string &name, uint &keycode, uint &key_pos)
+{
+	std::string stripped_name;
+
+	keycode = 0;
+	key_pos = 0;
+	for  (Charset::Utf8Iterator it(name); ! it.end(); ++it) {
+		if (it.charLen() == 1 && *(*it) == '_') {
+			// set position of underline, will be the same location
+			// as the _ was as _ is skipped and then the character
+			// is inserted
+			key_pos = it.pos();
+
+			++it;
+			if (! it.end()) {
+				keycode = X11::getKeycodeFromString(*it);
+				stripped_name.append(it.str());
+			}
+			break;
+		}
+		stripped_name.append(*it, it.charLen());
+	}
+
+	return stripped_name;
+}
+
 PMenu::Item::Item(const std::string &name, PWinObj *wo_ref, PTexture *icon)
 	: PWinObjReference(wo_ref),
-	  _name(name),
+	  _keycode(0),
+	  _key_pos(0),
 	  _type(MENU_ITEM_NORMAL),
 	  _icon(icon),
 	  _creator(0)
@@ -39,9 +77,10 @@ PMenu::Item::Item(const std::string &name, PWinObj *wo_ref, PTexture *icon)
 	if (_icon) {
 		pekwm::textureHandler()->referenceTexture(_icon);
 	}
+	_name = parsePMenuName(name, _keycode, _key_pos);
 }
 
-PMenu::Item::~Item(void)
+PMenu::Item::~Item()
 {
 	if (_icon) {
 		pekwm::textureHandler()->returnTexture(&_icon);
@@ -89,6 +128,7 @@ PMenu::PMenu(const std::string &title,
 
 	titleAdd(&_title);
 	titleSetActive(0);
+
 	setTitle(title);
 
 	addChild(_menu_wo);
@@ -106,15 +146,13 @@ PMenu::PMenu(const std::string &title,
 	}
 }
 
-//! @brief Destructor for PMenu class
-PMenu::~PMenu(void)
+PMenu::~PMenu()
 {
 	_wo_map.erase(_window);
 	woListRemove(this);
 	_menu_map.erase(_window); // remove from menu map
 	Workspaces::remove(this);
 
-	// Free resources
 	if (_menu_wo) {
 		_children.erase(std::remove(_children.begin(), _children.end(),
 					    _menu_wo),
@@ -173,7 +211,7 @@ PMenu::setFocusable(bool focusable)
 	_menu_wo->setFocusable(focusable);
 }
 
-ActionEvent*
+const ActionEvent*
 PMenu::handleButtonPress(XButtonEvent *ev)
 {
 	if (*_menu_wo == ev->window) {
@@ -196,7 +234,7 @@ PMenu::handleButtonPress(XButtonEvent *ev)
 /**
  * Handle button release.
  */
-ActionEvent*
+const ActionEvent*
 PMenu::handleButtonRelease(XButtonEvent *ev)
 {
 	if (_window == ev->subwindow) {
@@ -233,10 +271,30 @@ PMenu::handleButtonRelease(XButtonEvent *ev)
 	}
 }
 
+const ActionEvent*
+PMenu::handleKeyPress(XKeyEvent *ev)
+{
+	if (! ev) {
+		return nullptr;
+	}
+
+	FilterIt<item_it, PMenu::Item*> it(_items.begin(), _items.end(),
+					   _filter_reg);
+	for (int item = 0; it.isValid(); item++) {
+		uint keycode = (*(*it))->getKeycode();
+		if (keycode && keycode == ev->keycode) {
+			_ae_select_item.action_list[0].setParamI(0, item);
+			return &_ae_select_item;
+		}
+		it.next();
+	}
+	return nullptr;
+}
+
 /**
  * Handle Expose event, just redraw the currently selected menu item.
  */
-ActionEvent*
+const ActionEvent*
 PMenu::handleExposeEvent(XExposeEvent*)
 {
 	renderSelectedItem();
@@ -248,7 +306,7 @@ PMenu::handleExposeEvent(XExposeEvent*)
  *
  * @param ev Handle motion event.
  */
-ActionEvent*
+const ActionEvent*
 PMenu::handleMotionEvent(XMotionEvent *ev)
 {
 	if (_window == ev->subwindow) {
@@ -287,7 +345,7 @@ PMenu::handleMotionEvent(XMotionEvent *ev)
 	}
 }
 
-ActionEvent*
+const ActionEvent*
 PMenu::handleEnterEvent(XCrossingEvent *ev)
 {
 	if (*_menu_wo == ev->window) {
@@ -301,7 +359,7 @@ PMenu::handleEnterEvent(XCrossingEvent *ev)
 	}
 }
 
-ActionEvent*
+const ActionEvent*
 PMenu::handleLeaveEvent(XCrossingEvent *ev)
 {
 	if (*_menu_wo == ev->window) {
@@ -627,22 +685,25 @@ PMenu::buildMenuRenderState(PSurface *surf, ObjectState state)
 	PTexture *tex = md->getTextureMenu(state);
 	tex->render(surf, 0, 0, getChildWidth(), getChildHeight());
 	PFont *font = md->getFont(state);
-	font->setColor(md->getColor(state));
+	PFont::Color *color = md->getColor(state);
+	font->setColor(color);
 
 	item_it it = _items.begin();
 	for (; it != _items.end(); ++it) {
 		if ((*it)->getType() != PMenu::Item::MENU_ITEM_HIDDEN) {
-			buildMenuRenderItem(surf, state, *it);
+			buildMenuRenderItem(surf, state, *it,
+					    color->getFg()->pixel);
 		}
 	}
 }
 
 //! @brief Renders item on pix, with state state
 void
-PMenu::buildMenuRenderItem(PSurface *surf, ObjectState state, PMenu::Item *item)
+PMenu::buildMenuRenderItem(PSurface *surf, ObjectState state, PMenu::Item *item,
+			   ulong color)
 {
 	if (item->getType() == PMenu::Item::MENU_ITEM_NORMAL) {
-		buildMenuRenderItemNormal(surf, state, item);
+		buildMenuRenderItemNormal(surf, state, item, color);
 	} else if (item->getType() == PMenu::Item::MENU_ITEM_SEPARATOR
 		   && state < OBJECT_STATE_SELECTED) {
 		buildMenuRenderItemSeparator(surf, state, item);
@@ -651,7 +712,7 @@ PMenu::buildMenuRenderItem(PSurface *surf, ObjectState state, PMenu::Item *item)
 
 void
 PMenu::buildMenuRenderItemNormal(PSurface *surf, ObjectState state,
-				 PMenu::Item* item)
+				 PMenu::Item* item, ulong color)
 {
 	Theme::PMenuData *md = pekwm::theme()->getMenuData();
 	Config *cfg = pekwm::config();
@@ -714,9 +775,30 @@ PMenu::buildMenuRenderItemNormal(PSurface *surf, ObjectState state,
 		+ (_item_height - font->getHeight()
 		   - md->getPad(PAD_UP) - md->getPad(PAD_DOWN)) / 2;
 
-	// Render item text.
 	font->draw(surf, start_x, start_y, item->getName(),
 		   item->getWidth() - _item_pad_horz);
+	if (item->getKeycode()) {
+		// If the item has a shortcut, render a line under it to
+		// indicate what key provides the shortcut.
+		StringView prefix(item->getName(), item->getKeyPos());
+		int x = start_x + font->getWidth(prefix);
+
+		Charset::Utf8Iterator it(item->getName());
+		it.setPos(item->getKeyPos());
+		++it;
+		StringView letter(item->getName(), it.pos() - item->getKeyPos(),
+				  item->getKeyPos());
+		int width = font->getWidth(letter);
+
+		int line_width =
+			ThemeUtil::scaledPixelValue(
+				pekwm::textureHandler()->getScale(), 1);
+		int y = start_y + font->getHeight() - line_width - 1;
+		X11Render render(surf->getDrawable());
+		render.setColor(color);
+		render.setLineWidth(line_width);
+		render.line(x, y, x + width, y);
+	}
 }
 
 void
@@ -861,10 +943,13 @@ PMenu::selectPrevItem(void)
 void
 PMenu::setTitle(const std::string &title)
 {
-	_title.setReal(title);
+	uint keycode, key_pos;
+	std::string title_stripped = parsePMenuName(title, keycode, key_pos);
+
+	_title.setReal(title_stripped);
 
 	// Apply title rules to allow title rewriting
-	applyTitleRules(title);
+	applyTitleRules(title_stripped);
 }
 
 /**
@@ -906,6 +991,18 @@ PMenu::insert(std::vector<PMenu::Item*>::iterator at, PMenu::Item *item)
 	if (item->getWORef()
 	    && (item->getWORef()->getType() == PWinObj::WO_MENU)) {
 		_has_submenu++;
+	}
+
+	// Ensure that the menu does not contain multiple items with the same
+	// keycode.
+	if (item->getKeycode() != 0) {
+		std::vector<PMenu::Item*>::iterator it(_items.begin());
+		for (; it != _items.end(); ++it) {
+			if ((*it)->getKeycode() == item->getKeycode()) {
+				item->setKeycode(0);
+				break;
+			}
+		}
 	}
 
 	_items.insert(at, item);
@@ -1061,12 +1158,6 @@ PMenu::select(PMenu::Item *item, bool unmap_submenu)
 {
 	selectItem(std::find(_items.begin(), _items.end(), item),
 		   unmap_submenu);
-}
-
-static bool
-_filter_reg(PMenu::Item *item)
-{
-	return item->getType() == PMenu::Item::MENU_ITEM_NORMAL;
 }
 
 /**

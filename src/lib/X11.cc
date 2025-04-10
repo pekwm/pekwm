@@ -2188,6 +2188,40 @@ X11::getKeysymFromKeycode(KeyCode keycode)
 #endif // PEKWM_HAVE_GCC_DIAGNOSTICS_PUSH
 #endif // __GNUG__
 
+KeyCode
+X11::getKeycodeFromString(const char *chr)
+{
+	if (! _dpy) {
+		return 0;
+	}
+
+	// XStringToKeysym() may fail due to case issues, try a few
+	// combinations to see if it matches:
+	//
+	// * lowercase
+	// * First uppercase
+	// * UPPPERCASE
+	KeySym sym = XStringToKeysym(chr);
+	if (sym == NoSymbol) {
+		std::string str(chr);
+		Util::to_lower(str);
+		sym = XStringToKeysym(str.c_str());
+		if (sym == NoSymbol) {
+			str[0] = ::toupper(str[0]);
+			sym = XStringToKeysym(str.c_str());
+			if (sym == NoSymbol) {
+				Util::to_upper(str);
+				sym = XStringToKeysym(str.c_str());
+			}
+		}
+	}
+
+	if (sym == NoSymbol) {
+		return 0;
+	}
+	return XKeysymToKeycode(_dpy, sym);
+}
+
 void
 X11::removeMotionEvents(void)
 {

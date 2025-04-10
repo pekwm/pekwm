@@ -254,7 +254,7 @@ RootWO::~RootWO(void)
 /**
  * Button press event handler, gets actions from root list.
  */
-ActionEvent*
+const ActionEvent*
 RootWO::handleButtonPress(XButtonEvent *ev)
 {
 	std::vector<ActionEvent>* el =
@@ -266,7 +266,7 @@ RootWO::handleButtonPress(XButtonEvent *ev)
 /**
  * Button release event handler, gets actions from root list.
  */
-ActionEvent*
+const ActionEvent*
 RootWO::handleButtonRelease(XButtonEvent *ev)
 {
 	MouseEventType mb = MOUSE_EVENT_RELEASE;
@@ -292,7 +292,7 @@ RootWO::handleButtonRelease(XButtonEvent *ev)
 /**
  * Motion event handler, gets actions from root list.
  */
-ActionEvent*
+const ActionEvent*
 RootWO::handleMotionEvent(XMotionEvent *ev)
 {
 	unsigned int button = X11::getButtonFromState(ev->state);
@@ -305,7 +305,7 @@ RootWO::handleMotionEvent(XMotionEvent *ev)
 /**
  * Enter event handler, gets actions from root list.
  */
-ActionEvent*
+const ActionEvent*
 RootWO::handleEnterEvent(XCrossingEvent *ev)
 {
 	std::vector<ActionEvent>* el =
@@ -317,7 +317,7 @@ RootWO::handleEnterEvent(XCrossingEvent *ev)
 /**
  * Leave event handler, gets actions from root list.
  */
-ActionEvent*
+const ActionEvent*
 RootWO::handleLeaveEvent(XCrossingEvent *ev)
 {
 	std::vector<ActionEvent>* el =
@@ -697,7 +697,7 @@ EdgeWO::mapWindow(void)
 /**
  * Enter event handler, gets actions from EdgeList on _edge.
  */
-ActionEvent*
+const ActionEvent*
 EdgeWO::handleEnterEvent(XCrossingEvent *ev)
 {
 	std::vector<ActionEvent>* el = _cfg->getEdgeListFromPosition(_edge);
@@ -708,7 +708,7 @@ EdgeWO::handleEnterEvent(XCrossingEvent *ev)
 /**
  * Button press event handler, gets actions from EdgeList on _edge.
  */
-ActionEvent*
+const ActionEvent*
 EdgeWO::handleButtonPress(XButtonEvent *ev)
 {
 	std::vector<ActionEvent>* el = _cfg->getEdgeListFromPosition(_edge);
@@ -719,7 +719,7 @@ EdgeWO::handleButtonPress(XButtonEvent *ev)
 /**
  * Button release event handler, gets actions from EdgeList on _edge.
  */
-ActionEvent*
+const ActionEvent*
 EdgeWO::handleButtonRelease(XButtonEvent *ev)
 {
 	// Make sure the release is on the actual window. This probably

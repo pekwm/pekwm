@@ -210,34 +210,34 @@ public:
 
 	// event interface
 
-	virtual ActionEvent *handleButtonPress(XButtonEvent*) {
+	virtual const ActionEvent *handleButtonPress(XButtonEvent*) {
 		return nullptr;
 	}
-	virtual ActionEvent *handleButtonRelease(XButtonEvent*) {
+	virtual const ActionEvent *handleButtonRelease(XButtonEvent*) {
 		return nullptr;
 	}
-	virtual ActionEvent *handleKeyPress(XKeyEvent*) {
+	virtual const ActionEvent *handleKeyPress(XKeyEvent*) {
 		return nullptr;
 	}
-	virtual ActionEvent *handleKeyRelease(XKeyEvent*) {
+	virtual const ActionEvent *handleKeyRelease(XKeyEvent*) {
 		return nullptr;
 	}
-	virtual ActionEvent *handleMotionEvent(XMotionEvent*) {
+	virtual const ActionEvent *handleMotionEvent(XMotionEvent*) {
 		return nullptr;
 	}
-	virtual ActionEvent *handleEnterEvent(XCrossingEvent*) {
+	virtual const ActionEvent *handleEnterEvent(XCrossingEvent*) {
 		return nullptr;
 	}
-	virtual ActionEvent *handleLeaveEvent(XCrossingEvent*) {
+	virtual const ActionEvent *handleLeaveEvent(XCrossingEvent*) {
 		return nullptr;
 	}
-	virtual ActionEvent *handleExposeEvent(XExposeEvent*) {
+	virtual const ActionEvent *handleExposeEvent(XExposeEvent*) {
 		return nullptr;
 	}
-	virtual ActionEvent *handleMapRequest(XMapRequestEvent*) {
+	virtual const ActionEvent *handleMapRequest(XMapRequestEvent*) {
 		return nullptr;
 	}
-	virtual ActionEvent *handleUnmapEvent(XUnmapEvent*) {
+	virtual const ActionEvent *handleUnmapEvent(XUnmapEvent*) {
 		return nullptr;
 	}
 

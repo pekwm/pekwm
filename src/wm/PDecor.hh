@@ -48,7 +48,7 @@ public:
 		       uint width, uint height);
 		~Button(void);
 
-		ActionEvent *findAction(XButtonEvent *ev);
+		const ActionEvent *findAction(XButtonEvent *ev);
 		ButtonState getState(void) const { return _state; }
 		void setState(ButtonState state);
 
@@ -152,11 +152,11 @@ public:
 	virtual void giveInputFocus();
 	virtual void warpPointer();
 
-	virtual ActionEvent *handleButtonPress(XButtonEvent *ev);
-	virtual ActionEvent *handleButtonRelease(XButtonEvent *ev);
-	virtual ActionEvent *handleMotionEvent(XMotionEvent *ev);
-	virtual ActionEvent *handleEnterEvent(XCrossingEvent *ev);
-	virtual ActionEvent *handleLeaveEvent(XCrossingEvent *ev);
+	virtual const ActionEvent *handleButtonPress(XButtonEvent *ev);
+	virtual const ActionEvent *handleButtonRelease(XButtonEvent *ev);
+	virtual const ActionEvent *handleMotionEvent(XMotionEvent *ev);
+	virtual const ActionEvent *handleEnterEvent(XCrossingEvent *ev);
+	virtual const ActionEvent *handleLeaveEvent(XCrossingEvent *ev);
 
 	virtual bool operator == (const Window &window);
 	virtual bool operator != (const Window &window);
@@ -374,14 +374,14 @@ private:
 	void setDataFromDecorName(const std::string &decor_name);
 	void unloadDecor(void);
 
-	ActionEvent *handleButtonPressDecor(XButtonEvent *ev);
-	ActionEvent *handleButtonReleaseDecor(XButtonEvent *ev);
-	ActionEvent *handleButtonPressButton(XButtonEvent *ev,
-					     PDecor::Button *button);
-	ActionEvent *handleButtonReleaseButton(XButtonEvent *ev,
-					       PDecor::Button *button);
-	ActionEvent *handleButtonPressBorder(XButtonEvent *ev);
-	ActionEvent *handleButtonReleaseBorder(XButtonEvent *ev);
+	const ActionEvent *handleButtonPressDecor(XButtonEvent *ev);
+	const ActionEvent *handleButtonReleaseDecor(XButtonEvent *ev);
+	const ActionEvent *handleButtonPressButton(XButtonEvent *ev,
+						   PDecor::Button *button);
+	const ActionEvent *handleButtonReleaseButton(XButtonEvent *ev,
+						     PDecor::Button *button);
+	const ActionEvent *handleButtonPressBorder(XButtonEvent *ev);
+	const ActionEvent *handleButtonReleaseBorder(XButtonEvent *ev);
 
 	void placeButtons(void);
 	void placeBorder(void);

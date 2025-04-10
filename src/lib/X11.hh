@@ -572,6 +572,7 @@ public:
 	static uint getMaskFromKeycode(KeyCode keycode);
 	static KeyCode getKeycodeFromMask(uint mask);
 	static KeySym getKeysymFromKeycode(KeyCode keycode);
+	static KeyCode getKeycodeFromString(const char *chr);
 
 	static void removeMotionEvents(void);
 

@@ -14,6 +14,10 @@
 
 #include <map>
 
+extern "C" {
+#include <stdarg.h>
+}
+
 typedef std::pair<ActionType, uint> action_pair;
 
 const int FRAME_MASK =
@@ -605,7 +609,7 @@ Action::~Action(void)
 {
 }
 
-ActionEvent::ActionEvent(void)
+ActionEvent::ActionEvent()
 	: mod(0),
 	  sym(0),
 	  type(0),
@@ -613,7 +617,7 @@ ActionEvent::ActionEvent(void)
 {
 }
 
-ActionEvent::ActionEvent(Action action)
+ActionEvent::ActionEvent(const Action &action)
 	: mod(0),
 	  sym(0),
 	  type(0),
@@ -622,7 +626,22 @@ ActionEvent::ActionEvent(Action action)
 	action_list.push_back(action);
 }
 
-ActionEvent::~ActionEvent(void)
+ActionEvent::ActionEvent(uint num, ...)
+	: mod(0),
+	  sym(0),
+	  type(0),
+	  threshold(0)
+{
+	va_list ap;
+	va_start(ap, num);
+	for (; num > 0; num--) {
+		ActionType type = static_cast<ActionType>(va_arg(ap, int));
+		action_list.push_back(Action(type));
+	}
+	va_end(ap);
+}
+
+ActionEvent::~ActionEvent()
 {
 }
 
@@ -644,36 +663,12 @@ namespace ActionConfig {
 			// Do no matching, anything goes.
 			key = 0;
 		} else {
-			KeySym keysym = XStringToKeysym(tok[num].c_str());
-
-			// XStringToKeysym() may fail. Perhaps we have luck
-			// after some simple transformations. First we convert
-			// the string to lowercase and try again. Then we try
-			// with only the first character in uppercase and at
-			// last we try a complete uppercase string. If all
-			// fails, we print a warning and return false.
-			if (keysym == NoSymbol) {
-				std::string str = tok[num];
-				Util::to_lower(str);
-				keysym = XStringToKeysym(str.c_str());
-				if (keysym == NoSymbol) {
-					str[0] = ::toupper(str[0]);
-					keysym = XStringToKeysym(str.c_str());
-					if (keysym == NoSymbol) {
-						Util::to_upper(str);
-						keysym = XStringToKeysym(
-								str.c_str());
-						if (keysym == NoSymbol) {
-							USER_WARN("could not "
-								  "find "
-								  "keysym for "
-								  << tok[num]);
-							return false;
-						}
-					}
-				}
+			key = X11::getKeycodeFromString(tok[num].c_str());
+			if (key == 0) {
+				USER_WARN("could not find keysym for "
+					  << tok[num]);
+				return false;
 			}
-			key = XKeysymToKeycode(X11::getDpy(), keysym);
 		}
 
 		// if the last token isn't an key/button, the action isn't valid

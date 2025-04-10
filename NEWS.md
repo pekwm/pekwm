@@ -73,6 +73,9 @@ Section {
 * ClearToCursor (Mod1 + Backspace) new InputDialog keybinding for removing all
   input up until the current cursor position.
 * Asymetric tabs now grow up until minimum width.
+* Menu items can now have shortcuts by prefixing the letter of the item with _.
+  Pressing that letter when the menu has focus will select and execute that
+  menu item.
 
 Removed
 -------
