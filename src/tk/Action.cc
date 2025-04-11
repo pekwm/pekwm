@@ -14,6 +14,10 @@
 
 #include <map>
 
+extern "C" {
+#include <stdarg.h>
+}
+
 typedef std::pair<ActionType, uint> action_pair;
 
 const int FRAME_MASK =
@@ -634,6 +638,7 @@ ActionEvent::ActionEvent(uint num, ...)
 		ActionType type = va_arg(ap, ActionType);
 		action_list.push_back(Action(type));
 	}
+	va_end(ap);
 }
 
 ActionEvent::~ActionEvent()
