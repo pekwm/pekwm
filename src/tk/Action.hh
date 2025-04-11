@@ -274,9 +274,10 @@ public:
 	typedef std::vector<Action> action_vector;
 	typedef action_vector::const_iterator it;
 
-	ActionEvent(void);
-	ActionEvent(Action action);
-	~ActionEvent(void);
+	ActionEvent();
+	ActionEvent(const Action &action);
+	ActionEvent(uint num, ...);
+	~ActionEvent();
 
 	inline bool isOnlyAction(uint action) const {
 		return ((action_list.size() == 1) &&

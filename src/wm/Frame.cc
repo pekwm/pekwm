@@ -35,9 +35,9 @@ extern "C" {
 std::vector<Frame*> Frame::_frames;
 std::vector<uint> Frame::_frameid_list;
 
-ActionEvent Frame::_ae_move = ActionEvent(Action(ACTION_MOVE));
-ActionEvent Frame::_ae_resize = ActionEvent(Action(ACTION_RESIZE));
-ActionEvent Frame::_ae_move_resize = ActionEvent(Action(ACTION_MOVE_RESIZE));
+ActionEvent Frame::_ae_move = ActionEvent(1, ACTION_MOVE);
+ActionEvent Frame::_ae_resize = ActionEvent(1, ACTION_RESIZE);
+ActionEvent Frame::_ae_move_resize = ActionEvent(1, ACTION_MOVE_RESIZE);
 
 Frame* Frame::_tag_frame = nullptr;
 bool Frame::_tag_behind = false;

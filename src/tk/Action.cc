@@ -605,7 +605,7 @@ Action::~Action(void)
 {
 }
 
-ActionEvent::ActionEvent(void)
+ActionEvent::ActionEvent()
 	: mod(0),
 	  sym(0),
 	  type(0),
@@ -613,7 +613,7 @@ ActionEvent::ActionEvent(void)
 {
 }
 
-ActionEvent::ActionEvent(Action action)
+ActionEvent::ActionEvent(const Action &action)
 	: mod(0),
 	  sym(0),
 	  type(0),
@@ -622,7 +622,21 @@ ActionEvent::ActionEvent(Action action)
 	action_list.push_back(action);
 }
 
-ActionEvent::~ActionEvent(void)
+ActionEvent::ActionEvent(uint num, ...)
+	: mod(0),
+	  sym(0),
+	  type(0),
+	  threshold(0)
+{
+	va_list ap;
+	va_start(ap, num);
+	for (; num > 0; num--) {
+		ActionType type = va_arg(ap, ActionType);
+		action_list.push_back(Action(type));
+	}
+}
+
+ActionEvent::~ActionEvent()
 {
 }
 

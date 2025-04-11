@@ -871,8 +871,7 @@ WindowManager::getEvent(XEvent &ev)
 	if (pekwm::timeouts()->getNextTimeout(&tv, ta)) {
 		ActionHandler *action_handler = pekwm::actionHandler();
 
-		Action action(static_cast<enum ActionType>(ta.getKey()));
-		ActionEvent ae(action);
+		ActionEvent ae(1, static_cast<enum ActionType>(ta.getKey()));
 		ActionPerformed ap(nullptr, ae);
 		action_handler->handleAction(&ap);
 	} else if (_select->wait(tv)) {

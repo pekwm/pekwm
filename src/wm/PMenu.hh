@@ -47,10 +47,9 @@ public:
 		inline const ActionEvent &getAE(void) const { return _ae; }
 		inline PTexture *getIcon(void) { return _icon; }
 		inline PMenu::Item::Type getType(void) const { return _type; }
-		bool matchKeycode(uint keycode) const
-		{
-			return _keycode && _keycode == keycode;
-		}
+		uint getKeycode() const { return _keycode; }
+		void setKeycode(uint keycode) { _keycode = keycode; }
+		uint getKeyPos() const { return _key_pos; }
 
 		inline void setX(int x) { _gm.x = x; }
 		inline void setY(int y) { _gm.y = y; }
@@ -63,13 +62,11 @@ public:
 		inline void setCreator(PMenu::Item *c) { _creator = c; }
 		inline PMenu::Item *getCreator(void) const { return _creator; }
 
-	protected:
-		void parseName(const std::string &name);
-
 	private:
 		Geometry _gm;
 		std::string _name;
 		uint _keycode;
+		uint _key_pos;
 
 		ActionEvent _ae; // used for specifying action of the entry
 
