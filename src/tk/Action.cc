@@ -635,7 +635,7 @@ ActionEvent::ActionEvent(uint num, ...)
 	va_list ap;
 	va_start(ap, num);
 	for (; num > 0; num--) {
-		ActionType type = va_arg(ap, ActionType);
+		ActionType type = static_cast<ActionType>(va_arg(ap, int));
 		action_list.push_back(Action(type));
 	}
 	va_end(ap);
