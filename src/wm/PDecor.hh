@@ -211,7 +211,7 @@ public:
 	}
 	void setFullscreen(bool fullscreen)
 	{
-		_fill_state = FILL_STATE_FULLSCREEN;
+		_fill_state = fullscreen ? FILL_STATE_FULLSCREEN : 0;
 	}
 	bool isFullscreen() const
 	{
