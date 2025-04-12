@@ -139,9 +139,12 @@ public:
 	bool getThemeBackground(void) const {
 		return _screen_theme_background;
 	}
-	uint getWorkspaces(void) const { return _screen_workspaces; }
-	uint getWorkspacesPerRow(void) const {
+	uint getWorkspaces() const { return _screen_workspaces; }
+	uint getWorkspacesPerRow() const {
 		return _screen_workspaces_per_row;
+	}
+	bool isWorkspacesBackAndForth() const {
+		return _screen_workspaces_back_and_forth;
 	}
 	void getDesktopNamesUTF8(uchar **names, uint *length) const;
 	const std::string &getWorkspaceName(uint num) const {
@@ -170,13 +173,16 @@ public:
 		return _screen_show_status_window_on_root;
 	}
 	bool isShowClientID(void) const { return _screen_show_client_id; }
-	int getShowWorkspaceIndicator(void) const {
+	int getShowWorkspaceIndicator() const {
 		return _screen_show_workspace_indicator;
 	}
-	int getWorkspaceIndicatorScale(void) const {
+	void setShowWorkspaceIndicator(int num) {
+		_screen_show_workspace_indicator = num;
+	}
+	int getWorkspaceIndicatorScale() const {
 		return _screen_workspace_indicator_scale;
 	}
-	uint getWorkspaceIndicatorOpacity(void) const {
+	uint getWorkspaceIndicatorOpacity() const {
 		return _screen_workspace_indicator_opacity;
 	}
 	bool isPlaceNew(void) const { return _screen_place_new; }
@@ -364,6 +370,7 @@ private:
 	float _screen_scale;
 	bool _screen_theme_background;
 	uint _screen_workspaces;
+	bool _screen_workspaces_back_and_forth;
 	uint _screen_workspaces_per_row;
 	std::vector<std::string> _screen_workspace_names;
 	std::string _screen_workspace_name_default;

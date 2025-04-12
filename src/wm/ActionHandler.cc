@@ -953,6 +953,7 @@ ActionHandler::actionGotoWorkspace(const Action &action, int type)
 
 	uint workspace = calcWorkspaceNum(action);
 	bool focus = action.getParamI(action.numParamI() - 1);
+
 	// events caused by a motion event ( dragging frame to the
 	// edge ) or enter event ( moving the pointer to the edge )
 	// should warp the pointer.

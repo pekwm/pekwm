@@ -26,6 +26,7 @@ public:
 	void testStackAbove();
 	void testFindWOAndFocusFind();
 	void testLayoutOnHeadTypes();
+	void testGotoWorkspaceBackAndForth();
 };
 
 TestWorkspaces::TestWorkspaces()
@@ -45,6 +46,8 @@ TestWorkspaces::run_test(TestSpec spec, bool status)
 	TEST_FN(spec, "stackAbove", testStackAbove());
 	TEST_FN(spec, "findWOAndFocusFind", testFindWOAndFocusFind());
 	TEST_FN(spec, "layoutOnHeadTypes", testLayoutOnHeadTypes());
+	TEST_FN(spec, "gotoWorkspaceBackAndForth",
+		testGotoWorkspaceBackAndForth());
 	return status;
 }
 
@@ -170,4 +173,37 @@ TestWorkspaces::testLayoutOnHeadTypes()
 
 	pekwm::setRootWO(nullptr);
 	Workspaces::cleanup();
+}
+
+void
+TestWorkspaces::testGotoWorkspaceBackAndForth()
+{
+	HintWO hint_wo(None);
+	Config cfg;
+	pekwm::setRootWO(new RootWO(None, &hint_wo, &cfg, true));
+	setSize(4);
+
+	ASSERT_TRUE("WorkspacesBackAndForth",
+		    pekwm::config()->isWorkspacesBackAndForth());
+	pekwm::config()->setShowWorkspaceIndicator(0);
+
+	ASSERT_EQUAL("active at start", 0, getActive());
+	bool switched = gotoWorkspace(1, false, false);
+	ASSERT_TRUE("move from 0 -> 1", switched);
+	ASSERT_EQUAL("move from 0 -> 1", 1, getActive());
+
+	switched = gotoWorkspace(1, false, false);
+	ASSERT_TRUE("move from 1 -> 1, go back to 0", switched);
+	ASSERT_EQUAL("move from 1 -> 1, go back to 0", 0, getActive());
+
+	switched = gotoWorkspace(1, false, false);
+	ASSERT_TRUE("move from 0 -> 1", switched);
+	ASSERT_EQUAL("move from 0 -> 1", 1, getActive());
+	switched = gotoWorkspace(3, false, false);
+	ASSERT_TRUE("move from 1 -> 3", switched);
+	ASSERT_EQUAL("move from 1 -> 3", 3, getActive());
+
+	switched = gotoWorkspace(3, false, false);
+	ASSERT_TRUE("move from 3 -> 3, go back to 1", switched);
+	ASSERT_EQUAL("move from 3 -> 3, go back to 1", 1, getActive());
 }

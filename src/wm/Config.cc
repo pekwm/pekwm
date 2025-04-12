@@ -169,6 +169,7 @@ Config::Config() :
 	_screen_scale(1.0),
 	_screen_theme_background(true),
 	_screen_workspaces(4),
+	_screen_workspaces_back_and_forth(true),
 	_screen_workspaces_per_row(0),
 	_screen_workspace_name_default("Workspace"),
 	_screen_edge_indent(false),
@@ -443,6 +444,8 @@ Config::loadScreen(CfgParser::Entry *section)
 	keys.add_numeric<uint>("WORKSPACES", _screen_workspaces, 4, 1);
 	keys.add_numeric<uint>("WORKSPACESPERROW", _screen_workspaces_per_row,
 			       0, 0);
+	keys.add_bool("WORKSPACESBACKANDFORTH",
+		      _screen_workspaces_back_and_forth, true);
 	keys.add_string("WORKSPACENAMES", workspace_names);
 	keys.add_string("EDGESIZE", edge_size);
 	keys.add_bool("EDGEINDENT", _screen_edge_indent);

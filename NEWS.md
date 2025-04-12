@@ -52,11 +52,15 @@ New
   to disable. (Close #186)
 * Themes can now have an `XResources` section specifying per theme X11
   resources.
+* `WorkspacesBackAndForth` option in the `Screen` section of the configuration
+  added. When enabled, GotoWorkspace Num to the currently active workspace
+  will go to the previously active workspace. Allows for quick and easy switch
+  between two workspaces. Default is enabled.
 
 Updated
 -------
 
-* keys updated to use $MOVERESIZE_INCREMENT (set in default vars file) for
+* Keys updated to use $MOVERESIZE_INCREMENT (set in default vars file) for
   actions in the MoveResize section. Default bumped from 10 to 15.
 * Configuration file keys have been updated to support quoted syntax, allowing
   newlines and other special characters.

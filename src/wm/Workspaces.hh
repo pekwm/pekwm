@@ -85,7 +85,8 @@ public:
 
 	static void setLayoutModels(const std::vector<std::string> &models);
 
-	static void setWorkspace(uint num, bool focus);
+	static bool setWorkspace(uint num, bool focus,
+				 bool back_and_forth=false);
 	static bool gotoWorkspace(uint direction, bool focus, bool warp);
 
 	static Workspace &getActWorkspace(void) {

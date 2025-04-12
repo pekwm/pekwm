@@ -207,14 +207,26 @@ Workspaces::clearLayoutModels(void)
 	_layout_models.clear();
 }
 
-//! @brief Activates Workspace workspace and sets the right hints
-//! @param num Workspace to activate
-//! @param focus whether or not to focus a window after switch
-void
-Workspaces::setWorkspace(uint num, bool focus)
+/**
+ * Activates Workspace workspace (or previous if back_and_forth is true) and
+ * update EWMH hints.
+ *
+ * @param num Workspace to activate
+ * @param back_and_forth If true, and the workspace being activated is the
+ *        current one instead go to the previously active one.
+ * @param focus whether or not to focus a window after switch
+ * @return true if workspace was changed, else false.
+ */
+bool
+Workspaces::setWorkspace(uint num, bool focus, bool back_and_forth)
 {
-	if (num == _active || num >= _workspaces.size()) {
-		return;
+	if (num >= _workspaces.size()) {
+		return false;
+	} else if (num == _active) {
+		if (! back_and_forth) {
+			return false;
+		}
+		num = _previous;
 	}
 
 	X11::grabServer();
@@ -247,6 +259,8 @@ Workspaces::setWorkspace(uint num, bool focus)
 	X11::ungrabServer(true);
 
 	showWorkspaceIndicator();
+
+	return true;
 }
 
 void
@@ -280,6 +294,7 @@ Workspaces::gotoWorkspace(uint direction, bool focus, bool warp)
 	// Using a bool flag to detect changes due to special workspaces such
 	// as PREV
 	bool switched = true;
+	bool back_and_forth = false;
 	uint per_row = pekwm::config()->getWorkspacesPerRow();
 
 	uint cur_row = getRow(), row_min = getRowMin(), row_max = getRowMax();
@@ -361,23 +376,20 @@ Workspaces::gotoWorkspace(uint direction, bool focus, bool warp)
 		break;
 	case WORKSPACE_LAST:
 		workspace = _previous;
-		if (_active == workspace) {
-			switched = false;
-		}
+		switched = _active != workspace;
 		break;
 	default:
-		if (direction == _active) {
-			switched = false;
-		} else {
-			workspace = direction;
-		}
+		workspace = direction;
+		switched = _active != workspace;
+		back_and_forth = pekwm::config()->isWorkspacesBackAndForth();
 	}
 
-	if (switched) {
+	if (switched || back_and_forth) {
 		if (warp) {
 			warpToWorkspace(workspace, dir);
 		} else {
-			setWorkspace(workspace, focus);
+			switched = setWorkspace(workspace, focus,
+						back_and_forth);
 		}
 	}
 

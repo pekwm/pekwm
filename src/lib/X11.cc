@@ -759,7 +759,9 @@ X11::grabServer(void)
 {
 	if (_server_grabs == 0) {
 		P_TRACE("grabbing server");
-		XGrabServer(_dpy);
+		if (_dpy) {
+			XGrabServer(_dpy);
+		}
 		++_server_grabs;
 	} else {
 		++_server_grabs;
@@ -776,13 +778,15 @@ X11::ungrabServer(bool sync)
 	}
 
 	if (--_server_grabs == 0) {
-		if (sync) {
-			P_TRACE("0 server grabs left, syncing and ungrab.");
-			X11::sync(False);
-		} else {
-			P_TRACE("0 server grabs left, ungrabbing server.");
+		if (_dpy) {
+			if (sync) {
+				P_TRACE("0 server grabs left, sync/ungrab");
+				X11::sync(False);
+			} else {
+				P_TRACE("0 server grabs left, ungrab");
+			}
+			XUngrabServer(_dpy);
 		}
-		XUngrabServer(_dpy);
 	}
 	return _server_grabs == 0;
 }
@@ -2528,7 +2532,9 @@ X11::selectInput(Window w, long mask)
 void
 X11::setInputFocus(Window w)
 {
-	XSetInputFocus(_dpy, w, RevertToPointerRoot, CurrentTime);
+	if (_dpy) {
+		XSetInputFocus(_dpy, w, RevertToPointerRoot, CurrentTime);
+	}
 }
 
 void

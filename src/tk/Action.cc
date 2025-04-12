@@ -90,7 +90,7 @@ static Util::StringTo<std::pair<ActionType, uint> > action_map[] =
 	 {"GotoClientID", action_pair(ACTION_GOTO_CLIENT_ID, ANY_MASK|CMD_OK)},
 	 {"Detach", action_pair(ACTION_DETACH, FRAME_MASK|CMD_OK)},
 	 {"SendToWorkspace", action_pair(ACTION_SEND_TO_WORKSPACE, ANY_MASK)},
-	 {"GoToWorkspace", action_pair(ACTION_GOTO_WORKSPACE, ANY_MASK)},
+	 {"GotoWorkspace", action_pair(ACTION_GOTO_WORKSPACE, ANY_MASK)},
 	 {"Exec",
 	  action_pair(ACTION_EXEC,
 		      FRAME_MASK|ROOTMENU_OK|ROOTCLICK_OK|SCREEN_EDGE_OK)},
