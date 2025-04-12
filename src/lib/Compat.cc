@@ -276,10 +276,10 @@ namespace std
 namespace std
 {
 	int
-	stoi(const std::string& str)
+	stoi(const std::string& str, int base)
 	{
 		char *endptr;
-		long val = strtol(str.c_str(), &endptr, 10);
+		long val = strtol(str.c_str(), &endptr, base);
 		if (*endptr != 0) {
 			std::string msg("not a valid integer: ");
 			msg += str;

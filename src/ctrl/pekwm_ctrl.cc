@@ -447,8 +447,16 @@ static void parseWinId(Window &win, RegexString &re, const char *arg,
 			  << "exclusive" << std::endl;
 		usage(1);
 	}
+
+	// ID given in HEX format
+	int base = 10;
+	if (optarg[0] == '0' && optarg[1] == 'x') {
+		base = 16;
+		optarg += 2;
+	}
+
 	try {
-		win = std::stoi(optarg);
+		win = std::stoi(optarg, base);
 	} catch (std::invalid_argument&) {
 		std::cerr << "invalid client id " << optarg << " given, "
 			  << "expect a number" << std::endl;

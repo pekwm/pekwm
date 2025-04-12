@@ -121,7 +121,7 @@ namespace std
 #ifndef PEKWM_HAVE_STOI
 namespace std
 {
-	int stoi(const std::string& str);
+	int stoi(const std::string& str, int base=10);
 }
 #endif
 

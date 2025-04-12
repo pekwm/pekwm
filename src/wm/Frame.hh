@@ -125,8 +125,11 @@ public:
 
 	void updateInactiveChildInfo(void);
 
+	void fitInMaxSizeWidth(Geometry &gm);
+	void fitInMaxSizeHeight(Geometry &gm);
+
 	// state actions
-	void setStateMaximized(StateAction sa, bool horz, bool vert, bool fill);
+	void setStateMaximized(StateAction sa, bool horz, bool vert);
 	void setStateFullscreen(StateAction sa);
 	void setStateSticky(StateAction sa);
 	void setStateAlwaysOnTop(StateAction sa);
@@ -158,6 +161,7 @@ public:
 	static bool getTagBehind(void) { return _tag_behind; }
 
 	static void resetFrameIDs(void);
+	void downSize(Geometry &gm, bool keep_x, bool keep_y);
 
 protected:
 	// used for testing
@@ -188,11 +192,9 @@ private:
 					  Client *client);
 	bool isRequestGeometryFullscreen(XConfigureRequestEvent *ev);
 
-	void getMaxBounds(int &max_x,int &max_r, int &max_y, int &max_b);
 	void calcSizeInCells(uint &width, uint &height, const Geometry& gm);
 	void setGravityPosition(int gravity, int &x, int &y,
 				int diff_w, int diff_h);
-	void downSize(Geometry &gm, bool keep_x, bool keep_y);
 
 	void handleTitleChange(Client *client, bool read_name);
 

@@ -1,0 +1,117 @@
+[doc]
+Test Fullscreen/Maximize/Fill actions
+
+Verify state toggling and geometry changes for action manipulating the fill
+state.
+[enddoc]
+
+[include test.pluxinc]
+
+[function xwininfo-geometry id name]
+	!xwininfo $id
+	?Absolute upper-left X:\s+(\d+)
+	[global ${name}_x=$1]
+	?Absolute upper-left Y:\s+(\d+)
+	[global ${name}_y=$1]
+	?Width: (\d+)
+	[global ${name}_width=$1]
+	?Height: (\d+)
+	[global ${name}_height=$1]
+	?SH-PROMPT:
+[endfunction]
+
+[shell Xvfb]
+	[call start-xvfb]
+
+[shell pekwm]
+	-Invalid read of size
+	[log starting pekwm (pekwm.config)]
+	!$$VALGRIND $BIN_DIR/wm/pekwm --skip-start --config pekwm.config --log-level trace
+	?Enter event loop.
+
+[shell xterm1]
+	!xterm -geometry 80x10+0+0 -name xterm1
+
+[shell pekwm]
+	?client xterm1 constructed for window (0x[0-9a-f]+)
+	[global xterm1_window=$1]
+
+[shell xterm2]
+	!xterm -geometry 80x10-0+100 -name xterm2
+
+[shell pekwm]
+	?client xterm2 constructed for window (0x[0-9a-f]+)
+	[global xterm2_window=$1]
+	
+[shell xwininfo]
+	[call xwininfo-geometry "-id $xterm1_window" xterm1]
+	[log xterm1 geometry ${xterm1_width}x${xterm1_height}+${xterm1_x}+${xterm1_y}]
+	[call xwininfo-geometry "-id $xterm2_window" xterm2]
+	[log xterm2 geometry ${xterm2_width}x${xterm2_height}+${xterm2_x}+${xterm2_y}]
+
+[shell pekwm_ctrl]
+	[log xterm1: Set Fullscreen]
+	[call sh-eval "$BIN_DIR/ctrl/pekwm_ctrl -w $xterm1_window Set Fullscreen"]
+
+[shell pekwm]
+	[log wait for Set Fullscreen to be processed]
+	?received _PEKWM_CMD: Set Fullscreen
+	?end action
+
+[shell xwininfo]
+	[call xwininfo-geometry -root root]
+	[log root geometry ${root_width}x${root_height}+${root_x}+${root_y}]
+
+	[log verify xterm1 window geometry]
+	!xwininfo -id $xterm1_window
+	?Width: $root_width
+	?Height: $root_height
+	?SH-PROMPT:
+	[log verify xterm1 window state]
+	!xprop -id $xterm1_window _NET_WM_STATE
+	???_NET_WM_STATE(ATOM) = _NET_WM_STATE_FULLSCREEN, _NET_WM_STATE_ABOVE
+	?SH-PROMPT:
+
+[shell pekwm_ctrl]
+	[log xterm1: Unset Fullscreen]
+	[call sh-eval "$BIN_DIR/ctrl/pekwm_ctrl -w $xterm1_window Unset Fullscreen"]
+
+[shell pekwm]
+	[log wait for Unset Fullscreen to be processed]
+	?received _PEKWM_CMD: Unset Fullscreen
+	?end action
+
+[shell xwininfo]
+	[log verify xterm1 window geometry]
+	!xwininfo -id $xterm1_window
+	?Width: $xterm1_width
+	?Height: $xterm1_height
+	?SH-PROMPT:
+
+	[log verify xterm1 window state]
+	!xprop -id $xterm1_window _NET_WM_STATE
+	?^_NET_WM_STATE\(ATOM\) = $
+	?SH-PROMPT:
+
+[shell pekwm_ctrl]
+	[log xterm1: MaxFill True True]
+	[call sh-eval "$BIN_DIR/ctrl/pekwm_ctrl -w $xterm1_window MaxFill True True"]
+
+[shell pekwm]
+	[log wait for MaxFill True True to be processed]
+	?received _PEKWM_CMD: MaxFill True True
+	?end action
+
+[shell xwininfo]
+	[log calculate expected width]
+	# * 4 for borders of xterm1 and xterm2
+	[call sh-calc "$root_width - $xterm2_width - $xterm1_x * 4" expected_width]
+	[call sh-calc "$root_height - $xterm1_y - $xterm1_x" expected_height]
+	[log verify xterm1 window geometry ${expected_width}x${expected_height}]
+	!xwininfo -id $xterm1_window
+	?Width: $expected_width
+	?Height: $expected_height
+	?SH-PROMPT:
+
+[shell Xvfb]
+	[call stop-xvfb]
