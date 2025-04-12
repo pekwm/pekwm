@@ -48,5 +48,6 @@ EXTRA_DIST = CMakeLists.txt \
 	     test_pekwm.cc \
 	     test_pekwm_ctrl.cc \
 	     test_pekwm_panel.cc \
+	     test_pekwm_panel_sysinfo.cc \
 	     test_pekwm_sys.cc \
 	     test_util.cc

@@ -33,9 +33,55 @@ struct pekwm_panel_sysinfo {
 	unsigned short num_procs;
 };
 
+#if defined(__linux__) || defined(UNITTEST)
+
+struct linux_meminfo_map {
+	const char *key;
+	unsigned long *value;
+};
+
+static void
+_linux_read_proc_meminfo(struct pekwm_panel_sysinfo *info, FILE *fp)
+{
+	const char *expected_end = " kB\n";
+
+	struct linux_meminfo_map mi_map[] = {
+		{"MemTotal", &info->ram_kb},
+		{"MemFree", &info->free_ram_kb},
+		{"Cached", &info->cache_ram_kb},
+		{"SwapTotal", &info->swap_kb},
+		{"SwapFree", &info->free_swap_kb},
+		{NULL, NULL}
+	};
+
+	char line[64];
+	while (fgets(line, sizeof(line), fp) != NULL) {
+		char *pos = strchr(line, ':');
+		if (pos == NULL) {
+			continue;
+		}
+		*pos = '\0';
+
+		char *endptr;
+		long value = strtol(pos + 1, &endptr, 10);
+		if (strcmp(endptr, expected_end) == 0) {
+			for (int i = 0; mi_map[i].key; i++) {
+				if (strcmp(mi_map[i].key, line) == 0) {
+					*mi_map[i].value = value;
+					break;
+				}
+			}
+		}
+	}
+}
+
+#endif /* defined(__linux__) || defined(UNITTEST) */
+
 #ifdef __linux__
 
 #include <sys/sysinfo.h>
+#include <stdlib.h>
+#include <string.h>
 
 static unsigned long
 _to_kb(unsigned int mem_unit, unsigned long value)
@@ -68,6 +114,14 @@ _read_sysinfo(struct pekwm_panel_sysinfo *info)
 	info->swap_kb = _to_kb(sinfo.mem_unit, sinfo.totalswap);
 	info->free_swap_kb = _to_kb(sinfo.mem_unit, sinfo.freeswap);
 	info->num_procs = sinfo.procs;
+
+	/* read after sysinfo, overwriting information from sysinfo with
+	 * /proc/meminfo information if /proc is available. */
+	FILE *fp = fopen("/proc/meminfo", "r");
+	if (fp) {
+		_linux_read_proc_meminfo(info, fp);
+		fclose(fp);
+	}
 
 	return 0;
 }
@@ -429,7 +483,7 @@ _to_elapsed_time(unsigned long seconds)
 		SEC_PER_YEAR, SEC_PER_DAY, SEC_PER_HOUR, SEC_PER_MIN
 	};
 	const char c_per[] = { 'y', 'd', 'h', 'm' };
-	for (int i = 0; i < sizeof(s_per)/sizeof(s_per[0]); i++) {
+	for (size_t i = 0; i < sizeof(s_per)/sizeof(s_per[0]); i++) {
 		if (seconds > s_per[i]) {
 			int per = seconds / s_per[i];
 			seconds %= s_per[i];
@@ -467,6 +521,8 @@ _print_sysinfo(struct pekwm_panel_sysinfo *info)
 	printf("sysinfo_numproc %u\n", info->num_procs);
 }
 
+#ifndef UNITTEST
+
 int
 main(int argc, char *argv[])
 {
@@ -477,3 +533,5 @@ main(int argc, char *argv[])
 	}
 	return 0;
 }
+
+#endif /* UNITTEST */

@@ -35,6 +35,12 @@ target_include_directories(test_pekwm_panel PUBLIC
 			   ${common_INCLUDE_DIRS})
 target_link_libraries(test_pekwm_panel wm tk lib ${common_LIBRARIES})
 
+add_executable(test_pekwm_panel_sysinfo
+	test_pekwm_panel_sysinfo.cc)
+add_test(NAME pekwm_panel_sysinfo
+	COMMAND test_pekwm_panel_sysinfo
+	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test/)
+
 add_executable(test_util
 	test_util.cc)
 add_test(NAME util
