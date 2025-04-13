@@ -56,6 +56,10 @@ New
   added. When enabled, GotoWorkspace Num to the currently active workspace
   will go to the previously active workspace. Allows for quick and easy switch
   between two workspaces. Default is enabled.
+* `DetachSplitHorz` and `DetachSplitVert` actions detaching a client and
+  dividing the space between the existing frame and newly created one from
+  the detach action. Takes one argument, percent between 5-95 that the client
+  being detached should occupy of the current frames size.
 
 Updated
 -------

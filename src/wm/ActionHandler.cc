@@ -243,6 +243,12 @@ ActionHandler::handleFrameAction(const ActionPerformed* ap, ActionEvent::it it,
 				    frame->getX(),
 				    frame->getY());
 		break;
+	case ACTION_DETACH_SPLIT_HORZ:
+		actionDetachClientSplit(frame, client, it->getParamI(0), true);
+		break;
+	case ACTION_DETACH_SPLIT_VERT:
+		actionDetachClientSplit(frame, client, it->getParamI(0), false);
+		break;
 	case ACTION_ATTACH_MARKED:
 		attachMarked(frame);
 		break;
@@ -1443,6 +1449,51 @@ ActionHandler::initSendKeyEvent(XEvent &ev, PWinObj *wo)
 	ev.xkey.same_screen = True;
 	ev.xkey.type = KeyPress;
 	ev.xkey.state = 0;
+}
+
+void
+ActionHandler::actionDetachClientSplit(Frame *frame, Client *client,
+				       int percent, bool horz)
+{
+	if (percent < 5 || percent > 95) {
+		USER_WARN("split size percent must be between 5-95%");
+		return;
+	}
+
+	float new_aspect = static_cast<float>(percent) / 100;
+	Frame *new_frame =
+		frame->detachClient(client, frame->getX(), frame->getY());
+	if (new_frame != nullptr && horz) {
+		actionDetachClientSplitHorz(frame, new_frame, new_aspect);
+	} else if (new_frame != nullptr) {
+		actionDetachClientSplitVert(frame, new_frame, new_aspect);
+	}
+}
+
+void
+ActionHandler::actionDetachClientSplitHorz(PWinObj *oldf, PWinObj *newf,
+					   float new_aspect)
+{
+	int new_height = new_aspect * oldf->getHeight();
+	int old_y = oldf->getY() + new_height;
+	int old_height = (1.0 - new_aspect) * oldf->getHeight();
+	newf->moveResize(oldf->getX(), oldf->getY(),
+			 oldf->getWidth(), new_height);
+	oldf->moveResize(oldf->getX(), old_y,
+			 oldf->getWidth(), old_height);
+}
+
+void
+ActionHandler::actionDetachClientSplitVert(PWinObj *oldf, PWinObj *newf,
+					   float new_aspect)
+{
+	int new_width = new_aspect * oldf->getWidth();
+	int old_x = oldf->getX() + new_width;
+	int old_width = (1.0 - new_aspect) * oldf->getWidth();
+	newf->moveResize(oldf->getX(), oldf->getY(),
+			 new_width, oldf->getHeight());
+	oldf->moveResize(old_x, oldf->getY(),
+			 old_width, oldf->getHeight());
 }
 
 /**

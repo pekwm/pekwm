@@ -49,6 +49,10 @@ public:
 	static bool fillEdgeGeometry(const Geometry &head,
 				     OrientationType edge, int percent,
 				     Geometry &gm);
+	static void actionDetachClientSplitHorz(PWinObj *oldf, PWinObj *newf,
+						float new_aspect);
+	static void actionDetachClientSplitVert(PWinObj *oldf, PWinObj *newf,
+						float new_aspect);
 
 private:
 	void handleAction(const ActionPerformed* ap, ActionEvent::it it);
@@ -105,6 +109,8 @@ private:
 
 	void initSendKeyEvent(XEvent &ev, PWinObj *wo);
 
+	void actionDetachClientSplit(Frame *frame, Client *client, int percent,
+				     bool horz);
 	void attachMarked(Frame *frame);
 	void attachInNextPrevFrame(Client *client, bool frame, bool next);
 

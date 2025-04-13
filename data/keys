@@ -147,6 +147,8 @@ Global {
                 KeyPress = "M" { Actions = "Toggle Marked" }
                 KeyPress = "A" { Actions = "AttachMarked" }
                 KeyPress = "D" { Actions = "Detach" }
+                KeyPress = "H" { Actions = "DetachSplitHorz 50" }
+                KeyPress = "V" { Actions = "DetachSplitVert 50" }
                 Keypress = "P" { Actions = "AttachClientInNextFrame" }
                 KeyPress = "O" { Actions = "AttachClientInPrevFrame" }
                 Keypress = "I" { Actions = "AttachFrameInNextFrame" }

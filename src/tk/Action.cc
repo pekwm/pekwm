@@ -89,6 +89,10 @@ static Util::StringTo<std::pair<ActionType, uint> > action_map[] =
 	 {"FindClient", action_pair(ACTION_FIND_CLIENT, ANY_MASK)},
 	 {"GotoClientID", action_pair(ACTION_GOTO_CLIENT_ID, ANY_MASK|CMD_OK)},
 	 {"Detach", action_pair(ACTION_DETACH, FRAME_MASK|CMD_OK)},
+	 {"DetachSplitHorz",
+	  action_pair(ACTION_DETACH_SPLIT_HORZ, FRAME_MASK|CMD_OK)},
+	 {"DetachSplitVert",
+	  action_pair(ACTION_DETACH_SPLIT_VERT, FRAME_MASK|CMD_OK)},
 	 {"SendToWorkspace", action_pair(ACTION_SEND_TO_WORKSPACE, ANY_MASK)},
 	 {"GotoWorkspace", action_pair(ACTION_GOTO_WORKSPACE, ANY_MASK)},
 	 {"Exec",
@@ -437,7 +441,9 @@ parseActionArg(Action &action, const std::string& arg)
 	case ACTION_ACTIVATE_CLIENT_REL:
 	case ACTION_GOTO_CLIENT_ID:
 	case ACTION_MOVE_CLIENT_REL:
-		action.setParamI(0, strtol(arg.c_str(), 0, 10));
+	case ACTION_DETACH_SPLIT_HORZ:
+	case ACTION_DETACH_SPLIT_VERT:
+		action.setParamI(0, std::stoi(arg));
 		break;
 	case ACTION_SET:
 	case ACTION_UNSET:
@@ -456,7 +462,7 @@ parseActionArg(Action &action, const std::string& arg)
 		action.setParamI(0, Util::StringToGet(direction_map, arg));
 		break;
 	case ACTION_ACTIVATE_CLIENT_NUM:
-		action.setParamI(0, strtol(arg.c_str(), 0, 10) - 1);
+		action.setParamI(0, std::stoi(arg) - 1);
 		if (action.getParamI(0) < 0) {
 			USER_WARN("negative number to ActivateClientNum");
 			action.setParamI(0, 0);
@@ -478,7 +484,7 @@ parseActionArg(Action &action, const std::string& arg)
 	case ACTION_FILL_EDGE:
 		if ((Util::splitString(arg, tok, " \t", 2)) == 2) {
 			action.setParamI(0, Util::StringToGet(edge_map, tok[0]));
-			action.setParamI(1, strtol(tok[1].c_str(), 0, 10));
+			action.setParamI(1, std::stoi(tok[1]));
 		} else {
 			action.setParamI(0, Util::StringToGet(edge_map, arg));
 			action.setParamI(1, 33);
@@ -658,7 +664,7 @@ namespace ActionConfig {
 
 		uint num = tok.size() - 1;
 		if ((tok[num].size() > 1) && (tok[num][0] == '#')) {
-			key = strtol(tok[num].c_str() + 1, 0, 10);
+			key = std::stoi(tok[num].c_str() + 1);
 		} else if (pekwm::ascii_ncase_equal(tok[num], "ANY")) {
 			// Do no matching, anything goes.
 			key = 0;
@@ -701,9 +707,11 @@ namespace ActionConfig {
 	parseAction(const std::string &action_string, Action &action, uint mask)
 	{
 		std::vector<std::string> tok;
+		if (! Util::splitString(action_string, tok, " \t", 2)) {
+			return false;
+		}
 
-		// chop the string up separating the action and parameters
-		if (Util::splitString(action_string, tok, " \t", 2)) {
+		try {
 			action.setAction(getAction(tok[0], mask));
 			if (action.getAction() != ACTION_NO) {
 				if (tok.size() == 2) {
@@ -713,8 +721,8 @@ namespace ActionConfig {
 				}
 				return true;
 			}
+		} catch (std::invalid_argument) {
 		}
-
 		return false;
 	}
 

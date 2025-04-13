@@ -18,6 +18,8 @@ public:
 
 private:
 	static void testFillEdgeGeometry();
+	static void testDetachClientSplitHorz();
+	static void testDetachClientSplitVert();
 };
 
 TestActionHandler::TestActionHandler()
@@ -33,6 +35,8 @@ bool
 TestActionHandler::run_test(TestSpec spec, bool status)
 {
 	TEST_FN(spec, "fillEdgeGeometry", testFillEdgeGeometry());
+	TEST_FN(spec, "detachClientSplitHorz", testDetachClientSplitHorz());
+	TEST_FN(spec, "detachClientSplitVert", testDetachClientSplitVert());
 	return status;
 }
 
@@ -53,4 +57,40 @@ TestActionHandler::testFillEdgeGeometry()
 
 	ActionHandler::fillEdgeGeometry(head, BOTTOM_EDGE, 50, gm);
 	ASSERT_EQUAL("LEFT_EDGE", Geometry(0, 50, 200, 50), gm);
+}
+
+void
+TestActionHandler::testDetachClientSplitHorz()
+{
+	PWinObj oldf;
+	PWinObj newf;
+	oldf.moveResize(100, 200, 500, 400);
+	newf.moveResize(100, 200, 500, 400);
+	ActionHandler::actionDetachClientSplitHorz(&oldf, &newf, 0.5);
+	ASSERT_EQUAL("old x", 100, oldf.getX());
+	ASSERT_EQUAL("old y", 400, oldf.getY());
+	ASSERT_EQUAL("old width", 500, oldf.getWidth());
+	ASSERT_EQUAL("old height", 200, oldf.getHeight());
+	ASSERT_EQUAL("new x", 100, newf.getX());
+	ASSERT_EQUAL("new y", 200, newf.getY());
+	ASSERT_EQUAL("new width", 500, newf.getWidth());
+	ASSERT_EQUAL("new height", 200, newf.getHeight());
+}
+
+void
+TestActionHandler::testDetachClientSplitVert()
+{
+	PWinObj oldf;
+	PWinObj newf;
+	oldf.moveResize(100, 200, 500, 400);
+	newf.moveResize(100, 200, 500, 400);
+	ActionHandler::actionDetachClientSplitVert(&oldf, &newf, 0.25);
+	ASSERT_EQUAL("old x", 225, oldf.getX());
+	ASSERT_EQUAL("old y", 200, oldf.getY());
+	ASSERT_EQUAL("old width", 375, oldf.getWidth());
+	ASSERT_EQUAL("old height", 400, oldf.getHeight());
+	ASSERT_EQUAL("new x", 100, newf.getX());
+	ASSERT_EQUAL("new y", 200, newf.getY());
+	ASSERT_EQUAL("new width", 125, newf.getWidth());
+	ASSERT_EQUAL("new height", 400, newf.getHeight());
 }
