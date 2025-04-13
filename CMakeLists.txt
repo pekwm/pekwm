@@ -76,7 +76,7 @@ int main() { std::stod(\"42.2\"); }
 
 check_cxx_source_compiles("
 #include <string>
-int main() { std::stoi(\"42\"); }
+int main() { std::size_t pos; std::stoi(\"42\", &pos, 10); }
 " PEKWM_HAVE_STOI)
 
 check_cxx_source_compiles("

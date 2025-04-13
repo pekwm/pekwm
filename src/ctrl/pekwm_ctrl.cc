@@ -456,7 +456,7 @@ static void parseWinId(Window &win, RegexString &re, const char *arg,
 	}
 
 	try {
-		win = std::stoi(optarg, base);
+		win = std::stoi(optarg, nullptr, base);
 	} catch (std::invalid_argument&) {
 		std::cerr << "invalid client id " << optarg << " given, "
 			  << "expect a number" << std::endl;

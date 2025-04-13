@@ -276,11 +276,14 @@ namespace std
 namespace std
 {
 	int
-	stoi(const std::string& str, int base)
+	stoi(const std::string& str, std::size_t *pos, int base)
 	{
 		char *endptr;
 		long val = strtol(str.c_str(), &endptr, base);
-		if (*endptr != 0) {
+		if (pos != nullptr) {
+			*pos = endptr - str.c_str();
+		}
+		if (*endptr != '\0') {
 			std::string msg("not a valid integer: ");
 			msg += str;
 			throw std::invalid_argument(msg);
