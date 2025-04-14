@@ -1928,7 +1928,7 @@ X11::clearWindow(Window window)
 void
 X11::shapeSelectInput(Window window, ulong mask)
 {
-	if (_dpy) {
+	if (_dpy && _has_extension_shape) {
 		XShapeSelectInput(_dpy, window, mask);
 	}
 }
@@ -1936,36 +1936,45 @@ X11::shapeSelectInput(Window window, ulong mask)
 void
 X11::shapeQuery(Window dst, int *bshaped)
 {
-	int foo; unsigned bar;
-	XShapeQueryExtents(_dpy, dst, bshaped, &foo, &foo, &bar, &bar,
-			   &foo, &foo, &foo, &bar, &bar);
+	if (_dpy) {
+		int foo;
+		uint bar;
+		XShapeQueryExtents(_dpy, dst, bshaped, &foo, &foo, &bar, &bar,
+				   &foo, &foo, &foo, &bar, &bar);
+	}
 }
 
 void
 X11::shapeCombine(Window dst, int kind, int x, int y,
 		  Window src, int op)
 {
-	XShapeCombineShape(_dpy, dst, kind, x, y, src, kind, op);
+	if (_dpy && _has_extension_shape) {
+		XShapeCombineShape(_dpy, dst, kind, x, y, src, kind, op);
+	}
 }
 
 void
 X11::shapeSetRect(Window dst, XRectangle *rect)
 {
-	XShapeCombineRectangles(_dpy, dst, ShapeBounding, 0, 0, rect, 1,
-				ShapeSet, YXBanded);
+	if (_dpy && _has_extension_shape ) {
+		XShapeCombineRectangles(_dpy, dst, ShapeBounding, 0, 0, rect,
+					1, ShapeSet, YXBanded);
+	}
 }
 
 void
 X11::shapeIntersectRect(Window dst, XRectangle *rect)
 {
-	XShapeCombineRectangles(_dpy, dst, ShapeBounding, 0, 0, rect, 1,
-				ShapeIntersect, YXBanded);
+	if (_dpy && _has_extension_shape) {
+		XShapeCombineRectangles(_dpy, dst, ShapeBounding, 0, 0, rect,
+					1, ShapeIntersect, YXBanded);
+	}
 }
 
 void
 X11::shapeSetMask(Window dst, int kind, Pixmap pix)
 {
-	if (_dpy) {
+	if (_dpy && _has_extension_shape) {
 		XShapeCombineMask(_dpy, dst, kind, 0, 0, pix, ShapeSet);
 	}
 }
