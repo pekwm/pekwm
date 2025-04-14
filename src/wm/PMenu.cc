@@ -775,13 +775,13 @@ PMenu::buildMenuRenderItemNormal(PSurface *surf, ObjectState state,
 		+ (_item_height - font->getHeight()
 		   - md->getPad(PAD_UP) - md->getPad(PAD_DOWN)) / 2;
 
-	font->draw(surf, start_x, start_y, item->getName(),
-		   item->getWidth() - _item_pad_horz);
+	int underline_x = font->draw(surf, start_x, start_y, item->getName(),
+				     item->getWidth() - _item_pad_horz);
 	if (item->getKeycode()) {
 		// If the item has a shortcut, render a line under it to
 		// indicate what key provides the shortcut.
 		StringView prefix(item->getName(), item->getKeyPos());
-		int x = start_x + font->getWidth(prefix);
+		int x = underline_x + font->getWidth(prefix);
 
 		Charset::Utf8Iterator it(item->getName());
 		it.setPos(item->getKeyPos());
