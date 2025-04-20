@@ -79,7 +79,7 @@ Widgets {
 		Icon = "battery.png"
 		Scale = "false"
 	}
-	ClientList {
+	ClientList = "separator" {
 		Size = "*"
 	}
 	Icon = "ATOM__XKB_RULES_NAMES" {

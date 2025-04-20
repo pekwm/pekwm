@@ -48,7 +48,7 @@ The configuration below would distribute the available
 
 * DateTimeWidget, Size = "Required"
 * Text, Size = "Pixels 250"
-* ClientLIst, Size = "*"
+* ClientList, Size = "*"
 
 For simplicity space for the separators is excluded.
 
@@ -116,16 +116,19 @@ Bar = "field" {
 
 #### Widget: ClientList
 
-Display a list of clients on the current workspace together with the
-client icon if _NET_WM_ICON is set.
+Display a list of clients on the current workspace together with an icon, read
+from the `_NET_WM_ICON` property, if one is set.
 
 Widget configuration:
 
 ```
-ClientList {
+ClientList = "separator" {
   Size = "*"
 }
 ```
+
+* Separator, if set in the argument list, a separator is drawn in-between
+  clients in the list of clients.
 
 #### Widget: Systray
 
