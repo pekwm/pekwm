@@ -66,10 +66,10 @@ TestPMenu::testStripDuplicateShortcut()
 {
 	PMenu menu("title", "test", "decor", false);
 
-	PMenu::Item *item1 = new PMenu::Item("_S One");
+	PMenu::Item *item1 = new PMenu::Item("_S One", true);
 	item1->setKeycode(1); // X11 not available, no keycode looked up
 	menu.insert(item1);
-	PMenu::Item *item2 = new PMenu::Item("_S Two");
+	PMenu::Item *item2 = new PMenu::Item("_S Two", true);
 	item2->setKeycode(1); // X11 not available, no keycode looked up
 	menu.insert(item2);
 	ASSERT_EQUAL("item1 keycode kept", 1, item1->getKeycode());
@@ -83,11 +83,11 @@ TestPMenu::testSelectItemNum()
 	ASSERT_FALSE("non existing item should fail", menu.selectItemNum(0));
 	ASSERT_FALSE("non existing item should fail", menu.selectItemNum(10));
 
-	menu.insert(new PMenu::Item("first"));
-	PMenu::Item *sep = new PMenu::Item("");
+	menu.insert(new PMenu::Item("first", false));
+	PMenu::Item *sep = new PMenu::Item("", false);
 	sep->setType(PMenu::Item::MENU_ITEM_SEPARATOR);
 	menu.insert(sep);
-	menu.insert(new PMenu::Item("third"));
+	menu.insert(new PMenu::Item("third", false));
 
 	ASSERT_TRUE("select first", menu.selectItemNum(0));
 	ASSERT_EQUAL("select first", "first",
@@ -102,10 +102,10 @@ void TestPMenu::testSelectItemNumSkipFirst()
 {
 	PMenu menu("title", "test", "decor", false);
 
-	PMenu::Item *sep = new PMenu::Item("");
+	PMenu::Item *sep = new PMenu::Item("", false);
 	sep->setType(PMenu::Item::MENU_ITEM_SEPARATOR);
 	menu.insert(sep);
-	menu.insert(new PMenu::Item("first"));
+	menu.insert(new PMenu::Item("first", false));
 
 	ASSERT_TRUE("select first", menu.selectItemNum(0));
 	ASSERT_EQUAL("select first", "first",
@@ -117,10 +117,10 @@ void TestPMenu::testSelectItemNumSkipAll()
 	PMenu menu("title", "test", "decor", false);
 
 	PMenu::Item *sep;
-	sep = new PMenu::Item("");
+	sep = new PMenu::Item("", false);
 	sep->setType(PMenu::Item::MENU_ITEM_SEPARATOR);
 	menu.insert(sep);
-	sep = new PMenu::Item("");
+	sep = new PMenu::Item("", false);
 	sep->setType(PMenu::Item::MENU_ITEM_SEPARATOR);
 	menu.insert(sep);
 

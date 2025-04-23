@@ -131,18 +131,15 @@ ActionMenu::reload(CfgParser::Entry *section)
 	buildMenu();
 }
 
-//! @brief Checks if we have a position set for where to insert.
 void
 ActionMenu::insert(PMenu::Item *item)
 {
-	if (! item) {
-		return;
+	if (item) {
+		checkItemWORef(item);
+
+		insert(m_begin_non_const() + _insert_at, item);
+		++_insert_at;
 	}
-
-	checkItemWORef(item);
-
-	insert(m_begin_non_const() + _insert_at, item);
-	++_insert_at;
 }
 
 void
@@ -154,17 +151,16 @@ ActionMenu::insert(std::vector<PMenu::Item*>::iterator at, PMenu::Item *item)
 void
 ActionMenu::insert(const std::string &name, PWinObj *wo_ref, PTexture *icon)
 {
-	WORefMenu::insert(name, wo_ref, icon);
+	WORefMenu::insert(name, true, wo_ref, icon);
 }
 
 void
 ActionMenu::insert(const std::string &name, const ActionEvent &ae,
 		   PWinObj *wo_ref, PTexture *icon)
 {
-	WORefMenu::insert(name, ae, wo_ref, icon);
+	WORefMenu::insert(name, true, ae, wo_ref, icon);
 }
 
-//! @brief Removes a BaseMenuItem from the menu
 void
 ActionMenu::remove(PMenu::Item *item)
 {
@@ -219,7 +215,7 @@ ActionMenu::parse(CfgParser::Entry *section, PMenu::Item *parent)
 					    (*it)->getValue());
 		} else if (*(*it) == "SEPARATOR") {
 			// No icon support on separators.
-			item = new PMenu::Item("", 0, 0);
+			item = new PMenu::Item("", false, 0, 0);
 			item->setType(PMenu::Item::MENU_ITEM_SEPARATOR);
 			item->setCreator(parent);
 
@@ -251,7 +247,7 @@ ActionMenu::parseSubmenu(CfgParser::Entry* section, PMenu::Item* parent,
 	submenu->buildMenu();
 
 	const std::string& sub_title = section->getValue();
-	PMenu::Item* item = new PMenu::Item(sub_title, submenu, icon);
+	PMenu::Item* item = new PMenu::Item(sub_title, true, submenu, icon);
 	item->setCreator(parent);
 
 	return item;
@@ -274,7 +270,7 @@ ActionMenu::parseItem(CfgParser::Entry* section, PMenu::Item* parent)
 		PTexture* icon = getIcon(section->findEntry("ICON"));
 
 		const std::string& sub_name = section->getValue();
-		item = new PMenu::Item(sub_name, 0, icon);
+		item = new PMenu::Item(sub_name, true, 0, icon);
 		item->setCreator(parent);
 		item->setAE(ae);
 

@@ -236,7 +236,7 @@ FocusToggleEventHandler::createNextPrevMenu(void)
 		if (createMenuInclude(frame, _show_iconified)) {
 			Client *client =
 				static_cast<Client*>(frame->getActiveChild());
-			menu->insert(client->getTitle()->getVisible(),
+			menu->insert(client->getTitle()->getVisible(), false,
 				     ActionEvent(), frame, client->getIcon());
 		}
 	}

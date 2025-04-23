@@ -142,7 +142,7 @@ SearchDialog::findClients(const std::string &search)
 
 		for (it = matches.begin(); it != matches.end(); ++it) {
 			_result_menu->insert((*it)->getTitle()->getVisible(),
-					     *it, (*it)->getIcon());
+					     false, *it, (*it)->getIcon());
 		}
 	}
 
