@@ -1,0 +1,42 @@
+[doc]
+pekwm_panel_battery.sh script
+[enddoc]
+
+[include test.pluxinc]
+
+[shell pekwm_panel_battery_netbsd]
+	[log test NetBSD (no battery)]
+	!env PATH=$PWD/mock/netbsd/envstat_no_battery:$$PATH $SCRIPTS_DIR/pekwm_panel_battery.sh NetBSD
+	???battery 100
+	???battery_count 0
+	???battery_state ac
+	?SH-PROMPT:
+
+	[log test NetBSD (battery)]
+	!env PATH=$PWD/mock/netbsd/envstat_battery:$$PATH $SCRIPTS_DIR/pekwm_panel_battery.sh NetBSD
+	???battery 99
+	???battery_count 1
+	???battery_state battery
+	?SH-PROMPT:
+
+[shell pekwm_panel_battery_openbsd]
+	[log test OpenBSD (no battery)]
+	!env PATH=$PWD/mock/openbsd/apm_no_battery:$$PATH $SCRIPTS_DIR/pekwm_panel_battery.sh OpenBSD
+	???battery 100
+	???battery_count 0
+	???battery_state ac
+	?SH-PROMPT:
+
+	[log test OpenBSD (ac)]
+	!env PATH=$PWD/mock/openbsd/apm_ac:$$PATH $SCRIPTS_DIR/pekwm_panel_battery.sh OpenBSD
+	???battery 10
+	???battery_count 1
+	???battery_state ac
+	?SH-PROMPT:
+
+	[log test OpenBSD (battery)]
+	!env PATH=$PWD/mock/openbsd/apm_battery:$$PATH $SCRIPTS_DIR/pekwm_panel_battery.sh OpenBSD
+	???battery 79
+	???battery_count 1
+	???battery_state battery
+	?SH-PROMPT:

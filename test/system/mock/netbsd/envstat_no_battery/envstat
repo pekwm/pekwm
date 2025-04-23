@@ -1,0 +1,8 @@
+#!/bin/sh
+
+cat <<EOF
+                           Current  CritMax  WarnMax  WarnMin  CritMin  Unit
+[amdzentemp0]
+       cpu0 temperature:    35.750                                      degC
+  cpu0 ccd0 temperature:    35.750                                      degC
+EOF

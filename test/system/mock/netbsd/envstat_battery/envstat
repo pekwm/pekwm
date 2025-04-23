@@ -1,0 +1,20 @@
+#!/bin/sh
+
+cat <<EOF
+                      Current  CritMax  WarnMax  WarnMin  CritMin  Unit
+[acpiacad0]
+         connected:     FALSE
+[acpibat0]
+           present:      TRUE
+    design voltage:    11.100                                         V
+           voltage:    12.270                                         V
+        design cap:    23.200                                        Wh
+     last full cap:    16.940                                        Wh
+            charge:    16.770                      5.000%   1.181%   Wh (99.00%)
+       charge rate:       N/A
+    discharge rate:       N/A
+          charging:     FALSE
+      charge state:    NORMAL
+[acpitz0]
+       temperature:    48.000  128.000
+EOF

@@ -7,7 +7,7 @@ battery="100"
 battery_state="ac"
 battery_count="0"
 
-read_bsd_apm()
+read_openbsd_apm()
 {
 	apm_status=`apm | sed 's/,//' | sed 's/%//'`
 	battery_info=`echo "$apm_status" | awk '/Battery state: / { print $3 }'`
@@ -25,6 +25,20 @@ read_bsd_apm()
 			battery_state="ac"
 		fi
 	fi
+}
+
+read_netbsd_envstat()
+{
+	battery_info=`envstat | awk \
+		'BEGIN { battery="100"; battery_count="0" ; battery_state="ac" } \
+		/^\[acpiacad[0-9+]\]/ { in_ac=1; in_bat=0 } \
+		/connected:/ { if (in_ac && $2 == "FALSE") { battery_state="battery" } } \
+		/^\[acpibat[0-9]+\]/ { in_bat=1; in_ac=0; battery_count += 1 } \
+		/charge:/ { if (in_bat) { battery=substr($6, 2, length($6) - 3) } } \
+		END { print battery " " battery_state " "  battery_count  }'`
+	battery=`echo $battery_info | awk '{ print int($1) }'`
+	battery_state=`echo $battery_info | awk '{ print $2 }'`
+	battery_count=`echo $battery_info | awk '{ print $3 }'`
 }
 
 read_sysfs()
@@ -51,10 +65,10 @@ fi
 
 case $UNAME_S in
 	OpenBSD)
-		read_bsd_apm
+		read_openbsd_apm
 		;;
 	NetBSD)
-		read_bsd_apm
+		read_netbsd_envstat
 		;;
 	Linux)
 		read_sysfs
