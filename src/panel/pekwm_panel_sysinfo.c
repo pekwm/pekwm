@@ -270,30 +270,19 @@ _read_sysinfo(struct pekwm_panel_sysinfo *info)
 		info->num_procs = size / sizeof(struct kinfo_proc2);
 	}
 
-	mib[0] = CTL_HW;
-	mib[1] = HW_PHYSMEM64;
-	uint64_t physmem = 0;
-	size = sizeof(physmem);
-	if (! sysctl(mib, 2, &physmem, &size, NULL, 0)) {
-		info->ram_kb = physmem / 1024;
-	}
-
-	struct uvmexp uvmexp = {0};
+	struct uvmexp_sysctl uvmexp = {0};
 	mib[0] = CTL_VM;
-	mib[1] = VM_UVMEXP;
+	mib[1] = VM_UVMEXP2;
 	size = sizeof(uvmexp);
 	if (! sysctl(mib, 2, &uvmexp, &size, NULL, 0)) {
 		int pagesize_kb = uvmexp.pagesize / 1024;
+		info->ram_kb = uvmexp.npages * pagesize_kb;
+		info->free_ram_kb = uvmexp.free * pagesize_kb;
+		info->cache_ram_kb = uvmexp.filepages * pagesize_kb;
 		info->swap_kb = uvmexp.swpages * pagesize_kb;
 		info->free_swap_kb =
 			info->swap_kb - (uvmexp.swpgonly * pagesize_kb);
 
-		mib[1] = VM_METER;
-		struct vmtotal vmtotal = {0};
-		size = sizeof(vmtotal);
-		if (! sysctl(mib, 2, &vmtotal, &size, NULL, 0)) {
-			info->free_ram_kb = vmtotal.t_free * pagesize_kb;
-		}
 	}
 
 	mib[1] = VM_LOADAVG;
