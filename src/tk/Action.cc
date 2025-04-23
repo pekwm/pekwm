@@ -721,7 +721,7 @@ namespace ActionConfig {
 				}
 				return true;
 			}
-		} catch (std::invalid_argument) {
+		} catch (const std::invalid_argument&) {
 		}
 		return false;
 	}
