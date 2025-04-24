@@ -176,6 +176,7 @@ void
 TestPFont::testTrimEndTrim()
 {
 	WMP fontd[] = {{"TeSt - 12310", 250},
+		       {"test4", 100},
 		       {"test3", 75},
 		       {"test2", 50},
 		       {nullptr, 0}};
@@ -188,6 +189,7 @@ void
 TestPFont::testTrimEndNoSpace()
 {
 	WMP fontd[] = {{"TeSt - 12310", 250},
+		       {"test4", 100},
 		       {"test1", 25},
 		       {"test0", 0},
 		       {nullptr, 0}};
@@ -200,6 +202,7 @@ void
 TestPFont::testTrimEndUTF8()
 {
 	WMP fontd[] = {{"TeSt - 12310", 50},
+		       {"Räksmörgås — M19", 70},
 		       {"Räksmörgås — M12", 50},
 		       {"Räksmörgås — M10", 40},
 		       {"Räksmörgås — M9", 30},
@@ -248,6 +251,7 @@ TestPFont::testTrimMiddleUTF8FromBegin()
 {
 	WMP fontd[] = {{"TeSt - 12310", 100},
 		       {"...3", 30},
+		       {"Asbjørnsen, Kristin20", 200},
 		       {"Asbjørnsen, Kristin4", 40},
 		       {"Asbjørnsen, Kristin6", 50},
 		       {"tin3", 30},
@@ -266,6 +270,7 @@ TestPFont::testTrimMiddleUTF8FromEnd()
 {
 	WMP fontd[] = {{"TeSt - 12310", 100},
 		       {"...3", 30},
+		       {"before — end14", 140},
 		       {"before — end4", 40},
 		       {"before — end5", 50},
 		       {"nd2", 20},
