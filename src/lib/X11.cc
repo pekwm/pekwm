@@ -953,15 +953,19 @@ X11::updateGeometry(uint width, uint height)
 		return false;
 	}
 
+	P_LOG("update geometry "
+	      << _screen_gm.width << "x" << _screen_gm.height
+	      << " -> " << width << "x" << height);
+	bool updated =
+		_screen_gm.width != width || _screen_gm.height != height;
+	_screen_gm.width = width;
+	_screen_gm.height = height;
+
 	// The screen has changed geometry in some way. To handle this the
 	// head information is read once again, the root window is re sized
 	// and strut information is updated.
 	initHeads();
 
-	bool updated =
-		_screen_gm.width != width || _screen_gm.height != height;
-	_screen_gm.width = width;
-	_screen_gm.height = height;
 	return updated;
 #else // ! PEKWM_HAVE_XRANDR
 	return false;
@@ -997,6 +1001,10 @@ X11::getScreenChangeNotification(XEvent *ev, ScreenChangeNotification &scn)
 			scn.width = scr_ev->width;
 			scn.height = scr_ev->height;
 		}
+
+		XRRUpdateConfiguration(ev);
+		updateGeometry(scn.width, scn.height);
+
 		return true;
 	}
 #endif // PEKWM_HAVE_XRANDR
