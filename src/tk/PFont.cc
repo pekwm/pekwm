@@ -283,9 +283,7 @@ PFont::trim(const StringView &text, PFont::TrimType trim_type, uint max_width)
 		return text;
 	}
 
-	uint est_size = getCWidth() * text.size();
-	if (est_size <= max_width
-	    && getWidth(text) <= max_width) {
+	if (getWidth(text) <= max_width) {
 		return text;
 	}
 

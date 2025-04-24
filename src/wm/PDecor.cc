@@ -2048,8 +2048,9 @@ PDecor::calcTitleWidthDynamic(void)
 	if (width < static_cast<uint>(_data->getTitleWidthMin())) {
 		width = _data->getTitleWidthMin();
 	}
-	if (width > (_gm.width * _data->getTitleWidthMax() / 100)) {
-		width = _gm.width * _data->getTitleWidthMax() / 100;
+	uint max_width = _gm.width * _data->getTitleWidthMax() / 100;
+	if (width > max_width) {
+		width = max_width;
 	}
 	return width;
 }
