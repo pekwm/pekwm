@@ -129,6 +129,7 @@ ClientList = "separator" {
 
 * Separator, if set in the argument list, a separator is drawn in-between
   clients in the list of clients.
+* NoIcon, if set no icon is rendered even if one is set on the client.
 
 #### Widget: Systray
 

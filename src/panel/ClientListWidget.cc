@@ -13,12 +13,14 @@
 ClientListWidget::ClientListWidget(const PanelWidgetData &data,
 				   const PWinObj* parent,
 				   const WidgetConfig& cfg,
-				   const std::string& draw_separator)
+				   const std::string& options)
 	: PanelWidget(data, parent, cfg.getSizeReq(), cfg.getIf()),
 	  _entry_width(0),
-	  _draw_separator(pekwm::ascii_ncase_equal("separator",
-						   draw_separator))
+	  _draw_icon(true),
+	  _draw_separator(false)
 {
+	initOptions(options);
+
 	// high priority, need to update client list _before_ rendering the
 	// widget to avoid stale icon references
 	pekwm::observerMapping()->addObserver(&_wm_state, this, 50);
@@ -27,6 +29,22 @@ ClientListWidget::ClientListWidget(const PanelWidgetData &data,
 ClientListWidget::~ClientListWidget(void)
 {
 	pekwm::observerMapping()->removeObserver(&_wm_state, this);
+}
+
+void
+ClientListWidget::initOptions(const std::string& options)
+{
+	std::vector<std::string> toks;
+	Util::splitString(options, toks, "\t ");
+	std::vector<std::string>::iterator it(toks.begin());
+	for (; it != toks.end(); ++it) {
+		if (pekwm::ascii_ncase_equal("separator", *it)) {
+			_draw_separator = true;
+		}
+		if (pekwm::ascii_ncase_equal("noicon", *it)) {
+			_draw_icon = false;
+		}
+	}
 }
 
 void
@@ -81,7 +99,7 @@ ClientListWidget::render(Render &rend, PSurface* surface)
 	uint height = _theme.getHeight() - 2;
 	std::vector<Entry>::iterator it = _entries.begin();
 	for (; it != _entries.end(); ++it) {
-		PImage *icon = it->getIcon();
+		PImage *icon = _draw_icon ? it->getIcon() : nullptr;
 		int icon_width = icon ? height + 1 : 0;
 		int x = getX() + it->getX() + icon_width;
 		int entry_width = _entry_width - icon_width;

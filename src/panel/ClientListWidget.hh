@@ -65,12 +65,15 @@ public:
 	virtual void render(Render &rend, PSurface* surface);
 
 private:
+	void initOptions(const std::string& options);
+
 	Window findClientAt(int x);
 	void update(void);
 	void createEntries(void);
 
 	int _entry_width;
 	std::vector<Entry> _entries;
+	bool _draw_icon;
 	bool _draw_separator;
 };
 
