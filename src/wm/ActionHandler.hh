@@ -74,7 +74,6 @@ private:
 	void actionExec(Client *client, const std::string &command,
 			bool use_shell);
 	void actionSetenv(const std::string &name, const std::string &value);
-	void actionMaxFill(Frame *frame, bool horz, bool vert);
 	bool actionMoveToEdge(PWinObj *wo, OrientationType edge);
 	bool actionFillEdge(Frame *frame, OrientationType edge,
 			    int percent);

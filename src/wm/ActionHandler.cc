@@ -161,7 +161,9 @@ ActionHandler::handleFrameAction(const ActionPerformed* ap, ActionEvent::it it,
 		gotoClient(client);
 		break;
 	case ACTION_MAXFILL:
-		actionMaxFill(frame, it->getParamI(0), it->getParamI(1));
+		frame->setStateMaximized(STATE_SET,
+					 it->getParamI(0), it->getParamI(1),
+					 true);
 		break;
 	case ACTION_GROW_DIRECTION:
 		frame->growDirection(it->getParamI(0));
@@ -502,7 +504,7 @@ ActionHandler::handleStateAction(const Action &action, PWinObj *wo,
 		switch (action.getParamI(0)) {
 		case ACTION_STATE_MAXIMIZED:
 			frame->setStateMaximized(sa, action.getParamI(1),
-						 action.getParamI(2));
+						 action.getParamI(2), false);
 			break;
 		case ACTION_STATE_FULLSCREEN:
 			frame->setStateFullscreen(sa);
@@ -647,91 +649,6 @@ void
 ActionHandler::actionSetenv(const std::string &name, const std::string &value)
 {
 	Util::setEnv(name, value);
-}
-
-static void
-getMaxBounds(const Geometry &gm, int &max_x,int &max_r, int &max_y, int &max_b)
-{
-	int x, y, r, b;
-
-	int f_r = gm.rx();
-	int f_b = gm.by();
-
-	Frame::frame_cit it = Frame::frame_begin();
-	for (; it != Frame::frame_end(); ++it) {
-		if (! (*it)->isMapped()) {
-			continue;
-		}
-
-		x = (*it)->getX();
-		y = (*it)->getY();
-		r = (*it)->getRX();
-		b = (*it)->getBY();
-
-		// update max borders when other frame border lies between this
-		// border and prior max border (originally screen/head edge)
-		if ((r >= max_x)
-		    && (r <= gm.x)
-		    && ! ((y >= f_b) || (b <= gm.y))) {
-			max_x = r;
-		}
-		if ((x <= max_r)
-		    && (x >= f_r)
-		    && ! ((y >= f_b) || (b <= gm.y))) {
-			max_r = x;
-		}
-		if ((b >= max_y)
-		    && (b <= gm.y)
-		    && ! ((x >= f_r) || (r <= gm.x))) {
-			max_y = b;
-		}
-		if ((y <= max_b)
-		    && (y >= f_b)
-		    && ! ((x >= f_r) || (r <= gm.x))) {
-			max_b = y;
-		}
-	}
-}
-
-void
-ActionHandler::actionMaxFill(Frame *frame, bool horz, bool vert)
-{
-	if (! horz && ! vert) {
-		P_TRACE("MaxFill False False not supported, do nothing");
-		return;
-	}
-
-	frame->setShaded(STATE_UNSET);
-	frame->setStateFullscreen(STATE_UNSET);
-
-	Geometry head;
-	pekwm::rootWo()->getHeadInfoWithEdge(X11Util::getNearestHead(*frame),
-					     head);
-	int max_r = head.rx();
-	int max_b = head.by();
-	getMaxBounds(frame->getGeometry(), head.x, max_r, head.y, max_b);
-	head.width = max_r - head.x;
-	head.height = max_b - head.y;
-
-	Client *client = frame->getActiveClient();
-	Geometry gm = frame->getGeometry();
-	if (horz) {
-		gm.x = head.x;
-		gm.width = head.width;
-		frame->fitInMaxSizeWidth(gm);
-	}
-	if (vert) {
-		gm.y = head.y;
-		gm.height = head.height;
-		frame->fitInMaxSizeHeight(gm);
-	}
-	frame->setMaximized(false, false);
-	client->getState().maximized_horz = false;
-	client->getState().maximized_vert = false;
-
-	frame->downSize(gm, true, true);
-	frame->moveResize(gm.x, gm.y, gm.width, gm.height);
-	client->updateEwmhStates();
 }
 
 /**

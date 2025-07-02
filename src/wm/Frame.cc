@@ -663,10 +663,10 @@ Frame::getState(Client *client)
 		_sticky = ! _sticky;
 	}
 	if (isMaximizedHorz() != client->isMaximizedHorz()) {
-		setStateMaximized(STATE_TOGGLE, true, false);
+		setStateMaximized(STATE_TOGGLE, true, false, false);
 	}
 	if (isMaximizedHorz() != client->isMaximizedVert()) {
-		setStateMaximized(STATE_TOGGLE, false, true);
+		setStateMaximized(STATE_TOGGLE, false, true, false);
 	}
 	if (isShaded() != client->isShaded()) {
 		setShaded(STATE_TOGGLE);
@@ -1080,103 +1080,138 @@ Frame::updateInactiveChildInfo(void)
 
 // STATE actions begin
 
+//! @brief Toggles current clients max size
+//! @param sa State to set
+//! @param horz Include horizontal in (de)maximize
+//! @param vert Include vertcical in (de)maximize
+//! @param fill Limit size by other frame boundaries ( defaults to false )
 void
-Frame::fitInMaxSizeWidth(Geometry &gm)
+Frame::setStateMaximized(StateAction sa, bool horz, bool vert, bool fill)
 {
-	uint h_decor = gm.width - getChildWidth();
-	XSizeHints hints = _client->getActiveSizeHints();
-	if (hints.flags&PMaxSize
-	    && gm.width > (hints.max_width + h_decor)) {
-		gm.width = hints.max_width + h_decor;
-	}
-}
-
-void
-Frame::fitInMaxSizeHeight(Geometry &gm)
-{
-	uint v_decor = gm.height - getChildHeight();
-	XSizeHints hints = _client->getActiveSizeHints();
-	if (hints.flags&PMaxSize
-	    && gm.height > (hints.max_height + v_decor)) {
-		gm.height = hints.max_height + v_decor;
-	}
-}
-
-void
-Frame::setStateMaximized(StateAction sa, bool horz, bool vert)
-{
-	if ((! horz || ! ActionUtil::needToggle(sa, isMaximizedHorz()))
-	    && (! vert || ! ActionUtil::needToggle(sa, isMaximizedVert()))) {
+	if (sa != STATE_TOGGLE
+	    && ! fill
+	    && (! horz || isMaximizedHorz() == sa)
+	    && (! vert || isMaximizedVert() == sa)) {
+		// already set as requested, do nothing
 		return;
 	}
 
 	setShaded(STATE_UNSET);
 	setStateFullscreen(STATE_UNSET);
 
-	// If toggling both horizontal and vertical, force both to either be
-	// set or unset.
-	if (sa == STATE_TOGGLE
-	    && horz && vert
-	    && isMaximizedHorz() != isMaximizedVert()) {
-		horz = ! isMaximizedHorz();
-		vert = ! isMaximizedVert();
+	// make sure the two states are in sync if toggling
+	if ((horz == vert) && (sa == STATE_TOGGLE)) {
+		if (isMaximizedHorz() != isMaximizedVert()) {
+			horz = ! isMaximizedHorz();
+			vert = ! isMaximizedVert();
+		}
 	}
+
+	XSizeHints hints = _client->getActiveSizeHints();
 
 	Geometry head;
 	pekwm::rootWo()->getHeadInfoWithEdge(X11Util::getNearestHead(*this),
 					     head);
 
-	Geometry gm(_gm);
+	int max_x, max_r, max_y, max_b;
+	max_x = head.x;
+	max_r = head.width + head.x;
+	max_y = head.y;
+	max_b = head.height + head.y;
+
+	if (fill) {
+		getMaxBounds(max_x, max_r, max_y, max_b);
+
+		// make sure vert and horz gets set if fill is on
+		sa = STATE_SET;
+	}
+
 	bool maximized_horz = isMaximizedHorz();
-	if (horz && _client->allowMaximizeHorz()
-	    && ActionUtil::needToggle(sa, maximized_horz)) {
-		if (maximized_horz) {
-			gm.x = _old_gm.x;
-			gm.width = _old_gm.width;
+	if (horz && (fill || _client->allowMaximizeHorz())) {
+		if ((sa == STATE_SET) ||
+		    ((sa == STATE_TOGGLE) && ! maximized_horz)) {
+			// maximize
+			uint h_decor = _gm.width - getChildWidth();
+
+			if (! fill) {
+				_old_gm.x = _gm.x;
+				_old_gm.width = _gm.width;
+			}
+
+			_gm.x = max_x;
+			_gm.width = max_r - max_x;
+
+			if ((hints.flags&PMaxSize)
+			    && (_gm.width > (hints.max_width + h_decor))) {
+				_gm.width = hints.max_width + h_decor;
+			}
+			maximized_horz = ! fill;
+		} else if ((sa == STATE_UNSET) ||
+			   ((sa == STATE_TOGGLE) && maximized_horz)) {
+			// demaximize
+			_gm.x = _old_gm.x;
+			_gm.width = _old_gm.width;
 			maximized_horz = false;
-		} else {
-			gm.x = head.x;
-			gm.width = head.width;
-			fitInMaxSizeWidth(gm);
-			maximized_horz = true;
 		}
 	}
 
 	bool maximized_vert = isMaximizedVert();
-	if (vert && _client->allowMaximizeVert()
-	    && ActionUtil::needToggle(sa, maximized_vert)) {
-		if (maximized_vert) {
-			gm.y = _old_gm.y;
-			gm.height = _old_gm.height;
+	if (vert && (fill || _client->allowMaximizeVert())) {
+		if ((sa == STATE_SET) ||
+		    ((sa == STATE_TOGGLE) && ! maximized_vert)) {
+			// maximize
+			uint v_decor = _gm.height - getChildHeight();
+
+			if (! fill) {
+				_old_gm.y = _gm.y;
+				_old_gm.height = _gm.height;
+			}
+
+			_gm.y = max_y;
+			_gm.height = max_b - max_y;
+
+			if ((hints.flags&PMaxSize) &&
+			    (_gm.height > (hints.max_height + v_decor))) {
+				_gm.height = hints.max_height + v_decor;
+			}
+			maximized_vert = ! fill;
+		} else if ((sa == STATE_UNSET) ||
+			   ((sa == STATE_TOGGLE) && maximized_vert)) {
+			// demaximize
+			_gm.y = _old_gm.y;
+			_gm.height = _old_gm.height;
 			maximized_vert = false;
-		} else {
-			gm.y = head.y;
-			gm.height = head.height;
-			fitInMaxSizeHeight(gm);
-			maximized_vert = true;
 		}
-	}
-	if (! isAnyFill()) {
-		setOldGeometry(_gm);
 	}
 	setMaximized(maximized_horz, maximized_vert);
 	_client->getState().maximized_horz = maximized_horz;
 	_client->getState().maximized_vert = maximized_vert;
 
-	downSize(gm, true, true);
-	moveResize(gm.x, gm.y, gm.width, gm.height);
+	// harbour already considered
+	fixGeometry();
+	// keep x and keep y ( make conform to inc size )
+	downSize(_gm, true, true);
+
+	moveResize(_gm.x, _gm.y, _gm.width, _gm.height);
+
 	_client->updateEwmhStates();
 }
 
+//! @brief Set fullscreen state
 void
 Frame::setStateFullscreen(StateAction sa)
 {
-	if (! _client->allowFullscreen()
-	    || ! ActionUtil::needToggle(sa, isFullscreen())) {
+	// Check for DisallowedActions="Fullscreen".
+	if (! _client->allowFullscreen()) {
+		sa = STATE_UNSET;
+	}
+
+	if (! ActionUtil::needToggle(sa, isFullscreen())) {
 		return;
 	}
 
 	bool lock = _client->setConfigureRequestLock(true);
+
 	if (isFullscreen()) {
 		bool state_has_border =
 			(_non_fullscreen_decor_state&DECOR_BORDER)
@@ -1191,11 +1226,9 @@ Frame::setStateFullscreen(StateAction sa)
 			setTitlebar(STATE_TOGGLE);
 		}
 		_gm = _old_gm;
-		setFullscreen(false);
+
 	} else {
-		if (! isAnyFill()) {
-			_old_gm = _gm;
-		}
+		_old_gm = _gm;
 		_non_fullscreen_decor_state = _client->getDecorState();
 		_non_fullscreen_layer = _client->getLayer();
 
@@ -1205,11 +1238,13 @@ Frame::setStateFullscreen(StateAction sa)
 		Geometry head;
 		uint nr = X11Util::getNearestHead(*this);
 		X11::getHeadInfo(nr, head);
+
 		_gm = head;
-		setFullscreen(true);
 	}
 
+	setFullscreen(! isFullscreen());
 	_client->getState().fullscreen = isFullscreen();
+
 	moveResize(_gm.x, _gm.y, _gm.width, _gm.height);
 
 	// Re-stack window if fullscreen is above other windows.
@@ -1223,14 +1258,19 @@ Frame::setStateFullscreen(StateAction sa)
 
 	_client->setConfigureRequestLock(lock);
 	_client->configureRequestSend();
+
 	_client->updateEwmhStates();
 }
 
 void
 Frame::setStateSticky(StateAction sa)
 {
-	if (_client->allowStick()
-	    && ActionUtil::needToggle(sa, _sticky)) {
+	// Check for DisallowedActions="Stick".
+	if (! _client->allowStick()) {
+		sa = STATE_UNSET;
+	}
+
+	if (ActionUtil::needToggle(sa, _sticky)) {
 		toggleSticky();
 	}
 }
@@ -1392,6 +1432,51 @@ Frame::setStateOpaque(StateAction sa)
 // STATE actions end
 
 void
+Frame::getMaxBounds(int &max_x,int &max_r, int &max_y, int &max_b)
+{
+	int f_r, f_b;
+	int x, y, r, b;
+
+	f_r = getRX();
+	f_b = getBY();
+
+	frame_it it = _frames.begin();
+	for (; it != _frames.end(); ++it) {
+		if (! (*it)->isMapped()) {
+			continue;
+		}
+
+		x = (*it)->getX();
+		y = (*it)->getY();
+		r = (*it)->getRX();
+		b = (*it)->getBY();
+
+		// update max borders when other frame border lies between this
+		// border and prior max border (originally screen/head edge)
+		if ((r >= max_x)
+		    && (r <= _gm.x)
+		    && ! ((y >= f_b) || (b <= _gm.y))) {
+			max_x = r;
+		}
+		if ((x <= max_r)
+		    && (x >= f_r)
+		    && ! ((y >= f_b) || (b <= _gm.y))) {
+			max_r = x;
+		}
+		if ((b >= max_y)
+		    && (b <= _gm.y)
+		    && ! ((x >= f_r) || (r <= _gm.x))) {
+			max_y = b;
+		}
+		if ((y <= max_b)
+		    && (y >= f_b)
+		    && ! ((x >= f_r) || (r <= _gm.x))) {
+			max_b = y;
+		}
+	}
+}
+
+void
 Frame::setGeometry(const std::string& geometry, int head, bool honour_strut)
 {
 	Geometry gm;
@@ -1499,11 +1584,11 @@ Frame::readAutoprops(ApplyOn type)
 	}
 	if (data->isMask(AP_MAXIMIZED_HORIZONTAL)
 	    && (isMaximizedHorz() != data->maximized_horizontal)) {
-		setStateMaximized(STATE_TOGGLE, true, false);
+		setStateMaximized(STATE_TOGGLE, true, false, false);
 	}
 	if (data->isMask(AP_MAXIMIZED_VERTICAL)
 	    && (isMaximizedVert() != data->maximized_vertical)) {
-		setStateMaximized(STATE_TOGGLE, false, true);
+		setStateMaximized(STATE_TOGGLE, false, true, false);
 	}
 	if (data->isMask(AP_FULLSCREEN)
 	    && (isFullscreen() != data->fullscreen)) {
@@ -1937,11 +2022,11 @@ Frame::handleCurrentClientStateAtom(StateAction sa, Atom atom, Client *client)
 	}
 	if (atom == X11::getAtom(STATE_MAXIMIZED_HORZ)
 	    && ! client->isCfgDeny(CFG_DENY_STATE_MAXIMIZED_HORZ)) {
-		setStateMaximized(sa, true, false);
+		setStateMaximized(sa, true, false, false);
 	}
 	if (atom == X11::getAtom(STATE_MAXIMIZED_VERT)
 	    && ! client->isCfgDeny(CFG_DENY_STATE_MAXIMIZED_VERT)) {
-		setStateMaximized(sa, false, true);
+		setStateMaximized(sa, false, true, false);
 	}
 	if (atom == X11::getAtom(STATE_SHADED)) {
 		setShaded(sa);
