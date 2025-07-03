@@ -218,10 +218,10 @@ namespace ActionUtil {
 
 class Action {
 public:
-	Action(uint action = ACTION_UNSET);
+	Action(ActionType action = ACTION_UNSET);
 	~Action(void);
 
-	inline uint getAction(void) const { return _action; }
+	inline uint getAction() const { return _action; }
 	inline int getParamI() const {
 		return getParamI(0, 0);
 	}
@@ -281,7 +281,7 @@ public:
 	ActionEvent(uint num, ...);
 	~ActionEvent();
 
-	inline bool isOnlyAction(uint action) const {
+	inline bool isOnlyAction(ActionType action) const {
 		return ((action_list.size() == 1) &&
 			(action_list.front().getAction() == action));
 	}
@@ -352,6 +352,7 @@ namespace ActionConfig
 	void parseActionSetGeometry(Action& action, const std::string &str);
 
 	ActionType getAction(const std::string &name, uint mask);
+	const char *getActionName(uint action);
 	BorderPosition getBorderPos(const std::string &name);
 	CfgDeny getCfgDeny(const std::string& name);
 	DirectionType getDirection(const std::string &name);

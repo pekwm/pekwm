@@ -606,7 +606,7 @@ parseButton(const std::string &button_string, uint &mod, uint &button)
 	return false;
 }
 
-Action::Action(uint action)
+Action::Action(ActionType action)
 	: _action(action)
 {
 }
@@ -832,6 +832,17 @@ namespace ActionConfig {
 			return val.first;
 		}
 		return ACTION_NO;
+	}
+
+	const char*
+	getActionName(uint action)
+	{
+		for (int i = 0; action_map[i].name != nullptr; i++) {
+			if (action_map[i].value.first == action) {
+				return action_map[i].name;
+			}
+		}
+		return "";
 	}
 
 	BorderPosition

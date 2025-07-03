@@ -15,8 +15,8 @@ Start a single Xvfb pekwm_ctrl system tests in one go.
 		?SH-PROMPT:
 
 	[shell pekwm]
-		?start action 1 wo
-		?end action 1 wo
+		?start action Set wo
+		?end action Set wo
 
 	[shell pekwm_ctrl]
 		[log verify xterm title]
