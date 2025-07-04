@@ -370,13 +370,13 @@ PekwmPanel::configure(void)
 void
 PekwmPanel::setStrut(void)
 {
-	Cardinal strut[4] = {0};
+	Cardinal strut[STRUT_SIZE] = {0};
 	if (_cfg.getPlacement() == PANEL_TOP) {
-		strut[2] = _theme.getHeight();
+		strut[STRUT_TOP] = _theme.getHeight();
 	} else {
-		strut[3] = _theme.getHeight();
+		strut[STRUT_BOTTOM] = _theme.getHeight();
 	}
-	X11::setCardinals(_window, NET_WM_STRUT, strut, 4);
+	X11::setCardinals(_window, NET_WM_STRUT, strut, PEKWM_ARRLEN(strut));
 }
 
 void

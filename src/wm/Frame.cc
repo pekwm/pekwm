@@ -2062,7 +2062,7 @@ Frame::handlePropertyChange(XPropertyEvent *ev, Client *client)
 			}
 		}
 	} else if (ev->atom == X11::getAtom(NET_WM_STRUT)) {
-		client->getStrutHint();
+		client->readStrutHint();
 	} else if (ev->atom == X11::getAtom(NET_WM_NAME)
 		   || ev->atom == XA_WM_NAME) {
 		handleTitleChange(client, true);

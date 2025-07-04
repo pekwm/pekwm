@@ -199,11 +199,6 @@ static const char *atomnames[] = {
 	nullptr
 };
 
-Strut::Strut(const long* s)
-{
-	*this = s;
-}
-
 Strut::Strut(long l, long r, long t, long b, int nhead)
 	: left(l),
 	  right(r),
@@ -213,26 +208,17 @@ Strut::Strut(long l, long r, long t, long b, int nhead)
 {
 }
 
-Strut::~Strut(void)
+Strut::~Strut()
 {
 }
 
 void
-Strut::clear(void)
+Strut::clear()
 {
 	left = 0;
 	right = 0;
 	top = 0;
 	bottom = 0;
-}
-
-void
-Strut::operator=(const long *s)
-{
-	left = s[0];
-	right = s[1];
-	top = s[2];
-	bottom = s[3];
 }
 
 bool

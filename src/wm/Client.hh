@@ -337,7 +337,7 @@ public: // Public Member Functions
 	void getWMProtocols(void);
 	void getTransientForHint(void);
 	void updateParentLayerAndRaiseIfActive(void);
-	void getStrutHint(void);
+	void readStrutHint();
 	void readName(void);
 	void removeStrutHint(void);
 

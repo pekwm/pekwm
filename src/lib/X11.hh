@@ -218,6 +218,17 @@ enum DirectionType {
 };
 
 /**
+ * Position in _NET_WM_STRUT array.
+ */
+enum StrutPosition {
+	STRUT_LEFT,
+	STRUT_RIGHT,
+	STRUT_TOP,
+	STRUT_BOTTOM,
+	STRUT_SIZE
+};
+
+/**
  * Max XEMBED_VERSION supported.
  */
 extern const long XEMBED_VERSION;
@@ -234,11 +245,10 @@ enum XEmbedFlags {
  */
 class Strut {
 public:
-	Strut(const long* s);
 	Strut(long l=0, long r=0, long t=0, long b=0, int nhead=-1);
-	~Strut(void);
+	~Strut();
 
-	void clear(void);
+	void clear();
 
 public: // member variables
 	long left; /**< Pixels allocated on the left of the head. */

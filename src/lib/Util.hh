@@ -27,6 +27,8 @@ extern "C" {
 #include <string.h>
 }
 
+#define PEKWM_ARRLEN(A) (sizeof((A))/sizeof((A)[0]))
+
 /**
  * String utilities, convenience functions for making life easier
  * when working with strings.

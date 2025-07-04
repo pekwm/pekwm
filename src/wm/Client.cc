@@ -977,8 +977,7 @@ Client::readEwmhHints(void)
 		_state.demands_attention = win_states.demands_attention;
 	}
 
-	// check if we have a strut
-	getStrutHint();
+	readStrutHint();
 }
 
 /**
@@ -1909,7 +1908,7 @@ Client::updateParentLayerAndRaiseIfActive(void)
    the global list of struts if the client does not have Strut in it's CfgDeny.
 */
 void
-Client::getStrutHint(void)
+Client::readStrutHint()
 {
 	// Clear out old strut, well re-add if a new one is found.
 	removeStrutHint();
@@ -1918,9 +1917,16 @@ Client::getStrutHint(void)
 	void* data = X11::getEwmhPropData(_window, NET_WM_STRUT,
 					  XA_CARDINAL, num);
 	if (data) {
-		_strut = new Strut(static_cast<long*>(data));
-		if (! isCfgDeny(CFG_DENY_STRUT)) {
-			pekwm::rootWo()->addStrut(_strut);
+		if (num == STRUT_SIZE) {
+			long *l = static_cast<long*>(data);
+			_strut = new Strut(l[STRUT_LEFT], l[STRUT_RIGHT],
+					   l[STRUT_TOP], l[STRUT_BOTTOM]);
+			if (! isCfgDeny(CFG_DENY_STRUT)) {
+				pekwm::rootWo()->addStrut(_strut);
+			}
+		} else {
+			P_WARN("invalid _NET_WM_STRUT size, expected "
+			       << STRUT_SIZE << " got " << num);
 		}
 		X11::free(data);
 	}
@@ -1938,7 +1944,7 @@ Client::removeStrutHint(void)
 			pekwm::rootWo()->removeStrut(_strut);
 		}
 		delete _strut;
-		_strut = 0;
+		_strut = nullptr;
 	}
 }
 
