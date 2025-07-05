@@ -40,8 +40,9 @@
 #cmakedefine PEKWM_HAVE_XRANDR
 #cmakedefine PEKWM_HAVE_CURL
 
-#cmakedefine PEKWM_HAVE_IMAGE_PNG
 #cmakedefine PEKWM_HAVE_IMAGE_JPEG
+#cmakedefine PEKWM_HAVE_IMAGE_PNG
+#cmakedefine PEKWM_HAVE_IMAGE_SVG
 #cmakedefine PEKWM_HAVE_IMAGE_XPM
 
 #cmakedefine PEKWM_HAVE_XUTF8

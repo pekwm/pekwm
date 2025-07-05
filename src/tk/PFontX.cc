@@ -202,7 +202,7 @@ PFontX::drawScaled(PSurface *dest, int x, int y, const StringView &text,
 
 	XImage *ximage = srender.getImage(0, 0, width, height);
 	if (ximage) {
-		PImage image(ximage, 255, &trans_pixel);
+		PImageData image(ximage, 255, &trans_pixel);
 		X11::destroyImage(ximage);
 
 		image.scale(_scale, PImage::SCALE_SQUARE);

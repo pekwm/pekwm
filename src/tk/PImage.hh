@@ -16,7 +16,7 @@
 #include <string>
 
 /**
- * (A)RGB Image, X11 drawing support, scaling etc.
+ * Image interface.
  */
 class PImage {
 public:
@@ -25,31 +25,68 @@ public:
 		SCALE_SMOOTH
 	};
 
-	PImage(const std::string &path);
-	PImage(PImage *image);
-	PImage(XImage *image, uchar opacity=255, ulong *trans_pixel=nullptr);
-	virtual ~PImage();
+	PImage()
+		: _type(IMAGE_TYPE_NO),
+		  _width(0),
+		  _height(0)
+	{
+	}
+	PImage(ImageType type, uint width, uint height)
+		: _type(type),
+		  _width(width),
+		  _height(height)
+	{
+	}
+	virtual ~PImage() { }
 
-	//! @brief Returns type of image.
 	inline ImageType getType() const { return _type; }
-	//! @brief Sets type of image.
 	inline void setType(ImageType type) { _type = type; }
 
-	inline uchar* getData(void) { return _data; }
-	//! @brief Returns width of image.
-	inline uint getWidth(void) const { return _width; }
-	//! @brief Returns height of image.
-	inline uint getHeight(void) const { return _height; }
+	inline uint getWidth() const { return _width; }
+	inline uint getHeight() const { return _height; }
 
-	bool load(const std::string &file);
-	void unload(void);
+	virtual void unload() = 0;
 
-	void draw(Render &rend, PSurface *surface, int x, int y,
-		  uint width = 0, uint height = 0);
-	Pixmap getPixmap(bool &need_free, uint width = 0, uint height = 0);
-	Pixmap getMask(bool &need_free, uint width = 0, uint height = 0);
-	void scale(float factor, ScaleType type = SCALE_SMOOTH);
-	void scale(uint width, uint height, ScaleType type = SCALE_SMOOTH);
+	virtual void draw(Render &rend, PSurface *surface, int x, int y,
+			  uint width = 0, uint height = 0) = 0;
+	virtual Pixmap getPixmap(bool &need_free,
+				 uint width = 0, uint height = 0) = 0;
+	virtual Pixmap getMask(bool &need_free,
+			       uint width = 0, uint height = 0) = 0;
+	virtual void scale(float factor, ScaleType type = SCALE_SMOOTH) = 0;
+	virtual void scale(uint width, uint height,
+			   ScaleType type = SCALE_SMOOTH) = 0;
+
+protected:
+	ImageType _type; //!< Type of image.
+	uint _width; //!< Width of image.
+	uint _height; //!< Height of image.
+};
+
+/**
+ * (A)RGB Image, X11 drawing support, scaling etc.
+ */
+class PImageData : public PImage {
+public:
+	PImageData(uchar *data, uint width, uint height, bool use_alpha);
+	PImageData(PImageData *image);
+	PImageData(XImage *image, uchar opacity=255,
+		   ulong *trans_pixel=nullptr);
+	virtual ~PImageData();
+	
+	uchar* getData() { return _data; }
+
+	virtual void unload();
+
+	virtual void draw(Render &rend, PSurface *surface, int x, int y,
+			  uint width = 0, uint height = 0);
+	virtual Pixmap getPixmap(bool &need_free,
+				 uint width = 0, uint height = 0);
+	virtual Pixmap getMask(bool &need_free,
+			       uint width = 0, uint height = 0);
+	virtual void scale(float factor, ScaleType type = SCALE_SMOOTH);
+	virtual void scale(uint width, uint height,
+			   ScaleType type = SCALE_SMOOTH);
 
 	static void drawAlphaFixed(Render &rend, PSurface *surface,
 				   int x, int y, uint width, uint height,
@@ -59,7 +96,7 @@ public:
 				   uchar* data);
 
 protected:
-	PImage(void);
+	PImageData();
 
 	void drawFixed(Render &rend,
 		       int x, int y, uint width, uint height);
@@ -75,25 +112,6 @@ protected:
 	Pixmap createPixmap(uchar* data, uint width, uint height);
 	Pixmap createMask(uchar* data, uint width, uint height);
 
-private:
-	PImage(const PImage&);
-	PImage& operator=(const PImage&);
-
-	XImage* createXImage(uchar* data, uint width, uint height);
-	uchar* getScaledData(uint width, uint height, ScaleType type);
-	uchar* getScaledDataSmooth(uint width, uint height);
-	uchar* getScaledDataSquare(uint factor);
-	void setScaledDataSquare(uint factor, const uchar *src, uchar *dst);
-
-protected:
-	ImageType _type; //!< Type of image.
-
-	Pixmap _pixmap; //!< Pixmap representation of image.
-	Pixmap _mask; //!< Pixmap representation of image shape mask.
-
-	uint _width; //!< Width of image.
-	uint _height; //!< Height of image.
-
 	/** ARGB image data. */
 	uchar *_data;
 	/** If all pixels have 100% alpha, this is set to false. */
@@ -101,6 +119,21 @@ protected:
 	/** If use alpha is true, trans pixel represent data that should not
 	 * be drawn. */
 	long _trans_pixel;
+
+	/** Pixmap representation of image. */
+	Pixmap _pixmap;
+	/** Pixmap representation of image shape mask. */
+	Pixmap _mask;
+
+private:
+	PImageData(const PImageData&);
+	PImageData& operator=(const PImageData&);
+
+	XImage* createXImage(uchar* data, uint width, uint height);
+	uchar* getScaledData(uint width, uint height, ScaleType type);
+	uchar* getScaledDataSmooth(uint width, uint height);
+	uchar* getScaledDataSquare(uint factor);
+	void setScaledDataSquare(uint factor, const uchar *src, uchar *dst);
 };
 
 #endif // _PEKWM_PIMAGE_HH_

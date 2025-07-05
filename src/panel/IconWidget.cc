@@ -199,7 +199,9 @@ IconWidget::scaleImage(uint width, uint height)
 	    || _icon_scaled->getWidth() != width
 	    || _icon_scaled->getHeight() != height) {
 		delete _icon_scaled;
-		_icon_scaled = new PImage(_icon);
+
+		ImageHandler *ih = pekwm::imageHandler();
+		_icon_scaled = ih->copyToNotOwned(_icon);
 		_icon_scaled->scale(width, height);
 	}
 }

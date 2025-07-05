@@ -17,16 +17,16 @@
 /**
  * Image loading from X11 windows.
  */
-class PImageIcon : public PImage {
+class PImageIcon : public PImageData {
 public:
-	PImageIcon(PImage *image);
-	virtual ~PImageIcon(void);
+	PImageIcon(PImageData *image);
+	virtual ~PImageIcon();
 
 	void setOnWindow(Window win);
 
 	static PImageIcon *newFromWindow(Window win);
 	static void setOnWindow(Window win,
-				size_t width, size_t height, uchar *data);
+				uint width, uint height, uchar *data);
 
 private:
 	PImageIcon(void);
@@ -34,10 +34,10 @@ private:
 private:
 	bool setImageFromData(uchar *data, ulong actual);
 
-	static Cardinal* newCardinals(size_t width, size_t height, uchar *data);
-	static void fromCardinals(size_t pixels,
+	static Cardinal* newCardinals(uint width, uint height, uchar *data);
+	static void fromCardinals(uint pixels,
 				  Cardinal *from_data, uchar *to_data);
-	static void toCardinals(size_t pixels,
+	static void toCardinals(uint pixels,
 				uchar *from_data, Cardinal *to_data);
 
 private:

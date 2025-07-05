@@ -82,7 +82,7 @@ static int take_screenshot(const std::string& output)
 		return 1;
 	}
 
-	PImage *image = new PImage(ximage);
+	PImageData *image = new PImageData(ximage);
 	X11::destroyImage(ximage);
 
 	bool success =

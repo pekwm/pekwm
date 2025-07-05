@@ -144,6 +144,7 @@ option(ENABLE_XFT "include support for Xft font rendering" ON)
 option(ENABLE_PANGO "include support for Pango font rendering" ON)
 option(ENABLE_IMAGE_JPEG "include support for JPEG images" ON)
 option(ENABLE_IMAGE_PNG "include support for PNG images" ON)
+option(ENABLE_IMAGE_SVG "include support for SVG images" ON)
 option(ENABLE_IMAGE_XPM "include support for XPM images" ON)
 option(ENABLE_CURL "include support for CURL HTTP client" ON)
 
@@ -168,6 +169,10 @@ endif (ENABLE_IMAGE_JPEG)
 if (ENABLE_IMAGE_PNG)
 	find_package(PNG)
 endif (ENABLE_IMAGE_PNG)
+
+if (ENABLE_IMAGE_SVG)
+	pkg_check_modules(RSVG librsvg-2.0>=2.52)
+endif (ENABLE_IMAGE_SVG)
 
 # setup compile/link flags, one location for sharing between the different
 # compile directories
@@ -243,6 +248,13 @@ if (ENABLE_IMAGE_PNG AND PNG_FOUND)
 	set(common_INCLUDE_DIRS ${common_INCLUDE_DIRS} ${PNG_INCLUDE_DIR})
 	set(common_LIBRARIES ${common_LIBRARIES} ${PNG_LIBRARY_RELEASE})
 endif (ENABLE_IMAGE_PNG AND PNG_FOUND)
+
+if (ENABLE_IMAGE_SVG AND RSVG_FOUND)
+	set(pekwm_FEATURES "${pekwm_FEATURES} image-svg")
+	set(PEKWM_HAVE_IMAGE_SVG 1)
+	set(common_INCLUDE_DIRS ${common_INCLUDE_DIRS} ${RSVG_INCLUDE_DIR})
+	set(common_LIBRARIES ${common_LIBRARIES} ${RSVG_LIBRARY_RELEASE})
+endif (ENABLE_IMAGE_SVG AND RSVG_FOUND)
 
 if (ENABLE_IMAGE_XPM AND X11_Xpm_FOUND)
 	set(pekwm_FEATURES "${pekwm_FEATURES} image-xpm")

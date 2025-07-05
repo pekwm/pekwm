@@ -991,8 +991,17 @@ AutoProperties::parseAutoPropertyType(CfgParser::Entry* it, AutoProperty* prop)
 			USER_WARN("failed to load icon " << it->getValue()
 				  << " ignoring icon property");
 		} else {
-			prop->maskAdd(AP_ICON);
-			prop->icon = new PImageIcon(image);
+			PImageData *image_data = dynamic_cast<PImageData*>(
+				image);
+			if (image_data == nullptr) {
+				USER_WARN("failed to use icon "
+					  << it->getValue()
+					  << " as icon property,"
+					  << " unsupported type");
+			} else {
+				prop->maskAdd(AP_ICON);
+				prop->icon = new PImageIcon(image_data);
+			}
 			_image_handler->returnImage(image);
 		}
 		break;

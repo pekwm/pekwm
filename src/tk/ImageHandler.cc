@@ -12,6 +12,10 @@
 #include "Exception.hh"
 #include "ImageHandler.hh"
 #include "PImage.hh"
+#include "PImageLoaderJpeg.hh"
+#include "PImageLoaderPng.hh"
+#include "PImageLoaderXpm.hh"
+#include "PImageSvg.hh"
 #include "Util.hh"
 
 extern "C" {
@@ -163,18 +167,81 @@ ImageHandler::getImageFromPath(const std::string &file,
 		}
 	}
 
-	// Try to load the image, setup cache only if it succeeds.
-	PImage *image;
-	try {
-		image = new PImage(file);
+	PImage *image = nullptr;
+	ref = 0;
+
+	std::string ext(Util::getFileExt(file));
+#ifdef PEKWM_HAVE_IMAGE_SVG
+	if (pekwm::ascii_ncase_equal("SVG", ext)) {
+		try {
+			image = new PImageSvg(file);
+		} catch (LoadException &ex) {
+		}
+	} else
+#endif // PEKWM_HAVE_IMAGE_SVG
+	{
+		uint width, height;
+		bool use_alpha;
+		uchar *data = load(file, ext, width, height, use_alpha);
+		if (data != nullptr) {
+			image = new PImageData(data, width, height, use_alpha);
+		}
+	}
+
+	if (image != nullptr) {
 		images.push_back(ImageRefEntry(_scale, u_file, image));
 		ref = 1;
-	} catch (LoadException&) {
-		image = nullptr;
-		ref = 0;
 	}
 
 	return image;
+}
+
+/**
+ * Get image data from file.
+ *
+ * @param file File to load.
+ * @param ext Extension of the file to load.
+ * @param width Updated with the width of the loaded data on success.
+ * @param height Updated with the height of the loaded data on success.
+ * @param use_alpha Set to true if data contains alpha.
+ * @return Pointer to the loaded data, caller is responsible of delete[] data
+ */
+uchar*
+ImageHandler::load(const std::string &file, const std::string &ext,
+		   uint &width, uint &height, bool &use_alpha)
+{
+	if (! ext.size()) {
+		USER_WARN("no file extension on " << file);
+		return nullptr;
+	}
+
+	uchar *data = nullptr;
+#ifdef PEKWM_HAVE_IMAGE_JPEG
+	if (pekwm::ascii_ncase_equal(PImageLoaderJpeg::getExt(), ext)) {
+		data = PImageLoaderJpeg::load(file, width, height, use_alpha);
+	} else
+#endif // PEKWM_HAVE_IMAGE_JPEG
+#ifdef PEKWM_HAVE_IMAGE_PNG
+		if (pekwm::ascii_ncase_equal(PImageLoaderPng::getExt(), ext)) {
+			data = PImageLoaderPng::load(file, width, height,
+						     use_alpha);
+		} else
+#endif // PEKWM_HAVE_IMAGE_PNG
+#ifdef PEKWM_HAVE_IMAGE_XPM
+			if (pekwm::ascii_ncase_equal(PImageLoaderXpm::getExt(),
+						     ext)) {
+				data = PImageLoaderXpm::load(file,
+							     width,
+							     height,
+							     use_alpha);
+			} else
+#endif // PEKWM_HAVE_IMAGE_XPM
+				{
+					// no loader matched
+					data = nullptr;
+				}
+
+	return data;
 }
 
 /**
@@ -184,6 +251,25 @@ void
 ImageHandler::returnImage(PImage *image)
 {
 	returnImage(image, _images);
+}
+
+/**
+ * Create a copy of the provided image NOT taking ownership of it, the caller
+ * is responsible for deleting the image or calling takeOwnership.
+ */
+PImage*
+ImageHandler::copyToNotOwned(PImage *image)
+{
+#ifdef PEKWM_HAVE_IMAGE_SVG
+	PImageSvg *image_svg = dynamic_cast<PImageSvg*>(image);
+	if (image_svg != nullptr) {
+		return new PImageSvg(image_svg);
+	} else
+#endif
+	{
+		PImageData *image_data = static_cast<PImageData*>(image);
+		return new PImageData(image_data);
+	}
 }
 
 /**
@@ -233,8 +319,14 @@ ImageHandler::getMappedImage(const std::string &file,
 void
 ImageHandler::mapColors(PImage *image, const std::map<int,int> &color_map)
 {
-	int *p = reinterpret_cast<int*>(image->getData());
-	int num_pixels = image->getWidth() * image->getHeight();
+	PImageData *imaged = dynamic_cast<PImageData*>(image);
+	if (imaged == nullptr) {
+		// unsupported image type
+		return;
+	}
+
+	int *p = reinterpret_cast<int*>(imaged->getData());
+	int num_pixels = imaged->getWidth() * imaged->getHeight();
 	for (; num_pixels; num_pixels--, p++) {
 		std::map<int, int>::const_iterator it = color_map.find(*p);
 		if (it != color_map.end()) {

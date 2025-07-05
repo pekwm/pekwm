@@ -175,6 +175,14 @@ PKG_CHECK_MODULES([xpm], [xpm >= 1.0.0],
 		  [XPM_FOUND=no])
 AM_CONDITIONAL([PEKWM_WITH_IMAGE_XPM], [test "x$XPM_FOUND" = "xyes"])
 
+PKG_CHECK_MODULES([librsvg], [librsvg-2.0 >= 2.52],
+		  [AC_DEFINE([PEKWM_HAVE_IMAGE_SVG], [1],
+			     [Define to 1 if librsvg > 2.0 is available]),
+		   RSVG_FOUND=yes
+		   FEATURES="$FEATURES image-svg"],
+		  [RSVG_FOUND=no])
+AM_CONDITIONAL([PEKWM_WITH_IMAGE_SVG], [test "x$RSVG_FOUND" = "xyes"])
+
 PKG_CHECK_MODULES([pango], [pango >= 1.44.0],
 		  [AC_DEFINE([PEKWM_HAVE_PANGO], [1],
 			     [Define to 1 if pango is available])
@@ -304,10 +312,11 @@ AC_SUBST(LIB_CFLAGS,
 	 "$X_CFLAGS $xext_CFLAGS $xinerama_CFLAGS $xrandr_CFLAGS")
 AC_SUBST(LIB_LIBS,
 	 "$rt_LIB $X_LIBS -lX11 $xext_LIBS $xinerama_LIBS $xrandr_LIBS")
-TK_CFLAGS="$libjpeg_CFLAGS $libpng_CFLAGS $xpm_CFLAGS $xft_CFLAGS"
+TK_CFLAGS="$libjpeg_CFLAGS $libpng_CFLAGS $librsvg_CFLAGS $xpm_CFLAGS"
+TK_CFLAGS="$TK_CFLAGS $xft_CFLAGS"
 TK_CFLAGS="$TK_CFLAGS $pango_CFLAGS $pangocairo_CFLAGS $pangoxft_CFLAGS"
 AC_SUBST(TK_CFLAGS, "$TK_CFLAGS")
-TK_LIBS="$libjpeg_LIBS $libpng_LIBS $xpm_LIBS $xft_LIBS"
+TK_LIBS="$libjpeg_LIBS $libpng_LIBS $librsvg_LIBS $xpm_LIBS $xft_LIBS"
 TK_LIBS="$TK_LIBS $pango_LIBS $pangocairo_LIBS $pangoxft_LIBS"
 AC_SUBST(TK_LIBS, "$TK_LIBS")
 

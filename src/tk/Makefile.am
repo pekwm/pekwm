@@ -19,6 +19,7 @@ libpekwm_tk_a_SOURCES = Action.cc Action.hh \
 			PImageLoaderJpeg.cc PImageLoaderJpeg.hh \
 			PImageLoaderPng.cc PImageLoaderPng.hh \
 			PImageLoaderXpm.cc PImageLoaderXpm.hh \
+			PImageSvg.cc PImageSvg.hh \
 			PPixmapSurface.hh \
 			PSurface.hh \
 			PTexture.cc PTexture.hh \

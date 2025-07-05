@@ -418,8 +418,6 @@ PTextureImage::setImage(const std::string &image, const std::string &colormap)
 	}
 
 	if (_image) {
-		uchar* data = _image->getData();
-		assert(data);
 		_colormap = colormap;
 		_width = _image->getWidth();
 		_height = _image->getHeight();

@@ -13,9 +13,6 @@
 #include "Debug.hh"
 #include "Exception.hh"
 #include "PImage.hh"
-#include "PImageLoaderJpeg.hh"
-#include "PImageLoaderPng.hh"
-#include "PImageLoaderXpm.hh"
 #include "String.hh"
 #include "Util.hh"
 
@@ -217,43 +214,28 @@ getPixelToRgbFun(XImage *ximage)
 				ximage->blue_mask, false);
 }
 
-PImage::PImage()
-	: _type(IMAGE_TYPE_NO),
-	  _pixmap(None),
+PImageData::PImageData()
+	: _pixmap(None),
 	  _mask(None),
-	  _width(0),
-	  _height(0),
 	  _data(nullptr),
 	  _use_alpha(false)
 {
 }
 
-/**
- * PImage constructor, loads image if one is specified.
- *
- * @param path Path to image file, if specified this is loaded.
- */
-PImage::PImage(const std::string &path)
-	: _type(IMAGE_TYPE_NO),
+PImageData::PImageData(uchar *data, uint width, uint height, bool use_alpha)
+	: PImage(IMAGE_TYPE_NO, width, height),
 	  _pixmap(None),
 	  _mask(None),
-	  _width(0),
-	  _height(0),
-	  _data(nullptr),
-	  _use_alpha(false),
+	  _data(data),
+	  _use_alpha(use_alpha),
 	  _trans_pixel(0)
 {
-	if (! path.size() || ! load(path)) {
-		throw LoadException(path);
-	}
 }
 
-PImage::PImage(PImage *image)
-	: _type(image->getType()),
+PImageData::PImageData(PImageData *image)
+	: PImage(image->getType(), image->getWidth(), image->getHeight()),
 	  _pixmap(None),
 	  _mask(None),
-	  _width(image->getWidth()),
-	  _height(image->getHeight()),
 	  _use_alpha(image->_use_alpha),
 	  _trans_pixel(image->_trans_pixel)
 {
@@ -264,12 +246,10 @@ PImage::PImage(PImage *image)
 /**
  * Create PImage from XImage.
  */
-PImage::PImage(XImage *image, uchar opacity, ulong *trans_pixel)
-	: _type(IMAGE_TYPE_FIXED),
+PImageData::PImageData(XImage *image, uchar opacity, ulong *trans_pixel)
+	: PImage(IMAGE_TYPE_FIXED, image->width, image->height),
 	  _pixmap(None),
 	  _mask(None),
-	  _width(image->width),
-	  _height(image->height),
 	  _data(new uchar[image->width * image->height * 4]),
 	  _use_alpha(trans_pixel != nullptr),
 	  _trans_pixel(trans_pixel ? *trans_pixel : 0)
@@ -294,66 +274,16 @@ PImage::PImage(XImage *image, uchar opacity, ulong *trans_pixel)
 	}
 }
 
-PImage::~PImage(void)
+PImageData::~PImageData()
 {
 	unload();
-}
-
-/**
- * Loads image from file.
- *
- * @param file File to load.
- * @return Returns true on success, else false.
- */
-bool
-PImage::load(const std::string &file)
-{
-	unload();
-
-	std::string ext(Util::getFileExt(file));
-	if (! ext.size()) {
-		USER_WARN("no file extension on " << file);
-		return false;
-	}
-
-#ifdef PEKWM_HAVE_IMAGE_JPEG
-	if (pekwm::ascii_ncase_equal(PImageLoaderJpeg::getExt(), ext)) {
-		_data = PImageLoaderJpeg::load(file,
-					       _width,
-					       _height,
-					       _use_alpha);
-	} else
-#endif // PEKWM_HAVE_IMAGE_JPEG
-#ifdef PEKWM_HAVE_IMAGE_PNG
-		if (pekwm::ascii_ncase_equal(PImageLoaderPng::getExt(), ext)) {
-			_data = PImageLoaderPng::load(file,
-						      _width,
-						      _height,
-						      _use_alpha);
-		} else
-#endif // PEKWM_HAVE_IMAGE_PNG
-#ifdef PEKWM_HAVE_IMAGE_XPM
-			if (pekwm::ascii_ncase_equal(PImageLoaderXpm::getExt(),
-						     ext)) {
-				_data = PImageLoaderXpm::load(file,
-							      _width,
-							      _height,
-							      _use_alpha);
-			} else
-#endif // PEKWM_HAVE_IMAGE_XPM
-				{
-					// no loader matched
-					_data = nullptr;
-				}
-
-	return _data != nullptr;
 }
 
 /**
  * Frees resources used by image.
  */
 void
-PImage::unload(void)
+PImageData::unload()
 {
 	if (_data) {
 		delete [] _data;
@@ -382,7 +312,7 @@ PImage::unload(void)
  * @param height Destination height, defaults to 0 which expands to image size.
  */
 void
-PImage::draw(Render &rend, PSurface *surface, int x, int y,
+PImageData::draw(Render &rend, PSurface *surface, int x, int y,
 	     uint width, uint height)
 {
 	if (_data == nullptr) {
@@ -430,7 +360,7 @@ PImage::draw(Render &rend, PSurface *surface, int x, int y,
  * @return Returns pixmap at size or None on error.
  */
 Pixmap
-PImage::getPixmap(bool &need_free, uint width, uint height)
+PImageData::getPixmap(bool &need_free, uint width, uint height)
 {
 	need_free = false;
 
@@ -471,7 +401,7 @@ PImage::getPixmap(bool &need_free, uint width, uint height)
  * @return Returns shape mask at size or None if there is no mask information.
  */
 Pixmap
-PImage::getMask(bool &need_free, uint width, uint height)
+PImageData::getMask(bool &need_free, uint width, uint height)
 {
 	need_free = false;
 
@@ -512,7 +442,7 @@ PImage::getMask(bool &need_free, uint width, uint height)
  * Scales image by the given factor.
  */
 void
-PImage::scale(float factor, ScaleType type)
+PImageData::scale(float factor, ScaleType type)
 {
 	uint width = static_cast<uint>(factor * _width);
 	uint height = static_cast<uint>(factor * _height);
@@ -526,7 +456,7 @@ PImage::scale(float factor, ScaleType type)
  * @param height Height to scale image to.
  */
 void
-PImage::scale(uint width, uint height, ScaleType type)
+PImageData::scale(uint width, uint height, ScaleType type)
 {
 	// Invalid width or height or no need to scale.
 	if (! width || ! height || ((width == _width) && (height == _height))) {
@@ -549,7 +479,7 @@ PImage::scale(uint width, uint height, ScaleType type)
  * Draw image at position, not scaling.
  */
 void
-PImage::drawAlphaFixed(Render &rend, PSurface *surface, int x, int y,
+PImageData::drawAlphaFixed(Render &rend, PSurface *surface, int x, int y,
 		       uint width, uint height, uchar* data)
 {
 	if (! surface->clip(x, y, width, height)) {
@@ -572,7 +502,7 @@ PImage::drawAlphaFixed(Render &rend, PSurface *surface, int x, int y,
 }
 
 void
-PImage::drawAlphaFixed(XImage *src_image, XImage *dest_image,
+PImageData::drawAlphaFixed(XImage *src_image, XImage *dest_image,
 		       int x, int y, uint width, uint height, uchar* data)
 {
 	// Get mask from visual
@@ -626,7 +556,7 @@ PImage::drawAlphaFixed(XImage *src_image, XImage *dest_image,
  * Draw image at position, not scaling.
  */
 void
-PImage::drawFixed(Render &rend, int x, int y, uint width, uint height)
+PImageData::drawFixed(Render &rend, int x, int y, uint width, uint height)
 {
 	width = std::min(width, _width);
 	height = std::min(width, _height);
@@ -649,7 +579,7 @@ PImage::drawFixed(Render &rend, int x, int y, uint width, uint height)
  * Draw image scaled to fit width and height.
  */
 void
-PImage::drawScaled(Render &rend, int x, int y, uint width, uint height)
+PImageData::drawScaled(Render &rend, int x, int y, uint width, uint height)
 {
 	// Create scaled representation of image.
 	uchar *scaled_data = getScaledData(width, height, SCALE_SMOOTH);
@@ -686,7 +616,7 @@ renderWithXImageRender(int x, int y, uint width, uint height, void *opaque)
  * Draw image tiled to fit width and height.
  */
 void
-PImage::drawTiled(Render &rend, int x, int y, uint width, uint height)
+PImageData::drawTiled(Render &rend, int x, int y, uint width, uint height)
 {
 	if (rend.getDrawable() == None) {
 		XImage *ximage = createXImage(_data, _width, _height);
@@ -722,7 +652,7 @@ PImage::drawTiled(Render &rend, int x, int y, uint width, uint height)
  * Draw image scaled to fit width and height.
  */
 void
-PImage::drawAlphaScaled(Render &rend, PSurface *surface, int x, int y,
+PImageData::drawAlphaScaled(Render &rend, PSurface *surface, int x, int y,
 			uint width, uint height)
 {
 	uchar *scaled_data = getScaledData(width, height, SCALE_SMOOTH);
@@ -755,15 +685,15 @@ renderWithAlphaFixed(int x, int y, uint width, uint height, void *opaque)
 {
 	ImageRenderAndData *irad =
 		reinterpret_cast<ImageRenderAndData*>(opaque);
-	irad->image->drawAlphaFixed(irad->rend, irad->surface,
-				    x, y, width, height, irad->data);
+	PImageData::drawAlphaFixed(irad->rend, irad->surface,
+				   x, y, width, height, irad->data);
 }
 
 /**
  * Draw image tiled to fit width and height.
  */
 void
-PImage::drawAlphaTiled(Render &rend, PSurface *surface, int x, int y,
+PImageData::drawAlphaTiled(Render &rend, PSurface *surface, int x, int y,
 		       uint width, uint height)
 {
 	ImageRenderAndData irad(this, rend, surface, _data);
@@ -780,7 +710,7 @@ PImage::drawAlphaTiled(Render &rend, PSurface *surface, int x, int y,
  * @return Returns Pixmap on success, else None.
  */
 Pixmap
-PImage::createPixmap(uchar* data, uint width, uint height)
+PImageData::createPixmap(uchar* data, uint width, uint height)
 {
 	Pixmap pix = None;
 
@@ -804,7 +734,7 @@ PImage::createPixmap(uchar* data, uint width, uint height)
  * @return Returns Pixmap mask on success, else None.
  */
 Pixmap
-PImage::createMask(uchar* data, uint width, uint height)
+PImageData::createMask(uchar* data, uint width, uint height)
 {
 	if (! _use_alpha) {
 		return None;
@@ -842,7 +772,7 @@ PImage::createMask(uchar* data, uint width, uint height)
  * @param height Height of image data is representing.
  */
 XImage*
-PImage::createXImage(uchar* data, uint width, uint height)
+PImageData::createXImage(uchar* data, uint width, uint height)
 {
 	// Create XImage
 	XImage *ximage = X11::createImage(nullptr, width, height);
@@ -899,7 +829,7 @@ scalePixel(const uchar* data, int pos, int width, float x_diff, float y_diff)
  * @return Pointer to image data on success, else nullptr.
  */
 uchar*
-PImage::getScaledData(uint dwidth, uint dheight, ScaleType type)
+PImageData::getScaledData(uint dwidth, uint dheight, ScaleType type)
 {
 	if (type == SCALE_SQUARE) {
 		float wfactor = static_cast<float>(dwidth) / _width;
@@ -912,7 +842,7 @@ PImage::getScaledData(uint dwidth, uint dheight, ScaleType type)
 }
 
 uchar*
-PImage::getScaledDataSmooth(uint dwidth, uint dheight)
+PImageData::getScaledDataSmooth(uint dwidth, uint dheight)
 {
 	if (dwidth < 1 || dheight < 1) {
 		return nullptr;
@@ -951,7 +881,7 @@ PImage::getScaledDataSmooth(uint dwidth, uint dheight)
 }
 
 uchar*
-PImage::getScaledDataSquare(uint factor)
+PImageData::getScaledDataSquare(uint factor)
 {
 	if (factor < 2) {
 		return nullptr;
@@ -973,7 +903,7 @@ PImage::getScaledDataSquare(uint factor)
 }
 
 void
-PImage::setScaledDataSquare(uint factor, const uchar *src, uchar *dst)
+PImageData::setScaledDataSquare(uint factor, const uchar *src, uchar *dst)
 {
 	for (uint y = 0; y < factor; y++) {
 		uchar *p = dst;

@@ -71,6 +71,7 @@ public:
 
 	PImage *getImage(const std::string &file);
 	void returnImage(PImage *image);
+	PImage *copyToNotOwned(PImage *image);
 
 	void takeOwnership(PImage *image);
 
@@ -89,12 +90,15 @@ private:
 				 const std::string &u_file,
 				 uint &ref,
 				 std::vector<ImageRefEntry> &images);
+	uchar* load(const std::string &file, const std::string &ext,
+		    uint &width, uint &height, bool &use_alpha);
+
 
 	void mapColors(PImage *image, const std::map<int,int> &color_map);
 
 	static void returnImage(PImage *image,
 				std::vector<ImageRefEntry> &images);
-private:
+
 	/** Default image type if none is specified */
 	ImageType _default_type;
 	/** != 1.0, images are scaled after loading by the given factor. */

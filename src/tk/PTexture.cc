@@ -134,9 +134,9 @@ PTexture::renderOnBackground(XImage *ximage,
 		return false;
 	}
 
-	PImage image(ximage, _opacity);
-	PImage::drawAlphaFixed(root_ximage, ximage, x, y, width, height,
-			       image.getData());
+	PImageData image(ximage, _opacity);
+	PImageData::drawAlphaFixed(root_ximage, ximage, x, y, width, height,
+				   image.getData());
 	X11::destroyImage(root_ximage);
 
 	return true;
