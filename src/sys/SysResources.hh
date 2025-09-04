@@ -31,6 +31,8 @@ public:
 
 	void update(const Daytime &daytime, TimeOfDay tod);
 
+	void setXResourceDpi();
+
 	void notifyXTerms();
 	void setConfiguredXResources(TimeOfDay tod);
 

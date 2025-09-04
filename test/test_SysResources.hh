@@ -18,6 +18,7 @@ public:
 
 	virtual bool run_test(TestSpec spec, bool status);
 private:
+	static void testSetXResourceDpi();
 	static void testSetConfiguredXResources();
 };
 
@@ -33,15 +34,38 @@ TestSysResources::~TestSysResources()
 bool
 TestSysResources::run_test(TestSpec spec, bool status)
 {
+	TEST_FN(spec, "setXResourceDpi", testSetXResourceDpi());
 	TEST_FN(spec, "setConfiguredXResources", testSetConfiguredXResources());
 	return status;
+}
+
+void
+TestSysResources::testSetXResourceDpi()
+{
+	OsMock os;
+	std::string config_file;
+	os.getEnv("PEKWM_CONFIG_FILE", config_file, "");
+	SysConfig cfg(config_file, &os);
+	cfg.parseConfig();
+	SysResources resources(cfg);
+	ASSERT_EQUAL("dpi configured", 120.0, cfg.getDpi());
+
+	// init xrm_db in order for calls to take effect
+	X11::loadXrmResources("");
+
+	resources.setXResourceDpi();
+	XrmResourceCbCollect collect;
+	X11::enumerateXrmResources(&collect);
+	ASSERT_EQUAL("config resource", 1, collect.size());
+	ASSERT_EQUAL("DPI", "Xft.dpi", collect.begin()->first);
+	ASSERT_EQUAL("DPI", "120", collect.begin()->second);
 }
 
 void
 TestSysResources::testSetConfiguredXResources()
 {
 	OsMock os;
-	SysConfig cfg(&os);
+	SysConfig cfg("", &os);
 	SysResources resources(cfg);
 
 	// init xrm_db in order for calls to take effect

@@ -62,11 +62,11 @@ namespace pekwm
 	}
 }
 
-PekwmSys::PekwmSys(Os *os)
+PekwmSys::PekwmSys(const std::string &config_file, Os *os)
 	: _stop(false),
 	  _os(os),
 	  _select(mkOsSelect()),
-	  _cfg(os),
+	  _cfg(config_file, os),
 	  _resources(_cfg),
 	  _tod(static_cast<TimeOfDay>(-1)),
 	  _tod_override(static_cast<TimeOfDay>(-1))
@@ -111,8 +111,9 @@ PekwmSys::main(const std::string &theme)
 		_xsettings.setServerOwner();
 		if (! _cfg.getNetIconTheme().empty()) {
 			setNetIconTheme();
-			_xsettings.updateServer();
 		}
+		setDpi();
+		_xsettings.updateServer();
 	}
 
 	_select->add(STDIN_FILENO, OsSelect::OS_SELECT_READ);
@@ -203,8 +204,14 @@ PekwmSys::handleStdin()
 		_resources.notifyXTerms();
 	} else if (pekwm::ascii_ncase_equal(command, "TIMEOFDAY")) {
 		handleSetTimeOfDay(args);
+	} else if (pekwm::ascii_ncase_equal(command, "DPI")) {
+		handleSetDpi(args);
 	} else if (pekwm::ascii_ncase_equal(command, "XSET")) {
-		handleSetXSETTING(args);
+		handleSetXSETTING(args, XSETTING_TYPE_STRING);
+	} else if (pekwm::ascii_ncase_equal(command, "XSETCOLOR")) {
+		handleSetXSETTING(args, XSETTING_TYPE_COLOR);
+	} else if (pekwm::ascii_ncase_equal(command, "XSETINT")) {
+		handleSetXSETTING(args, XSETTING_TYPE_INTEGER);
 	} else if (pekwm::ascii_ncase_equal(command, "XSAVE")) {
 		handleXSave();
 	} else {
@@ -214,13 +221,78 @@ PekwmSys::handleStdin()
 }
 
 void
-PekwmSys::handleSetXSETTING(const std::vector<std::string> &args)
+PekwmSys::handleSetXSETTING(const std::vector<std::string> &args,
+			    enum XSettingType type)
 {
 	if (args.size() != 2) {
+		P_TRACE("Sys XSet* expected 2 arguments, got " << args.size());
 		return;
 	}
-	_xsettings.setString(args[0], args[1]);
-	_xsettings.updateServer();
+
+	bool updated;
+	switch (type) {
+	case XSETTING_TYPE_INTEGER:
+		updated = setXSettingInteger(args[0], args[1]);
+		break;
+	case XSETTING_TYPE_COLOR:
+		updated = setXSettingColor(args[0], args[1]);
+		break;
+	case XSETTING_TYPE_STRING:
+		updated = setXSettingString(args[0], args[1]);
+		break;
+	}
+	if (updated) {
+		_xsettings.updateServer();
+	}
+}
+
+bool
+PekwmSys::setXSettingInteger(const std::string &key, const std::string &sval)
+{
+	int val;
+	try {
+		val = std::stoi(sval);
+	} catch (std::invalid_argument&) {
+		return false;
+	}
+	_xsettings.setInt32(key, val);
+	return true;
+}
+
+static uint16_t
+parseHex(const char *p)
+{
+	char val[3] = {p[0], p[1], 0};
+	return static_cast<uint16_t>(strtol(val, NULL, 16));
+}
+
+bool
+PekwmSys::setXSettingColor(const std::string &key, const std::string &sval)
+{
+	uint16_t r, g, b, a;
+	const char *p = sval.c_str();
+	if (*p != '#' || (sval.size() != 7 && sval.size() != 9)) {
+		return false;
+	}
+
+	// #RRGGBB(AA)
+	r = parseHex(p + 1) << 8;
+	g = parseHex(p + 3) << 8;
+	b = parseHex(p + 5) << 8;
+	if (sval.size() == 7) {
+		a = UINT16_MAX;
+	} else {
+		a = parseHex(p + 7) << 8;
+	}
+	_xsettings.setColor(key, r, g, b, a);
+	return true;
+}
+
+bool
+PekwmSys::setXSettingString(const std::string &key, const std::string &sval)
+{
+	_xsettings.setString(key, sval);
+	return true;
 }
 
 void
@@ -237,6 +309,8 @@ void
 PekwmSys::handleSetTimeOfDay(const std::vector<std::string> &args)
 {
 	if (args.size() != 1) {
+		P_TRACE("Set TimeOfDay expected 1 argument, got "
+			<< args.size());
 		return;
 	}
 
@@ -260,6 +334,33 @@ PekwmSys::handleSetTimeOfDay(const std::vector<std::string> &args)
 	}
 
 	_tod = timeOfDayChanged(getEffectiveTimeOfDay(_daytime.getTimeOfDay()));
+}
+
+void
+PekwmSys::handleSetDpi(const std::vector<std::string> &args)
+{
+	if (args.size() != 1) {
+		P_TRACE("Set Dpi expected 1 argument, got " << args.size());
+		return;
+	}
+
+	double dpi;
+	try {
+		dpi = std::stod(args[0]);
+	} catch (std::invalid_argument&) {
+		P_LOG("Set Dpi " << args[0] << " is not a valid number");
+		return;
+	}
+
+	if (dpi > 0.0) {
+		_cfg.setDpiOverride(dpi);
+		_resources.setXResourceDpi();
+		setDpi();
+		_xsettings.updateServer();
+		P_TRACE("dpi override set to " << dpi);
+	} else {
+		P_LOG("Set Dpi " << dpi << " must be greater than 0.0");
+	}
 }
 
 void
@@ -431,6 +532,7 @@ main(int argc, char *argv[])
 	progname = argv[0];
 	const char *display = NULL;
 	std::string theme;
+	std::string config_file = Util::getEnv("PEKWM_CONFIG_FILE");
 
 	static struct option opts[] = {
 		{const_cast<char*>("display"), required_argument, nullptr, 'd'},
@@ -445,9 +547,12 @@ main(int argc, char *argv[])
 	};
 
 	int ch;
-	while ((ch = getopt_long(argc, argv, "d:h:l:f:t:", opts, nullptr))
+	while ((ch = getopt_long(argc, argv, "c:d:h:l:f:t:", opts, nullptr))
 	       != -1) {
 		switch (ch) {
+		case 'c':
+			config_file = optarg;
+			break;
 		case 'd':
 			display = optarg;
 			break;
@@ -476,15 +581,19 @@ main(int argc, char *argv[])
 		return 1;
 	}
 
-
 	struct sigaction act;
 	act.sa_handler = sigHandler;
 	act.sa_mask = sigset_t();
 	act.sa_flags = SA_NOCLDSTOP | SA_NODEFER;
 	sigaction(SIGCHLD, &act, 0);
 
+	if (config_file.empty()) {
+		config_file = Util::getConfigDir() + "/config";
+	}
+	Util::expandFileName(config_file);
+
 	Destruct<Os> os(mkOs());
-	PekwmSys sys(*os);
+	PekwmSys sys(config_file, *os);
 	return sys.main(theme);
 }
 

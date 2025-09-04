@@ -22,7 +22,7 @@ public:
 	typedef std::vector<std::string> string_vector;
 	typedef std::map<std::string, std::string> string_map;
 
-	SysConfig(Os *os);
+	SysConfig(const std::string &config_file, Os *os);
 	SysConfig(const SysConfig &cfg);
 	~SysConfig();
 
@@ -31,9 +31,16 @@ public:
 	bool isXSettingsEnabled() const { return _enable_xsettings; }
 	const std::string& getXSettingsPath() const { return _xsettings_path; }
 
+	bool haveDpi() const {
+		return _dpi_override != 0.0 || ! isnan(_dpi);
+	}
+	double getDpi() const {
+		return _dpi_override == 0.0 ? _dpi : _dpi_override;
+	}
+	void setDpiOverride(double dpi) { _dpi_override = dpi; }
+
 	bool isLocationLookup() const { return _location_lookup; }
-	bool haveLocation() const
-	{
+	bool haveLocation() const {
 		return ! isnan(_latitude) && ! isnan(_longitude);
 	}
 	double getLatitude() const { return _latitude; }
@@ -92,10 +99,14 @@ public:
 private:
 	void parseCommands(CfgParser::Entry *section, string_vector &commands);
 
+	std::string _config_file;
 	Os *_os;
 
 	bool _enable_xsettings;
 	std::string _xsettings_path;
+
+	double _dpi;
+	double _dpi_override;
 
 	bool _location_lookup;
 	double _latitude;

@@ -57,6 +57,17 @@ Verify resource changes on daytime changes.
 [shell resources]
 	[call verify-resources-$tod]
 
+[shell pekwm_sys]
+	[log set dpi 100]
+	%%u32[len(0)]%s[0] -- "Dpi 100"
+	?dpi override set to 100
+
+[shell resources]
+	[log verify dpi xresource]
+	!xrdb -query
+	?Xft.dpi:\s+100
+	?SH-PROMPT:
+
 [shell test]
 	[call toggle-tod]
 

@@ -12,8 +12,8 @@
 
 class TestSysConfig : public TestSuite {
 public:
-	TestSysConfig(void);
-	virtual ~TestSysConfig(void);
+	TestSysConfig();
+	virtual ~TestSysConfig();
 
 	virtual bool run_test(TestSpec spec, bool status);
 private:
@@ -21,12 +21,12 @@ private:
 	static void testParseConfigInvalidLatLong();
 	static void testParseConfigXResources();
 };
-TestSysConfig::TestSysConfig(void)
+TestSysConfig::TestSysConfig()
 	: TestSuite("SysConfig")
 {
 }
 
-TestSysConfig::~TestSysConfig(void)
+TestSysConfig::~TestSysConfig()
 {
 }
 
@@ -44,7 +44,7 @@ void
 TestSysConfig::testParseConfig()
 {
 	OsMock os;
-	SysConfig cfg(&os);
+	SysConfig cfg("../test/data/config.pekwm_sys", &os);
 	ASSERT_TRUE("parseConfig", cfg.parseConfig());
 	ASSERT_EQUAL("parseConfig", true, cfg.isXSettingsEnabled());
 	ASSERT_EQUAL("parseConfig", false, cfg.isLocationLookup());
@@ -83,21 +83,18 @@ void
 TestSysConfig::testParseConfigInvalidLatLong()
 {
 	OsMock os;
-	SysConfig cfg(&os);
+	SysConfig cfg1("../test/data/config.pekwm_sys.invalid_lat", &os);
 
-	os.setEnv("PEKWM_CONFIG_FILE",
-		  "../test/data/config.pekwm_sys.invalid_lat");
-	ASSERT_TRUE("parseConfig", cfg.parseConfig());
-	ASSERT_FALSE("haveLocation", cfg.haveLocation());
-	ASSERT_TRUE("latitude NAN", isnan(cfg.getLatitude()));
-	ASSERT_FALSE("longitude NAN", isnan(cfg.getLongitude()));
+	ASSERT_TRUE("parseConfig", cfg1.parseConfig());
+	ASSERT_FALSE("haveLocation", cfg1.haveLocation());
+	ASSERT_TRUE("latitude NAN", isnan(cfg1.getLatitude()));
+	ASSERT_FALSE("longitude NAN", isnan(cfg1.getLongitude()));
 
-	os.setEnv("PEKWM_CONFIG_FILE",
-		  "../test/data/config.pekwm_sys.invalid_long");
-	ASSERT_TRUE("parseConfig", cfg.parseConfig());
-	ASSERT_FALSE("haveLocation", cfg.haveLocation());
-	ASSERT_FALSE("latitude NAN", isnan(cfg.getLatitude()));
-	ASSERT_TRUE("longitude NAN", isnan(cfg.getLongitude()));
+	SysConfig cfg2("../test/data/config.pekwm_sys.invalid_long", &os);
+	ASSERT_TRUE("parseConfig", cfg2.parseConfig());
+	ASSERT_FALSE("haveLocation", cfg2.haveLocation());
+	ASSERT_FALSE("latitude NAN", isnan(cfg2.getLatitude()));
+	ASSERT_TRUE("longitude NAN", isnan(cfg2.getLongitude()));
 }
 
 void

@@ -18,7 +18,7 @@
 
 class PekwmSys {
 public:
-	PekwmSys(Os *os);
+	PekwmSys(const std::string &config_file, Os *os);
 	~PekwmSys();
 
 	int main(const std::string &theme);
@@ -29,9 +29,15 @@ private:
 	void handleSigchld();
 	void handleXEvent(XEvent &ev);
 	void handleStdin();
-	void handleSetXSETTING(const std::vector<std::string> &args);
+	void handleSetXSETTING(const std::vector<std::string> &args,
+			       enum XSettingType type);
+	bool setXSettingInteger(const std::string &key,
+				const std::string &sval);
+	bool setXSettingColor(const std::string &key, const std::string &sval);
+	bool setXSettingString(const std::string &key, const std::string &sval);
 	void handleXSave();
 	void handleSetTimeOfDay(const std::vector<std::string> &args);
+	void handleSetDpi(const std::vector<std::string> &args);
 	void handleTheme(const StringView &theme);
 
 	void reload();
@@ -76,6 +82,12 @@ private:
 			_xsettings.remove("Net/IconThemeName");
 		} else {
 			_xsettings.setString("Net/IconThemeName", theme);
+		}
+	}
+	void setDpi()
+	{
+		if (_cfg.haveDpi()) {
+			_xsettings.setInt32("Xft/DPI", _cfg.getDpi() * 1024);
 		}
 	}
 

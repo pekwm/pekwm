@@ -35,6 +35,7 @@ Screen {
 //	Latitude = "0.0"
 //	Longitude = "0.0"
 //	XSettings = "True"
+//	Dpi = "96.0"
 //	NetTheme = ""
 //	NetIconTheme = ""
 //	XResources {

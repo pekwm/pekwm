@@ -91,6 +91,10 @@ SysResources::setXResources(const Daytime &daytime, TimeOfDay tod,
 			    const char *daylight, const char *theme_variant)
 {
 	X11::loadXrmResources();
+
+	if (_cfg.haveDpi()) {
+		X11::setXrmString("Xft.dpi", std::to_string(_cfg.getDpi()));
+	}
 	X11::setXrmString("pekwm.daylight", daylight);
 	X11::setXrmString("pekwm.theme.variant", theme_variant);
 	if (_cfg.haveLocation()) {
@@ -114,6 +118,17 @@ SysResources::setXResources(const Daytime &daytime, TimeOfDay tod,
 
 	setConfiguredXResources(tod);
 
+	X11::saveXrmResources();
+}
+
+void
+SysResources::setXResourceDpi()
+{
+	if (! _cfg.haveDpi()) {
+		return;
+	}
+	X11::loadXrmResources();
+	X11::setXrmString("Xft.dpi", std::to_string(_cfg.getDpi()));
 	X11::saveXrmResources();
 }
 

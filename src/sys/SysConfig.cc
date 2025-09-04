@@ -15,10 +15,13 @@ extern "C" {
 #include <math.h>
 }
 
-SysConfig::SysConfig(Os *os)
-	: _os(os),
+SysConfig::SysConfig(const std::string &config_file, Os *os)
+	: _config_file(config_file),
+	  _os(os),
 	  _enable_xsettings(true),
 	  _xsettings_path("~/.pekwm/xsettings.save"),
+	  _dpi(NAN),
+	  _dpi_override(0.0),
 	  _location_lookup(false),
 	  _latitude(NAN),
 	  _longitude(NAN)
@@ -27,9 +30,12 @@ SysConfig::SysConfig(Os *os)
 }
 
 SysConfig::SysConfig(const SysConfig &cfg)
-	: _os(cfg._os),
+	: _config_file(cfg._config_file),
+	  _os(cfg._os),
 	  _enable_xsettings(cfg._enable_xsettings),
 	  _xsettings_path(cfg._xsettings_path),
+	  _dpi(cfg._dpi),
+	  _dpi_override(cfg._dpi_override),
 	  _location_lookup(cfg._location_lookup),
 	  _latitude(cfg._latitude),
 	  _longitude(cfg._longitude),
@@ -52,13 +58,8 @@ SysConfig::~SysConfig()
 bool
 SysConfig::parseConfig()
 {
-	std::string config_file;
-	if (! _os->getEnv("PEKWM_CONFIG_FILE", config_file)) {
-		return false;
-	}
-
 	CfgParser cfg(CfgParserOpt(""));
-	if (! cfg.parse(config_file, CfgParserSource::SOURCE_FILE, true)) {
+	if (! cfg.parse(_config_file, CfgParserSource::SOURCE_FILE, true)) {
 		return false;
 	}
 
@@ -67,6 +68,7 @@ SysConfig::parseConfig()
 	keys.add_path("XSETTINGSPATH", _xsettings_path,
 		      "~/.pekwm/xsettings.save");
 	keys.add_bool("LOCATIONLOOKUP", _location_lookup, false);
+	keys.add_numeric<double>("DPI", _dpi, NAN);
 	keys.add_numeric<double>("LATITUDE", _latitude, NAN, -90.0, 90.0);
 	keys.add_numeric<double>("LONGITUDE", _longitude, NAN, -180.0, 180.0);
 	keys.add_string("TIMEOFDAY", _tod, "AUTO");

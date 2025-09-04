@@ -3,6 +3,7 @@ Sys {
 	LocationLookup = "False"
 	Latitude = "32.01"
 	Longitude = "16.01"
+	Dpi = "120.0"
 	NetTheme = "Raleigh"
 	DaytimeCommands {
 		Daytime1 = "daytime1"
