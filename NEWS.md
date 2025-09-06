@@ -63,6 +63,10 @@ New
 * #192, add `TextBackground` to themes supporting a separate texture under
   the text render on titles. Font padding is included in the width when
   rendering the texture.
+* #194, add Sys XSetInt and XSetColor for setting integer and color XSETTINGS.
+* #194, add Sys Dpi command for dynamic reconfiguration of the current Dpi
+  XSETTING and X resource.
+* #194, add WmSet Scale for dynamic override of the Scale setting.
 
 Updated
 -------

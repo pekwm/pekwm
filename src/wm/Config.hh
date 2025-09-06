@@ -22,6 +22,10 @@
 #include <map>
 #include <utility>
 
+extern "C" {
+#include <math.h>
+}
+
 /**
  * Enum describing the different limits of a size limit.
  */
@@ -135,7 +139,15 @@ public:
 	}
 
 	// Screen
-	float getScreenScale() const { return _screen_scale; }
+	float getScreenScale() const {
+		if (_screen_scale_override != 0.0) {
+			return _screen_scale_override;
+		}
+		return _screen_scale;
+	}
+	void setScreenScaleOverride(float scale) {
+		_screen_scale_override = scale;
+	}
 	bool getThemeBackground(void) const {
 		return _screen_theme_background;
 	}
@@ -368,6 +380,7 @@ private:
 
 	// screen
 	float _screen_scale;
+	float _screen_scale_override;
 	bool _screen_theme_background;
 	uint _screen_workspaces;
 	bool _screen_workspaces_back_and_forth;

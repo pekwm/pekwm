@@ -64,6 +64,8 @@ public:
 	void handleButtonPressEvent(XButtonEvent *ev);
 	void handleButtonReleaseEvent(XButtonEvent *ev);
 
+	bool setScale(double old_scale, double new_scale, bool reload=true);
+
 protected:
 	WindowManager(Os *os, bool standalone);
 
@@ -170,5 +172,10 @@ private:
 	 */
 	bool _skip_enter;
 };
+
+namespace pekwm
+{
+	WindowManager *windowManager();
+}
 
 #endif // _PEKWM_WINDOWMANAGER_HH_

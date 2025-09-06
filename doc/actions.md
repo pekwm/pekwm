@@ -234,6 +234,30 @@ to move right, -1 to move left.
 
 Activates a client of a frame.
 
+**Sys**
+
+Interacts with *pekwm_sys* process if it is enabled.
+
+* TimeOfDay Arg, controls the time of day updating theme settings if changed.
+  - Auto, set time of day based on the current time and location.
+  - Toggle, toggles between day and night.
+  - Next, moves between times of day, Dawn -> Day -> Dusk -> Night
+  - Dawn, sets time of day to Dawn.
+  - Day, sets time of day to Day.
+  - Dusk, sets time of day to Dusk
+  - Night, sets time of day to Night.
+* Dpi Dpi, updates the dpi setting, sets _Xft.dpi_ X resources and _Xft/DPI_ XSetting.
+* XSet _Key Value_, set string XSetting value.
+* XSetColor _Key #rrggbb(aa)_, set color XSetting value.
+* XSetInt _Key Int32_, set int32 XSetting value.
+* XSave, store current configured XSettings to _~/.pekwm/xsettings.save_, loaded on next start.
+
+**WmSet**
+
+Runtime configuration overrides for *pekwm*
+
+* Scale, overrides _Screen.Scale_ setting updating window decorations to match.
+
 ### Mouse Only Actions
 
 **ActivateClientNum (int)**

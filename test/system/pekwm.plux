@@ -216,6 +216,26 @@ in one go.
 		?SH-PROMPT:
 [endfunction]
 
+[function test_wmset_scale]
+	[log test_wmset_scale]
+
+	[shell pekwm_ctrl]
+		!$$VALGRIND $BIN_DIR/ctrl/pekwm_ctrl WmSet Scale 2.0
+		?SH-PROMPT:
+
+	[shell pekwm]
+		?received _PEKWM_CMD: WmSet Scale 2.0
+		?start action WmSet wo 0
+		?sent THEME .* to pekwm_sys
+		?end action WmSet wo 0
+
+	[shell xprop]
+		[log verify _PEKWM_THEME_SCALE]
+		!xprop -root _PEKWM_THEME_SCALE
+		???_PEKWM_THEME_SCALE(STRING) = "2"
+		?SH-PROMPT:
+[endfunction]
+
 [function test_warp_pointer]
 	[shell test]
 		[log test_warp_pointer]
@@ -544,6 +564,7 @@ in one go.
 	[call test_net_request_frame_extents]
 	[call test_update_client_list_report_all]
 	[call test_restack_window]
+	[call test_wmset_scale]
 
 [shell pekwm]
 	!$_CTRL_C_

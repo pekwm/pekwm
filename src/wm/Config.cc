@@ -167,6 +167,7 @@ Config::Config() :
 	_moveresize_woattract(0), _moveresize_woresist(0),
 	_moveresize_opaquemove(0), _moveresize_opaqueresize(0),
 	_screen_scale(1.0),
+	_screen_scale_override(0.0),
 	_screen_theme_background(true),
 	_screen_workspaces(4),
 	_screen_workspaces_back_and_forth(true),
@@ -225,7 +226,6 @@ Config::Config() :
 	}
 }
 
-//! @brief Destructor for Config class
 Config::~Config(void)
 {
 	mouse_action_map::iterator it = _mouse_action_map.begin();

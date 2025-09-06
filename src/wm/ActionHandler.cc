@@ -27,6 +27,7 @@
 #include "ActionMenu.hh"
 #include "FrameListMenu.hh"
 #include "ManagerWindows.hh"
+#include "WindowManager.hh"
 #include "X11.hh"
 
 #include "FocusToggleEventHandler.hh"
@@ -446,6 +447,9 @@ ActionHandler::handleAnyAction(const ActionPerformed* ap, ActionEvent::it it,
 		break;
 	case ACTION_SYS:
 		actionSys(it->getParamS());
+		break;
+	case ACTION_WM_SET:
+		actionWmSet(it->getParamS());
 		break;
 	case ACTION_WARP_POINTER:
 		actionWarpPointer(it->getParamI(0),
@@ -1090,6 +1094,38 @@ ActionHandler::actionSys(const std::string &cmd)
 	_sys_process->write(reinterpret_cast<char*>(&len), sizeof(len));
 	_sys_process->write(cmd);
 	P_TRACE("sent " << cmd << " to pekwm_sys");
+}
+
+/**
+ * Handling of dynamic configurations such as Scale.
+ */
+void
+ActionHandler::actionWmSet(const std::string &args_str)
+{
+	std::vector<std::string> args = StringUtil::shell_split(args_str);
+	if (pekwm::ascii_ncase_equal("SCALE", args[0])) {
+		actionWmSetScale(args);
+	} else {
+		P_TRACE("unknown WmSet command " << args_str);
+	}
+}
+
+void
+ActionHandler::actionWmSetScale(const std::vector<std::string> &args)
+{
+	if (args.size() != 2) {
+		return;
+	}
+
+	double scale;
+	try {
+		scale = std::stod(args[1]);
+	} catch (std::invalid_argument&) {
+		return;
+	}
+	double old_scale = pekwm::config()->getScreenScale();
+	pekwm::config()->setScreenScaleOverride(scale);
+	pekwm::windowManager()->setScale(old_scale, scale);
 }
 
 /**

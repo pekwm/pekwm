@@ -101,6 +101,8 @@ private:
 				   Frame *frame, PWinObj *wo);
 	bool actionWarpPointer(int x, int y);
 	void actionSys(const std::string &cmd);
+	void actionWmSet(const std::string &args_str);
+	void actionWmSetScale(const std::vector<std::string> &args);
 
 	// action helpers
 	Client *findClientFromTitle(const std::string &title);

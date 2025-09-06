@@ -100,8 +100,9 @@ extern "C" {
 
 } // extern "C"
 
-
 // WindowManager
+
+static WindowManager *_wm = nullptr;
 
 /**
  * Create window manager instance and run main routine.
@@ -182,6 +183,8 @@ WindowManager::WindowManager(Os *os, bool standalone)
 	sigaction(SIGINT, &act, 0);
 	sigaction(SIGHUP, &act, 0);
 	sigaction(SIGCHLD, &act, 0);
+
+	_wm = this;
 }
 
 //! @brief WindowManager destructor
@@ -195,6 +198,7 @@ WindowManager::~WindowManager(void)
 	delete _sys_process;
 	delete _select;
 	delete _os;
+	_wm = nullptr;
 }
 
 /**
@@ -512,14 +516,8 @@ WindowManager::doReloadConfig(bool &scale_changed)
 		return;
 	}
 
-	scale_changed = old_screen_scale != cfg->getScreenScale();
-	if (scale_changed) {
-		X11::setString(X11::getRoot(), PEKWM_THEME_SCALE,
-			       std::to_string(cfg->getScreenScale()));
-		pekwm::fontHandler()->setScale(cfg->getScreenScale());
-		pekwm::imageHandler()->setScale(cfg->getScreenScale());
-		pekwm::textureHandler()->setScale(cfg->getScreenScale());
-	}
+	scale_changed = setScale(old_screen_scale, cfg->getScreenScale(),
+				 false);
 
 	// Update what might have changed in the cfg touching the hints
 	Workspaces::setSize(cfg->getWorkspaces());
@@ -541,6 +539,23 @@ WindowManager::doReloadConfig(bool &scale_changed)
 	screenEdgeMapUnmap();
 
 	pekwm::rootWo()->updateStrut();
+}
+
+bool
+WindowManager::setScale(double old_scale, double new_scale, bool reload)
+{
+	bool scale_changed = old_scale != new_scale;
+	if (scale_changed) {
+		X11::setString(X11::getRoot(), PEKWM_THEME_SCALE,
+			       std::to_string(new_scale));
+		pekwm::fontHandler()->setScale(new_scale);
+		pekwm::imageHandler()->setScale(new_scale);
+		pekwm::textureHandler()->setScale(new_scale);
+		if (reload) {
+			doReloadTheme(true);
+		}
+	}
+	return scale_changed;
 }
 
 /**
@@ -1848,4 +1863,9 @@ WindowManager::showDialog(const std::string &title, const std::string &msg)
 	args.push_back(title);
 	args.push_back(msg);
 	_os->processExec(args);
+}
+
+namespace pekwm
+{
+	WindowManager *windowManager() { return _wm; }
 }
