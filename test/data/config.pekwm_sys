@@ -4,6 +4,8 @@ Sys {
 	Latitude = "32.01"
 	Longitude = "16.01"
 	Dpi = "120.0"
+	MonitorLoadOnChange = "True"
+	MonitorAutoConfigure = "False"
 	NetTheme = "Raleigh"
 	DaytimeCommands {
 		Daytime1 = "daytime1"

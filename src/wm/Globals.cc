@@ -18,6 +18,7 @@
 #include "Timeouts.hh"
 
 #include "tk/FontHandler.hh"
+#include "tk/Hooks.hh"
 #include "tk/ImageHandler.hh"
 #include "tk/TextureHandler.hh"
 #include "tk/Theme.hh"
@@ -33,6 +34,7 @@ static std::string _config_script_path;
 static FontHandler* _font_handler = nullptr;
 static Harbour* _harbour = nullptr;
 static HintWO* _hint_wo = nullptr;
+static Hooks* _hooks = nullptr;
 static ImageHandler* _image_handler = nullptr;
 static KeyGrabber* _key_grabber = nullptr;
 static RootWO* _root_wo = nullptr;
@@ -65,6 +67,9 @@ namespace pekwm
 		// configuration parsing require X11 to get atom and
 		// resource variables expanded properly
 		X11::init(dpy, synchronous, true);
+
+		// used by config
+		_hooks = new Hooks(os);
 
 		_config = new Config();
 		_config->load(config_file);
@@ -136,6 +141,7 @@ namespace pekwm
 		delete _root_wo;
 		PWinObj::setRootPWinObj(nullptr);
 		delete _hint_wo;
+		delete _hooks;
 
 		X11::destruct();
 
@@ -181,6 +187,11 @@ namespace pekwm
 	Harbour* harbour(void)
 	{
 		return _harbour;
+	}
+
+	Hooks* hooks()
+	{
+		return _hooks;
 	}
 
 	RootWO* rootWo(void)

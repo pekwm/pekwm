@@ -30,12 +30,22 @@ Screen {
 //	Level = "debug"
 //}
 
+Hooks {
+	# Script executed when a change in connected monitors is detected
+	OnMonitorChange = ""
+	# Script executed when a change in monitor configuration is detected
+	# (xrandr changes)
+	OnMonitorConfigurationChange = ""
+}
+
 //Sys {
 //	LocationLookup = "False"
 //	Latitude = "0.0"
 //	Longitude = "0.0"
 //	XSettings = "True"
 //	Dpi = "96.0"
+//	MonitorLoadOnChange = "False"
+//	MonitorAutoConfigure = "False"
 //	NetTheme = ""
 //	NetIconTheme = ""
 //	XResources {

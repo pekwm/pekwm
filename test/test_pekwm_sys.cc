@@ -12,6 +12,7 @@
 
 #include "test_PekwmSys.hh"
 #include "test_SysConfig.hh"
+#include "test_SysMonitorConfig.hh"
 #include "test_SysResources.hh"
 #include "test_XSettings.hh"
 
@@ -22,6 +23,7 @@ main(int argc, char *argv[])
 
 	TestPekwmSys testPekwmSys;
 	TestSysConfig testSysConfig;
+	TestSysMonitorConfig testSysMonitorConfig;
 	TestSysResources testSysResources;
 	TestXSettings testXSettings;
 

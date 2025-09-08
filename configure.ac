@@ -9,6 +9,11 @@ AC_PROG_RANLIB
 AC_PROG_SED
 PKG_PROG_PKG_CONFIG
 
+AC_ARG_ENABLE(tests,
+	      [AC_HELP_STRING([--enable-tests], [Enable compilation of tests])],
+	      [TESTS=yes], [TESTS=no])
+AM_CONDITIONAL([ENABLE_TESTS], [test "x$TESTS" = "xyes"])
+
 dnl Check for /usr/xpg4/bin/sh and use if available to make shipped scripts
 dnl work as expected under Solaris
 AC_CHECK_PROG([PEKWM_SH], [sh], [/usr/xpg4/bin/sh], [/bin/sh], [/usr/xpg4/bin])
@@ -232,6 +237,14 @@ if test "x$XRANDR_FOUND" = "xyes"; then
 			 [Define to 1 if XRRGetOutputPrimary is available])])
 fi
 AM_CONDITIONAL([PEKWM_WITH_XRANDR], [test "x$XRANDR_FOUND" = "xyes"])
+
+PKG_CHECK_MODULES([libudev], [libudev >= 100],
+		  [AC_DEFINE([PEKWM_HAVE_LIBUDEV], [1],
+			     [Define to 1 if libudev is available])
+		   LIBUDEV_FOUND=yes
+		   FEATURES="$FEATURES libudev"],
+		  [LIBUDEV_FOUND=no])
+AM_CONDITIONAL([PEKWM_WITH_LIBUDEV], [test "x$LIBUDEV_FOUND" = "xyes"])
 
 AC_LANG_PUSH([C++])
 

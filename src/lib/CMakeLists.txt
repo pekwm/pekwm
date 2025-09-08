@@ -17,6 +17,7 @@ set(lib_SOURCES
     HttpClient.cc
     Json.cc
     Location.cc
+    Md5.cc
     Observable.cc
     Os.cc
     RegexString.cc
@@ -24,7 +25,8 @@ set(lib_SOURCES
     Timeouts.cc
     Tokenizer.cc
     Util.cc
-    X11.cc)
+    X11.cc
+    X11_XRandr.cc)
 
 add_library(lib STATIC ${lib_SOURCES})
 target_include_directories(lib PUBLIC

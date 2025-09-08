@@ -5,6 +5,7 @@ libpekwm_tk_a_SOURCES = Action.cc Action.hh \
 			ColorPalette.cc ColorPalette.hh \
 			FontHandler.cc FontHandler.hh \
 			Handler.hh \
+			Hooks.cc Hooks.hh \
 			ImageHandler.cc ImageHandler.hh \
 			PFont.cc PFont.hh \
 			PFontPango.cc PFontPango.hh \

@@ -121,6 +121,7 @@ enum AtomName {
 	STRING,
 	MANAGER,
 	RESOURCE_MANAGER,
+	EDID,
 
 	// pekwm atom names
 	PEKWM_FRAME_ID,
@@ -429,15 +430,22 @@ public:
 	static int getScreenNum(void) { return _screen; }
 	static Window getRoot(void) { return _root; }
 	static const Geometry &getScreenGeometry(void) { return _screen_gm; }
-	static uint getWidth(void)  { return _screen_gm.width; }
-	static uint getHeight(void) { return _screen_gm.height; }
-	static int getDepth(void) { return _depth; }
+	static uint getWidth() { return _screen_gm.width; }
+	static uint getHeight() { return _screen_gm.height; }
+	static int getWidthMm() {
+		return _dpy ? DisplayWidthMM(_dpy, _screen) : 0;
+	}
+	static int getHeightMm() {
+		return _dpy ? DisplayHeightMM(_dpy, _screen) : 0;
+	}
+	static int getDepth() { return _depth; }
 	static Visual *getVisual() { return _visual; }
 	static bool getVisualInfo(XVisualInfo &info);
 	static GC getGC(void) { return _gc; }
 	static Colormap getColormap(void) { return _colormap; }
 	static uint getNumLock(void) { return _num_lock; }
 	static uint getScrollLock(void) { return _scroll_lock; }
+	static bool hasExtensionXRandr() { return _xrandr_extension != 0; }
 	static bool hasExtensionShape(void) { return _has_extension_shape; }
 	static int getEventShape(void) { return _event_shape; }
 	static bool hasExtensionXdbe(void) {return _has_extension_xdbe; }

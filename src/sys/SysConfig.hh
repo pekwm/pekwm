@@ -49,6 +49,10 @@ public:
 	void setLongitude(double longitude) { _longitude = longitude; }
 	const std::string &getTimeOfDay() const { return _tod; }
 
+	const std::string &getMonitorsPath() const { return _monitors_path; }
+	bool isMonitorLoadOnChange() const { return _monitor_load_on_change; }
+	bool isMonitorAutoConfig() const { return _monitor_auto_configure; }
+
 	const string_vector &getDaytimeCommands() const {
 		return _daytime_commands;
 	}
@@ -117,6 +121,14 @@ private:
 	string_vector _daytime_commands;
 	/* Commands run whenever location changes */
 	string_vector _location_commands;
+
+	std::string _monitors_path;
+	/* if true, monitor configuration is loaded (if matching) upon
+	 * connect/disconnect of a monitor */
+	bool _monitor_load_on_change;
+	/* if true, monitor will be auto configured right of current monitor
+	 * upon connect if load is disabled/fails. */
+	bool _monitor_auto_configure;
 
 	/* If set, update Net/ThemeName XSetting with no suffix or -dark
 	 * suffix depending on time of day */

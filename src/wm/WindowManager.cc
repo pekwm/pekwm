@@ -41,6 +41,7 @@
 #include "tk/Color.hh"
 #include "tk/CfgUtil.hh"
 #include "tk/FontHandler.hh"
+#include "tk/Hooks.hh"
 #include "tk/PFont.hh"
 #include "tk/PTexture.hh"
 #include "tk/PWinObj.hh"
@@ -1033,12 +1034,17 @@ WindowManager::handleEvent(XEvent &ev)
 			pekwm::harbour()->updateGeometry();
 			screenEdgeResize();
 
-			// Make sure windows are visible after resize
+			// Make sure windows are visible after re-size
 			std::vector<PDecor*>::const_iterator it =
 				PDecor::pdecor_begin();
 			for (; it != PDecor::pdecor_end(); ++it) {
 				Workspaces::placeWoInsideScreen(*it);
 			}
+
+			std::map<std::string, std::string> args;
+			pekwm::hooks()->run(
+				PEKWM_HOOK_ON_MONITOR_CONFIGURATION_CHANGE,
+				args);
 		}
 		break;
 	}

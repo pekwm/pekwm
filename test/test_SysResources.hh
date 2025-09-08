@@ -58,7 +58,7 @@ TestSysResources::testSetXResourceDpi()
 	X11::enumerateXrmResources(&collect);
 	ASSERT_EQUAL("config resource", 1, collect.size());
 	ASSERT_EQUAL("DPI", "Xft.dpi", collect.begin()->first);
-	ASSERT_EQUAL("DPI", "120", collect.begin()->second);
+	ASSERT_EQUAL("DPI", "120.00", collect.begin()->second);
 }
 
 void
