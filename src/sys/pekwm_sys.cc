@@ -12,10 +12,13 @@
 #include "CfgParser.hh"
 #include "Debug.hh"
 #include "String.hh"
+#include "SysMonitorConfig.hh"
 #include "Location.hh"
 #include "Mem.hh"
+#include "Util.hh"
 #include "X11.hh"
 
+#include "../tk/Hooks.hh"
 #include "../tk/ThemeUtil.hh"
 
 extern "C" {
@@ -28,6 +31,7 @@ enum PekwmSysAction {
 };
 
 static bool _is_sigchld = false;
+static Hooks *_hooks = nullptr;
 
 #ifndef UNITTEST
 
@@ -60,10 +64,16 @@ namespace pekwm
 	{
 		return _config_script_path;
 	}
+
+	Hooks *hooks()
+	{
+		return _hooks;
+	}
 }
 
-PekwmSys::PekwmSys(const std::string &config_file, Os *os)
+PekwmSys::PekwmSys(const std::string &config_file, bool interactive, Os *os)
 	: _stop(false),
+	  _interactive(interactive),
 	  _os(os),
 	  _select(mkOsSelect()),
 	  _cfg(config_file, os),
@@ -118,6 +128,11 @@ PekwmSys::main(const std::string &theme)
 
 	_select->add(STDIN_FILENO, OsSelect::OS_SELECT_READ);
 	_select->add(X11::getFd(), OsSelect::OS_SELECT_READ);
+	if (_monitor_change.getFd() >= 0) {
+		P_TRACE("listening for udev changes on "
+			<< _monitor_change.getFd());
+		_select->add(_monitor_change.getFd(), OsSelect::OS_SELECT_READ);
+	}
 
 	P_TRACE("Enter event loop.");
 	do {
@@ -144,6 +159,9 @@ PekwmSys::main(const std::string &theme)
 			} else if (_select->isSet(STDIN_FILENO,
 						  OsSelect::OS_SELECT_READ)) {
 				handleStdin();
+			} else if (_select->isSet(_monitor_change.getFd(),
+						  OsSelect::OS_SELECT_READ)) {
+				handleMonitorChange();
 			}
 		}
 	} while (! _stop);
@@ -184,14 +202,20 @@ PekwmSys::handleXEvent(XEvent &ev)
 void
 PekwmSys::handleStdin()
 {
-	uint32_t len;
-	std::cin.read(reinterpret_cast<char*>(&len), sizeof(len));
+	std::string buf;
+	std::vector<std::string> args;
+	if (_interactive) {
+		std::getline(std::cin, buf);
+		args = StringUtil::shell_split(buf);
+	} else {
+		uint32_t len;
+		std::cin.read(reinterpret_cast<char*>(&len), sizeof(len));
 
-	Buf<char> buf(len + 1);
-	std::cin.read(*buf, len);
-	(*buf)[len] = '\0';
+		buf.resize(len + 1);
+		std::cin.read(const_cast<char*>(buf.data()), len);
+		args = StringUtil::shell_split(buf);
+	}
 
-	std::vector<std::string> args = StringUtil::shell_split(*buf);
 	std::string command = args[0];
 	args.erase(args.begin());
 
@@ -200,12 +224,16 @@ PekwmSys::handleStdin()
 	} else if (pekwm::ascii_ncase_equal(command, "RELOAD")) {
 		reload();
 	} else if (pekwm::ascii_ncase_equal(command, "THEME")) {
-		handleTheme(StringView(*buf, 0, 6));
+		handleTheme(StringView(buf, 0, 6));
 		_resources.notifyXTerms();
 	} else if (pekwm::ascii_ncase_equal(command, "TIMEOFDAY")) {
 		handleSetTimeOfDay(args);
 	} else if (pekwm::ascii_ncase_equal(command, "DPI")) {
 		handleSetDpi(args);
+	} else if (pekwm::ascii_ncase_equal(command, "MONLOAD")) {
+		handleMonLoad(args);
+	} else if (pekwm::ascii_ncase_equal(command, "MONSAVE")) {
+		handleMonSave(args);
 	} else if (pekwm::ascii_ncase_equal(command, "XSET")) {
 		handleSetXSETTING(args, XSETTING_TYPE_STRING);
 	} else if (pekwm::ascii_ncase_equal(command, "XSETCOLOR")) {
@@ -217,6 +245,22 @@ PekwmSys::handleStdin()
 	} else {
 		// unknown command
 		P_DBG("unknown command: " << command);
+	}
+}
+
+void
+PekwmSys::handleMonitorChange()
+{
+	if (_monitor_change.handle()) {
+		bool loaded = false;
+		if (_cfg.isMonitorLoadOnChange()) {
+			loaded = monLoad();
+		}
+		if (! loaded && _cfg.isMonitorAutoConfig()) {
+			monAutoConfig();
+		}
+		std::map<std::string, std::string> args;
+		pekwm::hooks()->run(PEKWM_HOOK_ON_MONITOR_CHANGE, args);
 	}
 }
 
@@ -364,6 +408,28 @@ PekwmSys::handleSetDpi(const std::vector<std::string> &args)
 }
 
 void
+PekwmSys::handleMonLoad(const std::vector<std::string> &args)
+{
+	monLoad();
+}
+
+void
+PekwmSys::handleMonSave(const std::vector<std::string> &args)
+{
+	const std::string &path = _cfg.getMonitorsPath();
+	P_TRACE("save monitor configuration to " << path);
+	SysMonitorConfig config;
+	config.load(path);
+	SysMonitorConfig::MonitorsConfig monitors;
+	if (config.mk(monitors)) {
+		config.add(monitors);
+		config.save(path);
+	} else {
+		P_TRACE("failed to create configuration monitor configuration");
+	}
+}
+
+void
 PekwmSys::handleTheme(const StringView &theme)
 {
 	std::map<std::string, std::string> x_resources;
@@ -437,6 +503,26 @@ PekwmSys::reload()
 		P_TRACE("X resources for changed");
 		_resources.setConfiguredXResources(tod);
 	}
+}
+
+bool
+PekwmSys::monLoad()
+{
+	const std::string &path = _cfg.getMonitorsPath();
+	P_TRACE("apply monitor configuration from " << path);
+	SysMonitorConfig config;
+	SysMonitorConfig::MonitorsConfig monitors;
+	if (config.load(path) && config.find(monitors)) {
+		return config.apply(monitors);
+	}
+	return false;
+}
+
+bool
+PekwmSys::monAutoConfig()
+{
+	SysMonitorConfig config;
+	return config.autoConfig();
 }
 
 void
@@ -536,6 +622,7 @@ main(int argc, char *argv[])
 	const char *display = NULL;
 	std::string theme;
 	std::string config_file = Util::getEnv("PEKWM_CONFIG_FILE");
+	bool interactive = false;
 
 	static struct option opts[] = {
 		{const_cast<char*>("display"), required_argument, nullptr, 'd'},
@@ -546,11 +633,12 @@ main(int argc, char *argv[])
 		 'f'},
 		{const_cast<char*>("theme"), required_argument, nullptr,
 		 't'},
+		{const_cast<char*>("interactive"), no_argument, nullptr, 'i'},
 		{nullptr, 0, nullptr, 0}
 	};
 
 	int ch;
-	while ((ch = getopt_long(argc, argv, "c:d:h:l:f:t:", opts, nullptr))
+	while ((ch = getopt_long(argc, argv, "c:d:h:il:f:t:", opts, nullptr))
 	       != -1) {
 		switch (ch) {
 		case 'c':
@@ -574,6 +662,9 @@ main(int argc, char *argv[])
 		case 't':
 			theme = optarg;
 			break;
+		case 'i':
+			interactive = true;
+			break;
 		default:
 			usage(1);
 			break;
@@ -596,7 +687,10 @@ main(int argc, char *argv[])
 	Util::expandFileName(config_file);
 
 	Destruct<Os> os(mkOs());
-	PekwmSys sys(config_file, *os);
+	_hooks = new Hooks(*os);
+	_hooks->load(config_file);
+	Destruct<Hooks> hooks(_hooks);
+	PekwmSys sys(config_file, interactive, *os);
 	return sys.main(theme);
 }
 

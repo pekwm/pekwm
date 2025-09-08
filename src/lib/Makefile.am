@@ -18,6 +18,7 @@ libpekwm_lib_a_SOURCES = pekwm_types.hh \
 			 Iter.hh \
 			 Json.cc Json.hh \
 			 Location.cc Location.hh \
+			 Md5.cc Md5.hh \
 			 Mem.hh \
 			 Observable.cc Observable.hh \
 			 Os.cc Os.hh \
@@ -27,7 +28,8 @@ libpekwm_lib_a_SOURCES = pekwm_types.hh \
 			 Tokenizer.cc Tokenizer.hh \
 			 Types.hh \
 			 Util.cc Util.hh \
-			 X11.cc X11.hh
+			 X11.cc X11.hh \
+			 X11_XRandr.cc X11_XRandr.hh
 libpekwm_lib_a_CXXFLAGS = $(LIB_CFLAGS) $(libcurl_CFLAGS)
 
 EXTRA_DIST = CMakeLists.txt

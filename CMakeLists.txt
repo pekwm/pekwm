@@ -146,6 +146,7 @@ option(ENABLE_IMAGE_JPEG "include support for JPEG images" ON)
 option(ENABLE_IMAGE_PNG "include support for PNG images" ON)
 option(ENABLE_IMAGE_XPM "include support for XPM images" ON)
 option(ENABLE_CURL "include support for CURL HTTP client" ON)
+option(ENABLE_LIBUDEV "include support for libudev" ON)
 
 option(PEDANTIC "turn on strict compile-time warnings" OFF)
 option(TESTS "include tests" OFF)
@@ -168,6 +169,10 @@ endif (ENABLE_IMAGE_JPEG)
 if (ENABLE_IMAGE_PNG)
 	find_package(PNG)
 endif (ENABLE_IMAGE_PNG)
+
+if (ENABLE_LIBUDEV)
+	pkg_check_modules(LIBUDEV libudev>=100)
+endif (ENABLE_LIBUDEV)
 
 # setup compile/link flags, one location for sharing between the different
 # compile directories
@@ -268,6 +273,13 @@ if (ENABLE_CURL AND CURL_FOUND)
 	set(common_LIBRARIES ${common_LIBRARIES} ${CURL_LIBRARIES})
 	set(PEKWM_HAVE_CURL 1)
 endif (ENABLE_CURL AND CURL_FOUND)
+
+if (ENABLE_LIBUDEV AND LIBUDEV_FOUND)
+	set(pekwm_FEATURES "${pekwm_FEATURES} libudev")
+	set(common_INCLUDE_DIRS ${common_INCLUDE_DIRS} ${LIBUDEV_INCLUDE_DIRS})
+	set(common_LIBRARIES ${common_LIBRARIES} ${LIBUDEV_LINK_LIBRARIES})
+	set(PEKWM_HAVE_LIBUDEV 1)
+endif (ENABLE_LIBUDEV AND LIBUDEV_FOUND)
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
 	set(pekwm_FEATURES "${pekwm_FEATURES} debug")

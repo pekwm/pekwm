@@ -28,7 +28,7 @@ extern char **environ;
 
 /**
  * OS environment wrapper, supports getting environments and providing
- * environment arrays with overriden values.
+ * environment arrays with overridden values.
  */
 class OsEnv {
 public:

@@ -119,6 +119,8 @@ namespace pekwm {
 	uint str_hash(const std::string& str);
 	uint str_hash(const char* str);
 
+	std::string to_string(double val, int precision);
+
 	int ascii_tolower(int chr);
 	int ascii_ncase_cmp(const std::string &lhs, const std::string &rhs);
 	int ascii_ncase_cmp(const std::string &lhs, const char *rhs);

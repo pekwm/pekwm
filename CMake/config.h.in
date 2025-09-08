@@ -39,6 +39,7 @@
 #cmakedefine PEKWM_HAVE_PANGO_XFT
 #cmakedefine PEKWM_HAVE_XRANDR
 #cmakedefine PEKWM_HAVE_CURL
+#cmakedefine PEKWM_HAVE_LIBUDEV
 
 #cmakedefine PEKWM_HAVE_IMAGE_PNG
 #cmakedefine PEKWM_HAVE_IMAGE_JPEG

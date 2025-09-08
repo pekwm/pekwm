@@ -19,9 +19,19 @@ extern "C" {
 template<typename T>
 class Destruct {
 public:
+	typedef void (*free_fun)(T*);
+
 	Destruct(T *ptr, bool array=false)
 		: _ptr(ptr),
-		  _array(array)
+		  _array(array),
+		  _free_fun(nullptr)
+	{
+	}
+
+	Destruct(T *ptr, bool array, free_fun free_fun)
+		: _ptr(ptr),
+		  _array(array),
+		  _free_fun(free_fun)
 	{
 	}
 
@@ -47,7 +57,9 @@ public:
 	void destruct()
 	{
 		if (_ptr != nullptr) {
-			if (_array) {
+			if (_free_fun) {
+				_free_fun(_ptr);
+			} else if (_array) {
 				delete[] _ptr;
 			} else {
 				delete _ptr;
@@ -65,6 +77,7 @@ private:
 
 	T *_ptr;
 	bool _array;
+	free_fun _free_fun;
 };
 
 template<typename T>

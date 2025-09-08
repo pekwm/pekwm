@@ -149,6 +149,7 @@ static const char *atomnames[] = {
 	"STRING",
 	"MANAGER",
 	"RESOURCE_MANAGER",
+	"EDID",
 
 	// pekwm atoms
 	"_PEKWM_FRAME_ID",

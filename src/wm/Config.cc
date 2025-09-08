@@ -18,6 +18,7 @@
 #include "pekwm_env.hh"
 
 #include "tk/CfgUtil.hh"
+#include "tk/Hooks.hh"
 #include "tk/PFont.hh"
 #include "tk/TkGlobals.hh"
 
@@ -319,6 +320,8 @@ Config::load(const std::string &config_file)
 	if (section) {
 		loadDebug(section);
 	}
+
+	pekwm::hooks()->load(cfg.getEntryRoot()->findSection("HOOKS"));
 
 	return true;
 }

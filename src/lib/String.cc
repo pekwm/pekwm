@@ -9,6 +9,9 @@
 #include "String.hh"
 #include "Types.hh"
 
+#include <iomanip>
+#include <sstream>
+
 extern "C" {
 #include <string.h>
 }
@@ -90,6 +93,15 @@ pekwm::str_hash(const char* str)
 	    hash = 31 * hash + *p;
 	}
 	return hash;
+}
+
+std::string
+pekwm::to_string(double val, int precision)
+{
+	std::stringstream ss;
+	ss.setf(std::ios::fixed);
+	ss << std::setprecision(precision) << val;
+	return ss.str();
 }
 
 /**

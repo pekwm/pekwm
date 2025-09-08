@@ -42,7 +42,7 @@ void
 TestPekwmSys::testUpdateDaytime()
 {
 	OsMock os;
-	PekwmSys sys("", &os);
+	PekwmSys sys("", false, &os);
 
 	time_t now = time(NULL);
 	time_t next_day = Calendar(now).nextDay().getTimestamp();

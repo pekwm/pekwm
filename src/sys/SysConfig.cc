@@ -24,9 +24,13 @@ SysConfig::SysConfig(const std::string &config_file, Os *os)
 	  _dpi_override(0.0),
 	  _location_lookup(false),
 	  _latitude(NAN),
-	  _longitude(NAN)
+	  _longitude(NAN),
+	  _monitors_path("~/.pekwm/monitors.save"),
+	  _monitor_load_on_change(false),
+	  _monitor_auto_configure(false)
 {
 	Util::expandFileName(_xsettings_path);
+	Util::expandFileName(_monitors_path);
 }
 
 SysConfig::SysConfig(const SysConfig &cfg)
@@ -42,6 +46,9 @@ SysConfig::SysConfig(const SysConfig &cfg)
 	  _tod(cfg._tod),
 	  _daytime_commands(cfg._daytime_commands),
 	  _location_commands(cfg._location_commands),
+	  _monitors_path(cfg._monitors_path),
+	  _monitor_load_on_change(cfg._monitor_load_on_change),
+	  _monitor_auto_configure(cfg._monitor_auto_configure),
 	  _net_theme(cfg._net_theme),
 	  _net_icon_theme(cfg._net_icon_theme),
 	  _x_resources_dawn(cfg._x_resources_dawn),
@@ -68,6 +75,10 @@ SysConfig::parseConfig()
 	keys.add_path("XSETTINGSPATH", _xsettings_path,
 		      "~/.pekwm/xsettings.save");
 	keys.add_bool("LOCATIONLOOKUP", _location_lookup, false);
+	keys.add_path("MONITORSPATH", _monitors_path,
+		      "~/.pekwm/monitors.save");
+	keys.add_bool("MONITORLOADONCHANGE", _monitor_load_on_change, false);
+	keys.add_bool("MONITORAUTOCONFIGURE", _monitor_auto_configure, false);
 	keys.add_numeric<double>("DPI", _dpi, NAN);
 	keys.add_numeric<double>("LATITUDE", _latitude, NAN, -90.0, 90.0);
 	keys.add_numeric<double>("LONGITUDE", _longitude, NAN, -180.0, 180.0);

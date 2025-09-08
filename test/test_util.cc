@@ -18,6 +18,7 @@
 #include "test_Geometry.hh"
 #include "test_Json.hh"
 #include "test_Location.hh"
+#include "test_Md5.hh"
 #include "test_Mem.hh"
 #include "test_Os.hh"
 #include "test_RegexString.hh"
@@ -40,6 +41,7 @@ main(int argc, char *argv[])
 	TestGeometryOverlap testGeometryOverlap;
 	TestJson testJson;
 	TestLocation testLocation;
+	TestMd5 testMd5;
 	TestMem testMem;
 	TestRegexString testRegexString;
 	TestString testString;

@@ -12,13 +12,14 @@
 #include "Compat.hh"
 #include "Daytime.hh"
 #include "SysConfig.hh"
+#include "SysMonitorChange.hh"
 #include "SysResources.hh"
 #include "Timeouts.hh"
 #include "XSettings.hh"
 
 class PekwmSys {
 public:
-	PekwmSys(const std::string &config_file, Os *os);
+	PekwmSys(const std::string &config_file, bool interactive, Os *os);
 	~PekwmSys();
 
 	int main(const std::string &theme);
@@ -35,12 +36,18 @@ private:
 				const std::string &sval);
 	bool setXSettingColor(const std::string &key, const std::string &sval);
 	bool setXSettingString(const std::string &key, const std::string &sval);
+	void handleMonitorChange();
 	void handleXSave();
 	void handleSetTimeOfDay(const std::vector<std::string> &args);
 	void handleSetDpi(const std::vector<std::string> &args);
+	void handleMonLoad(const std::vector<std::string> &args);
+	void handleMonSave(const std::vector<std::string> &args);
 	void handleTheme(const StringView &theme);
 
 	void reload();
+
+	bool monLoad();
+	bool monAutoConfig();
 
 	TimeOfDay getEffectiveTimeOfDay() const
 	{
@@ -93,10 +100,12 @@ private:
 
 	bool _stop;
 	Timeouts _timeouts;
+	bool _interactive;
 	Os *_os;
 	OsSelect *_select;
 	SysConfig _cfg;
 	SysResources _resources;
+	SysMonitorChange _monitor_change;
 	XSettings _xsettings;
 	Daytime _daytime;
 	TimeOfDay _tod;

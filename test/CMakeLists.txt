@@ -55,6 +55,8 @@ add_executable(test_pekwm_sys
 	test_pekwm_sys.cc
 	../src/pekwm_env.cc
 	../src/sys/SysConfig.cc
+	../src/sys/SysMonitorChange.cc
+	../src/sys/SysMonitorConfig.cc
 	../src/sys/SysResources.cc
 	../src/sys/XSettings.cc)
 add_test(NAME pekwm_sys
@@ -62,7 +64,9 @@ add_test(NAME pekwm_sys
 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test/)
 target_include_directories(test_pekwm_sys PUBLIC
 			   ${PROJECT_SOURCE_DIR}/src
-			   ${common_INCLUDE_DIRS})
-target_link_libraries(test_pekwm_sys tk lib ${common_LIBRARIES})
+			   ${common_INCLUDE_DIRS}
+			   ${LIBUDEV_INCLUDE_DIRS})
+target_link_libraries(test_pekwm_sys tk lib ${common_LIBRARIES}
+				     ${LIBUDEV_LINK_LIBRARIES})
 
 add_subdirectory(system)

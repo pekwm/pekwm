@@ -51,6 +51,8 @@ TestSysConfig::testParseConfig()
 	ASSERT_DOUBLE_EQUAL("parseConfig", 32.01, cfg.getLatitude());
 	ASSERT_DOUBLE_EQUAL("parseConfig", 16.01, cfg.getLongitude());
 	ASSERT_TRUE("haveLocation", cfg.haveLocation());
+	ASSERT_TRUE("monitorLoadOnChange", cfg.isMonitorLoadOnChange());
+	ASSERT_FALSE("monitorAutoConfig", cfg.isMonitorAutoConfig());
 	ASSERT_EQUAL("parseConfig", "AUTO", cfg.getTimeOfDay());
 	ASSERT_EQUAL("parseConfig", "Raleigh", cfg.getNetTheme());
 	const SysConfig::string_vector &dcmds = cfg.getDaytimeCommands();

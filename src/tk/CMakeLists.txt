@@ -6,6 +6,7 @@ set(tk_SOURCES
     Color.cc
     ColorPalette.cc
     FontHandler.cc
+    Hooks.cc
     ImageHandler.cc
     PFont.cc
     PFontX.cc
