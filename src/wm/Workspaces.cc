@@ -223,7 +223,7 @@ Workspaces::setWorkspace(uint num, bool focus, bool back_and_forth)
 	if (num >= _workspaces.size()) {
 		return false;
 	} else if (num == _active) {
-		if (! back_and_forth) {
+		if (! back_and_forth || _active == _previous) {
 			return false;
 		}
 		num = _previous;
