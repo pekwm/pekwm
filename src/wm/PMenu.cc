@@ -775,7 +775,9 @@ PMenu::buildMenuRenderItemNormal(PSurface *surf, ObjectState state,
 		+ (_item_height - font->getHeight()
 		   - md->getPad(PAD_UP) - md->getPad(PAD_DOWN)) / 2;
 
+	uint width_used;
 	int underline_x = font->draw(surf, start_x, start_y, item->getName(),
+				     width_used,
 				     item->getWidth() - _item_pad_horz);
 	if (item->getKeycode()) {
 		// If the item has a shortcut, render a line under it to

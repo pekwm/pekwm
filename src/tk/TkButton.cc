@@ -107,9 +107,10 @@ TkButton::render()
 	_data->getButton(_state)->render(&_background, 0, 0,
 					 _gm.width, _gm.height);
 	font()->setColor(_data->getButtonColor());
+	uint width_used;
 	font()->draw(&_background,
 		    _data->getPad(PAD_LEFT), _data->getPad(PAD_UP),
-		    _text);
+		    _text, width_used);
 
 	X11::clearWindow(_window);
 }

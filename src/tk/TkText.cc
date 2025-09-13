@@ -71,8 +71,10 @@ TkText::render(Render &rend, PSurface &surface)
 	}
 	std::vector<std::string>::iterator line = _lines.begin();
 	for (; line != _lines.end(); ++line) {
+		uint width_used;
 		font()->draw(&surface,
-			     _gm.x + _data->getPad(PAD_LEFT), y, *line);
+			     _gm.x + _data->getPad(PAD_LEFT), y, *line,
+			     width_used);
 		y += font()->getHeight();
 	}
 }

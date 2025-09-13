@@ -1412,11 +1412,12 @@ PDecor::renderTitle(void)
 			trim = PFont::FONT_TRIM_END;
 		}
 
+		uint width_used;
 		font->draw(&title_bg,
 			   x + _data->getPad(PAD_LEFT), // X position
 			   _data->getPad(PAD_UP), // Y position
 			   _titles[i]->getVisible(),
-			   _titles[i]->getWidth() - pad_horiz,
+			   width_used, _titles[i]->getWidth() - pad_horiz,
 			   trim); // Type of trim
 
 		// move to next tab (or separator if any)

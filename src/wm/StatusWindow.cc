@@ -100,10 +100,9 @@ StatusWindow::draw(const std::string &text, bool do_center, Geometry *gm)
 
 	font->setColor(sd->getColor());
 	X11::clearWindow(_status_wo->getWindow());
-	font->draw(_status_wo,
-		   sd->getPad(PAD_LEFT),
-		   sd->getPad(PAD_UP),
-		   text.c_str());
+	uint width_used;
+	font->draw(_status_wo, sd->getPad(PAD_LEFT), sd->getPad(PAD_UP),
+		   text.c_str(), width_used);
 }
 
 //! @brief Renders and sets background

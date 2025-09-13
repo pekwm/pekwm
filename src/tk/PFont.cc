@@ -243,8 +243,9 @@ PFont::~PFont()
  */
 int
 PFont::draw(PSurface *dest, int x, int y, const StringView &text,
-	    uint max_width, PFont::TrimType trim_type)
+	    uint &width_used, uint max_width, PFont::TrimType trim_type)
 {
+	width_used = 0;
 	if (! text.size()
 	    || x > (dest->getX() + static_cast<int>(dest->getWidth()))) {
 		return 0;
@@ -258,7 +259,7 @@ PFont::draw(PSurface *dest, int x, int y, const StringView &text,
 	// Make sure text fits in the available space
 	StringView real_text = trim(text, trim_type, max_width);
 	if (! real_text.empty()) {
-		offset += justify(real_text, max_width, 0);
+		offset += justify(real_text, width_used, max_width, 0);
 
 		// Draw shadowed font if x or y offset is specified
 		if (_offset_x || _offset_y) {
@@ -420,10 +421,12 @@ PFont::fitInWidthEndGrow(const StringView &text, Charset::Utf8Iterator &it,
  * Justifies the string based on _justify property of the Font
  */
 uint
-PFont::justify(const StringView &text, int max_width, int padding)
+PFont::justify(const StringView &text, uint &width_used, int max_width,
+	       int padding)
 {
 	uint x;
-	int width = static_cast<int>(getWidth(text));
+	width_used = getWidth(text);
+	int width = static_cast<int>(width_used);
 
 	switch(_justify) {
 	case FONT_JUSTIFY_CENTER:

@@ -140,7 +140,7 @@ public:
 	inline void setOffset(uint x, uint y) { _offset_x = x; _offset_y = y; }
 
 	int draw(PSurface *dest, int x, int y, const StringView &text,
-		 uint max_width = 0,
+		 uint &width_used, uint max_width = 0,
 		 PFont::TrimType trim_type = FONT_TRIM_END);
 
 	StringView trim(const StringView &text, TrimType trim_type,
@@ -150,7 +150,8 @@ public:
 
 	static void setTrimString(const std::string &trim);
 
-	uint justify(const StringView &text, int max_width, int padding);
+	uint justify(const StringView &text, uint &width_used, int max_width,
+		     int padding);
 
 	// virtual interface
 	virtual bool load(const PFont::Descr &descr) = 0;

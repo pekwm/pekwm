@@ -516,7 +516,9 @@ InputDialog::render()
 
 	const char *c_buf = str().c_str() + _buf_off;
 	StringView before_cursor(c_buf, _buf.pos());
-	font->draw(&_text_wo, pos, _data->getPad(PAD_UP), before_cursor);
+	uint width_used;
+	font->draw(&_text_wo, pos, _data->getPad(PAD_UP), before_cursor,
+		   width_used);
 
 	// cursor in or at the end of the text, render after first part
 	if (_buf.pos() != 0) {
@@ -527,7 +529,7 @@ InputDialog::render()
 			size_t buf_chars = _buf_chars - _buf.pos();
 			StringView after_cursor(c_buf, buf_chars);
 			font->draw(&_text_wo, pos, _data->getPad(PAD_UP),
-				   after_cursor);
+				   after_cursor, width_used);
 			pos += font->getWidth(after_cursor);
 		}
 	}
@@ -537,7 +539,9 @@ InputDialog::render()
 uint
 InputDialog::renderCursor(uint pos)
 {
-	_data->getFont()->draw(&_text_wo, pos, _data->getPad(PAD_UP), "|");
+	uint width_used;
+	_data->getFont()->draw(&_text_wo, pos, _data->getPad(PAD_UP), "|",
+			       width_used);
 	_cursor_begin = pos;
 	uint width = _data->getFont()->getWidth(StringView("|", 1));
 	_cursor_end = pos + width;

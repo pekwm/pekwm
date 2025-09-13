@@ -84,12 +84,14 @@ WorkspaceIndicator::Display::render(void)
 			 _gm.height - getPaddingVertical());
 
 	data->font->setColor(data->font_color);
+	uint width_used;
 	data->font->draw(&_surface,
 			 data->edge_padding,
 			 _gm.height
 			     - data->edge_padding
 			     - data->font->getHeight(),
 			 Workspaces::getActWorkspace().getName(),
+			 width_used,
 			 _gm.width - data->edge_padding * 2 /* max_width */);
 
 	// Refresh
