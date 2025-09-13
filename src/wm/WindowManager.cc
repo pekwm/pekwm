@@ -815,14 +815,16 @@ WindowManager::handleSignals(void)
 				P_TRACE("no more finished child processes");
 			} else if (pid == _bg_pid) {
 				P_WARN("pekwm_bg stopped unexpectedly");
-				showDialog("pekwm: warning",
-					   "pekwm_bg stopped unexpectedly");
+				showDialog("pekwm_bg error",
+					   "Stopped unexpectedly, reload pekwm"
+					   " to trigger restart");
 				_bg_pid = -1;
 			} else if (_sys_process
 				   && pid == _sys_process->getPid()) {
 				P_WARN("pekwm_sys stopped unexpectedly");
-				showDialog("pekwm: warning",
-					   "pekwm_sys stopped unexpectedly");
+				showDialog("pekwm_sys error",
+					   "Stopped unexpectedly, reload pekwm"
+					   " to trigger restart");
 				delete _sys_process;
 				_sys_process = nullptr;
 				pekwm::actionHandler()->setSysProcess(nullptr);
@@ -1842,6 +1844,8 @@ WindowManager::showDialog(const std::string &title, const std::string &msg)
 {
 	std::vector<std::string> args;
 	args.push_back(BINDIR "/pekwm_dialog");
+	args.push_back("-t");
+	args.push_back(title);
 	args.push_back(msg);
 	_os->processExec(args);
 }

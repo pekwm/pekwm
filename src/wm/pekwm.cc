@@ -94,9 +94,8 @@ promptForRestart(const std::string& pekwm_dialog)
 		argv_in.push_back("-o");
 		argv_in.push_back("Exit");
 		argv_in.push_back("-t");
-		argv_in.push_back("pekwm crashed!");
+		argv_in.push_back("pekwm stopped unexpectedly");
 		argv_in.push_back("-r");
-		argv_in.push_back("pekwm quit unexpectedly, restart?");
 		char **argv = mkArgv(argv_in);
 		execvp(argv[0], argv);
 		delete[] argv;
