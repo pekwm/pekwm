@@ -13,6 +13,7 @@
 
 #include "Config.hh"
 #include "tk/PWinObj.hh"
+#include "tk/PPixmapSurface.hh"
 #include "ThemeGm.hh"
 
 class ActionEvent;
@@ -442,6 +443,11 @@ protected:
 	Window _border_win[BORDER_NO_POS]; /** Array of border windows. */
 
 private:
+	void renderTitleTextBackground(PPixmapSurface &title_bg, PFont *font,
+				       int x, uint width,
+				       const std::string &text,
+				       PFont::TrimType trim, PTexture *tex);
+
 	Theme::PDecorData *_data;
 
 	enum fill_state {

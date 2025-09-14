@@ -60,6 +60,9 @@ New
   dividing the space between the existing frame and newly created one from
   the detach action. Takes one argument, percent between 5-95 that the client
   being detached should occupy of the current frames size.
+* #192, add `TextBackground` to themes supporting a separate texture under
+  the text render on titles. Font padding is included in the width when
+  rendering the texture.
 
 Updated
 -------

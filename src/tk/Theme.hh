@@ -151,8 +151,15 @@ public:
 		//state.
 		inline PTexture *getTextureSeparator(FocusedState state) {
 			return _texture_separator
-				[(state < FOCUSED_STATE_FOCUSED_SELECTED)
+				[(state != FOCUSED_STATE_FOCUSED_SELECTED)
 				 ? state : 0];
+		}
+		/**
+		 * Return PTexture rendered behind title text.
+		 */
+		PTexture *getTextureTitle(FocusedState state) {
+			return _texture_title
+				[(state != FOCUSED_STATE_NO) ? state : 0];
 		}
 
 		// font
@@ -198,6 +205,9 @@ public:
 		void check(void);
 
 	private:
+		void loadTextures(CfgParser::Entry *section,
+				  PTexture **textures,
+				  FocusedState max_state);
 		void loadBorder(CfgParser::Entry *cs);
 		void loadButtons(CfgParser::Entry *cs);
 
@@ -226,6 +236,7 @@ public:
 		PTexture *_texture_tab[FOCUSED_STATE_NO];
 		PFont *_font[FOCUSED_STATE_NO];
 		PFont::Color *_font_color[FOCUSED_STATE_NO];
+		PTexture *_texture_title[FOCUSED_STATE_NO];
 
 		// elements with FOCUSED_STATE_FOCUSED_SELECTED
 		PTexture *_texture_main[FOCUSED_STATE_FOCUSED_SELECTED];

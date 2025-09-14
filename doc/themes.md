@@ -130,6 +130,15 @@ Theming of the titlebar tabs.
 * _FocusedSelected (texture)_, Background texture for the currently selected tab of a focused window.
 * _UnFocusedSelected (texture)_, Background texture for the currently selected tab of an unfocused window.
 
+#### TextBackground
+
+Theming of the area under the text on titlebar tabs.
+
+* _Focused (texture)_, Background texture for the text in a tab of a focused window.
+* _Unfocused (texture)_, Background texture for the text in a tab of an unfocused window.
+* _FocusedSelected (texture)_, Background texture for text in the currently selected tab of a focused window.
+* _UnFocusedSelected (texture)_, Background texture for the text in the currently selected tab of an unfocused window.
+
 #### FontColor
 
 Theming of font colours.

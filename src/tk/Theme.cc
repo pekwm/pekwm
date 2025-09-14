@@ -292,6 +292,7 @@ Theme::PDecorData::PDecorData(FontHandler* fh, TextureHandler* th,
 	memset(_texture_tab, 0, sizeof(_texture_tab));
 	memset(_font, 0, sizeof(_font));
 	memset(_font_color, 0, sizeof(_font_color));
+	memset(_texture_title, 0, sizeof(_texture_title));
 	memset(_texture_main, 0, sizeof(_texture_main));
 	memset(_texture_separator, 0, sizeof(_texture_separator));
 	memset(_texture_border, 0, sizeof(_texture_border));
@@ -363,18 +364,10 @@ Theme::PDecorData::load(CfgParser::Entry *section)
 		_th->getTexture(value_unfocused);
 	parsePad(_th->getScale(), value_pad, _pad);
 
-	CfgParser::Entry *tab_section = title_section->findSection("TAB");
-	if (tab_section) {
-		for (uint i = 0; i < FOCUSED_STATE_NO; ++i) {
-			const char *fs_str = focused_state_to_string[i];
-			CfgParser::Entry *value =
-				tab_section->findEntry(fs_str);
-			if (value) {
-				_texture_tab[i] =
-					_th->getTexture(value->getValue());
-			}
-		}
-	}
+	loadTextures(title_section->findSection("TAB"), _texture_tab,
+		     FOCUSED_STATE_NO);
+	loadTextures(title_section->findSection("TEXTBACKGROUND"),
+		     _texture_title, FOCUSED_STATE_NO);
 
 	CfgParser::Entry *separator_section =
 		title_section->findSection("SEPARATOR");
@@ -449,6 +442,7 @@ Theme::PDecorData::unload(void)
 
 	for (uint i = 0; i < FOCUSED_STATE_NO; ++i) {
 		_th->returnTexture(&_texture_tab[i]);
+		_th->returnTexture(&_texture_title[i]);
 		_fh->returnFont(&_font[i]);
 		_fh->returnColor(&_font_color[i]);
 	}
@@ -484,6 +478,24 @@ Theme::PDecorData::check()
 	checkColors();
 
 	_loaded = true;
+}
+
+void
+Theme::PDecorData::loadTextures(CfgParser::Entry *section,
+				PTexture **textures,
+				FocusedState max_state)
+{
+	if (section == nullptr) {
+		return;
+	}
+
+	for (uint i = 0; i < max_state; ++i) {
+		const char *fs_str = focused_state_to_string[i];
+		CfgParser::Entry *value = section->findEntry(fs_str);
+		if (value) {
+			textures[i] = _th->getTexture(value->getValue());
+		}
+	}
 }
 
 //! @brief Loads border data.

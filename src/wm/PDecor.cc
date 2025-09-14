@@ -1367,7 +1367,10 @@ void PDecor::deiconify(void) {
 	}
 }
 
-//! @brief Renders and sets title background
+/**
+ * Render main background, tabs and title text onto a Pixmap that is later
+ * used as the background for the titlebar window.
+ */
 void
 PDecor::renderTitle(void)
 {
@@ -1382,49 +1385,49 @@ PDecor::renderTitle(void)
 		calcTabsWidth();
 	}
 
-	PTexture *t_sep = _data->getTextureSeparator(getFocusedState(false));
+	FocusedState fstate = getFocusedState(false);
 	PPixmapSurface title_bg(_title_wo.getWidth(), _title_wo.getHeight());
 
-	// Render main background on pixmap
-	PTexture *t_main = _data->getTextureMain(getFocusedState(false));
+	PTexture *t_main = _data->getTextureMain(fstate);
 	t_main->render(&title_bg, 0, 0,
 		       _title_wo.getWidth(), _title_wo.getHeight());
 
-	uint x = _titles_left; // Position
-	// Amount of horizontal padding
+	uint x = _titles_left;
 	uint pad_horiz =  _data->getPad(PAD_LEFT) + _data->getPad(PAD_RIGHT);
 
 	uint num_titles = _titles.size();
 	for (uint i = 0; i < num_titles; ++i) {
-		// Current tab selected flag
-		bool sel = (_title_active == i);
+		FocusedState fstate_sel = getFocusedState(_title_active == i);
 
-		// render tab
-		PTexture *tab = _data->getTextureTab(getFocusedState(sel));
+		PTexture *tab = _data->getTextureTab(fstate_sel);
 		tab->render(&title_bg, x, 0,
 			    _titles[i]->getWidth(), _title_wo.getHeight());
 
-		PFont *font = getFont(getFocusedState(sel));
-		font->setColor(_data->getFontColor(getFocusedState(sel)));
+		PFont *font = getFont(fstate_sel);
+		font->setColor(_data->getFontColor(fstate_sel));
 
 		PFont::TrimType trim = PFont::FONT_TRIM_MIDDLE;
 		if (_titles[i]->isCustom() || _titles[i]->isUserSet()) {
 			trim = PFont::FONT_TRIM_END;
 		}
 
+		PTexture *title = _data->getTextureTitle(fstate_sel);
 		uint width_used;
+		if (title) {
+			renderTitleTextBackground(title_bg, font, x,
+						  _titles[i]->getWidth(),
+						  _titles[i]->getVisible(),
+						  trim, title);
+		}
 		font->draw(&title_bg,
-			   x + _data->getPad(PAD_LEFT), // X position
-			   _data->getPad(PAD_UP), // Y position
-			   _titles[i]->getVisible(),
-			   width_used, _titles[i]->getWidth() - pad_horiz,
-			   trim); // Type of trim
+			   x + _data->getPad(PAD_LEFT),
+			   _data->getPad(PAD_UP),
+			   _titles[i]->getVisible(), width_used,
+			   _titles[i]->getWidth() - pad_horiz, trim);
 
-		// move to next tab (or separator if any)
 		x += _titles[i]->getWidth();
-
-		// draw separator
 		if (num_titles > 1 && i < (num_titles - 1)) {
+			PTexture *t_sep = _data->getTextureSeparator(fstate);
 			t_sep->render(&title_bg, x, 0, 0, 0);
 			x += t_sep->getWidth();
 		}
@@ -1433,6 +1436,20 @@ PDecor::renderTitle(void)
 	X11::setWindowBackgroundPixmap(_title_wo.getWindow(),
 				       title_bg.getDrawable());
 	X11::clearWindow(_title_wo.getWindow());
+}
+
+void
+PDecor::renderTitleTextBackground(PPixmapSurface &title_bg, PFont *font,
+				  int x, uint width, const std::string &text,
+				  PFont::TrimType trim, PTexture *tex)
+{
+	uint pad_horiz =  _data->getPad(PAD_LEFT) + _data->getPad(PAD_RIGHT);
+	// get X offset and width used by title text, not rendering the text
+	uint width_used;
+	int title_x = font->draw(&title_bg, x, 0, text, width_used,
+				 width - pad_horiz, trim, false);
+	tex->render(&title_bg, title_x, 0, width_used + pad_horiz,
+		    _title_wo.getHeight());
 }
 
 void

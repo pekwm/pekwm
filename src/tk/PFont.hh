@@ -141,7 +141,8 @@ public:
 
 	int draw(PSurface *dest, int x, int y, const StringView &text,
 		 uint &width_used, uint max_width = 0,
-		 PFont::TrimType trim_type = FONT_TRIM_END);
+		 PFont::TrimType trim_type = FONT_TRIM_END,
+		 bool do_draw = true);
 
 	StringView trim(const StringView &text, TrimType trim_type,
 			uint max_width);

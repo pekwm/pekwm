@@ -240,10 +240,13 @@ PFont::~PFont()
  * @param max_width max nr of pixels, defaults to 0 == infinity
  * @param trim_type how to trim title if not enough space, defaults
  *        to FONT_TRIM_END
+ * @param do_draw If false, skip actual rendering of font, sets width_used.
+ * @return Offset from x where font is drawn.
  */
 int
 PFont::draw(PSurface *dest, int x, int y, const StringView &text,
-	    uint &width_used, uint max_width, PFont::TrimType trim_type)
+	    uint &width_used, uint max_width, PFont::TrimType trim_type,
+	    bool do_draw)
 {
 	width_used = 0;
 	if (! text.size()
@@ -262,13 +265,15 @@ PFont::draw(PSurface *dest, int x, int y, const StringView &text,
 		offset += justify(real_text, width_used, max_width, 0);
 
 		// Draw shadowed font if x or y offset is specified
-		if (_offset_x || _offset_y) {
+		if (do_draw && (_offset_x || _offset_y)) {
 			drawText(dest, offset + _offset_x, y + _offset_y,
 				 real_text, false /* bg */);
 		}
 
 		// Draw main font
-		drawText(dest, offset, y, real_text, true /* fg */);
+		if (do_draw) {
+			drawText(dest, offset, y, real_text, true /* fg */);
+		}
 	}
 
 	return offset;
