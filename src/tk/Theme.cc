@@ -676,6 +676,7 @@ Theme::PMenuData::load(CfgParser::Entry *section)
 	bool pad_adapt = _version > 2;
 	keys.add_string("PAD", value_pad, "0 0 0 0", 7);
 	keys.add_bool("PADADAPT", pad_adapt, pad_adapt);
+	section->parseKeyValues(keys.begin(), keys.end());
 
 	parsePad(_th->getScale(), value_pad, _pad);
 
