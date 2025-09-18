@@ -1105,6 +1105,8 @@ ActionHandler::actionWmSet(const std::string &args_str)
 	std::vector<std::string> args = StringUtil::shell_split(args_str);
 	if (pekwm::ascii_ncase_equal("SCALE", args[0])) {
 		actionWmSetScale(args);
+	} else if (pekwm::ascii_ncase_equal("WORKSPACENAME", args[0])) {
+		actionWmSetWorkspaceName(args);
 	} else {
 		P_TRACE("unknown WmSet command " << args_str);
 	}
@@ -1126,6 +1128,15 @@ ActionHandler::actionWmSetScale(const std::vector<std::string> &args)
 	double old_scale = pekwm::config()->getScreenScale();
 	pekwm::config()->setScreenScaleOverride(scale);
 	pekwm::windowManager()->setScale(old_scale, scale);
+}
+
+void
+ActionHandler::actionWmSetWorkspaceName(const std::vector<std::string> &args)
+{
+	if (args.size() == 2) {
+		Workspaces::getActWorkspace().setNameOverride(args[1]);
+		pekwm::rootWo()->setEwmhDesktopNames();
+	}
 }
 
 /**

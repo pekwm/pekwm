@@ -257,6 +257,8 @@ Interacts with *pekwm_sys* process if it is enabled.
 Runtime configuration overrides for *pekwm*
 
 * Scale, overrides _Screen.Scale_ setting updating window decorations to match.
+* WorkspaceName, overrides the name of the current workspace, set to empty
+  string to unset override.
 
 ### Mouse Only Actions
 

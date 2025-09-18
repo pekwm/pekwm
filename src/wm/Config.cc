@@ -234,58 +234,6 @@ Config::~Config(void)
 	}
 }
 
-/**
- * Returns an array of NULL-terminated desktop names in UTF-8.
- *
- * @param names *names will be set to an array of desktop names or 0.
- * 	  The caller has to delete [] *names
- * @param length *length will be set to the complete length of array *names
- * 	  points to or 0.
- */
-void
-Config::getDesktopNamesUTF8(uchar **names, uint *length) const
-{
-	if (! _screen_workspace_names.size()) {
-		*names = 0;
-		*length = 0;
-		return;
-	}
-
-	std::string utf8_names;
-	std::vector<std::string>::const_iterator it =
-		_screen_workspace_names.begin();
-	for (; it != _screen_workspace_names.end(); ++it) {
-		utf8_names.append(it->c_str(), it->size() + 1);
-	}
-
-	*names = new uchar[utf8_names.size()];
-	::memcpy(*names, utf8_names.c_str(), utf8_names.size());
-	*length = utf8_names.size();
-}
-
-/**
- * Sets the desktop names.
- *
- * @param names names is expected to point to an array of NULL-terminated
- *        utf8-strings.
- * @param length The length of the array "names".
- */
-void
-Config::setDesktopNamesUTF8(char *names, ulong length)
-{
-	_screen_workspace_names.clear();
-
-	if (! names || ! length) {
-		return;
-	}
-
-	for (ulong i = 0; i < length;) {
-		_screen_workspace_names.push_back(names);
-		i += strlen(names) + 1;
-		names += strlen(names) + 1;
-	}
-}
-
 //! @brief Tries to load config_file, ~/.pekwm/config, SYSCONFDIR/config
 bool
 Config::load(const std::string &config_file)

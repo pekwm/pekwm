@@ -560,7 +560,7 @@ public:
 	static void setUtf8String(Window win, AtomName aname,
 				  const std::string &value);
 	static void setUtf8StringArray(Window win, AtomName aname,
-				       unsigned char *values, uint length);
+				       const uchar *values, uint length);
 	static bool getString(Window win, AtomName aname, std::string &value);
 	static bool getStringId(Window win, Atom id, std::string &value);
 	static bool setString(Window win, AtomName aname,

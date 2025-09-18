@@ -67,6 +67,7 @@ New
 * #194, add Sys Dpi command for dynamic reconfiguration of the current Dpi
   XSETTING and X resource.
 * #194, add WmSet Scale for dynamic override of the Scale setting.
+* Add WorkspaceName to WmSet for overriding workspace names.
 
 Updated
 -------

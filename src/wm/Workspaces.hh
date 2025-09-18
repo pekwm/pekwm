@@ -27,14 +27,23 @@ public:
 	~Workspace(void);
 	Workspace &operator=(const Workspace &w);
 
-	inline const std::string &getName(void) const { return _name; }
+	inline const std::string &getName() const {
+		if (! _name_override.empty()) {
+			return _name_override;
+		}
+		return _name;
+	}
 	inline void setName(const std::string &name) { _name = name; }
+	inline void setNameOverride(const std::string &name) {
+		_name_override = name;
+	}
 
 	PWinObj* getLastFocused(bool verify) const;
 	void setLastFocused(PWinObj* wo);
 
 private:
 	std::string _name;
+	std::string _name_override;
 	PWinObj *_last_focused;
 };
 
@@ -89,9 +98,8 @@ public:
 				 bool back_and_forth=false);
 	static bool gotoWorkspace(uint direction, bool focus, bool warp);
 
-	static Workspace &getActWorkspace(void) {
-		return _workspaces[_active];
-	}
+	static Workspace &getWorkspace(uint num) { return _workspaces[num]; }
+	static Workspace &getActWorkspace() { return _workspaces[_active]; }
 
 	static void layout(Frame *frame, Window parent=None,
 			   int win_layouter_types=0);

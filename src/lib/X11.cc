@@ -1444,7 +1444,7 @@ X11::setUtf8String(Window win, AtomName aname,
 
 void
 X11::setUtf8StringArray(Window win, AtomName aname,
-			unsigned char *values, uint length)
+			const uchar *values, uint length)
 {
 	changeProperty(win, _atoms[aname], _atoms[UTF8_STRING], 8,
 		       PropModeReplace, values, length);

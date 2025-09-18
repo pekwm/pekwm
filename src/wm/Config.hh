@@ -158,13 +158,11 @@ public:
 	bool isWorkspacesBackAndForth() const {
 		return _screen_workspaces_back_and_forth;
 	}
-	void getDesktopNamesUTF8(uchar **names, uint *length) const;
 	const std::string &getWorkspaceName(uint num) const {
 		return (num >= _screen_workspace_names.size())
 			? _screen_workspace_name_default
 			: _screen_workspace_names[num];
 	}
-	void setDesktopNamesUTF8(char *names, ulong length);
 
 	int getScreenEdgeSize(EdgeType edge) const {
 		return _screen_edge_sizes[edge];

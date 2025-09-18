@@ -551,18 +551,22 @@ RootWO::setEwmhActiveWindow(Window win)
  * Reads the _NET_DESKTOP_NAMES hint and sets the workspaces names accordingly.
  */
 void
-RootWO::readEwmhDesktopNames(void)
+RootWO::readEwmhDesktopNames()
 {
-	uchar *data;
-	ulong data_length;
+	uchar *udata;
+	ulong size;
 	if (X11::getProperty(X11::getRoot(), X11::getAtom(NET_DESKTOP_NAMES),
 			     X11::getAtom(UTF8_STRING),
 			     EXPECTED_DESKTOP_NAMES_LENGTH,
-			     &data, &data_length)) {
-		_cfg->setDesktopNamesUTF8(reinterpret_cast<char*>(data),
-					  data_length);
-
-		X11::free(data);
+			     &udata, &size)) {
+		char *data = reinterpret_cast<char*>(udata);
+		uint i = 0;
+		for (ulong j = 0; i < Workspaces::size() && j < size; i++) {
+			Workspaces::getWorkspace(i).setName(data);
+			j += strlen(data) + 1;
+			data += strlen(data) + 1;
+		}
+		X11::free(udata);
 	}
 }
 
@@ -570,17 +574,19 @@ RootWO::readEwmhDesktopNames(void)
  * Update _NET_DESKTOP_NAMES property on the root window.
  */
 void
-RootWO::setEwmhDesktopNames(void)
+RootWO::setEwmhDesktopNames()
 {
-	unsigned char *desktopnames = 0;
-	unsigned int length = 0;
-	_cfg->getDesktopNamesUTF8(&desktopnames, &length);
-
-	if (desktopnames) {
-		X11::setUtf8StringArray(X11::getRoot(), NET_DESKTOP_NAMES,
-					desktopnames, length);
-		delete [] desktopnames;
+	std::string utf8_names;
+	for (uint i = 0; i < Workspaces::size(); i++) {
+		const Workspace &workspace = Workspaces::getWorkspace(i);
+		utf8_names.append(workspace.getName().c_str(),
+				  workspace.getName().size() + 1);
 	}
+
+	X11::setUtf8StringArray(
+		X11::getRoot(), NET_DESKTOP_NAMES,
+		reinterpret_cast<const uchar*>(utf8_names.c_str()),
+		utf8_names.size());
 }
 
 /**

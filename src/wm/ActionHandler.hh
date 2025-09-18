@@ -103,6 +103,7 @@ private:
 	void actionSys(const std::string &cmd);
 	void actionWmSet(const std::string &args_str);
 	void actionWmSetScale(const std::vector<std::string> &args);
+	void actionWmSetWorkspaceName(const std::vector<std::string> &args);
 
 	// action helpers
 	Client *findClientFromTitle(const std::string &title);

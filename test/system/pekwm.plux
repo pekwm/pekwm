@@ -236,6 +236,25 @@ in one go.
 		?SH-PROMPT:
 [endfunction]
 
+[function test_wmset_workspacename]
+	[log test_wmset_workspacename]
+
+	[shell pekwm_ctrl]
+		!$$VALGRIND $BIN_DIR/ctrl/pekwm_ctrl WmSet WorkspaceName Updated
+		?SH-PROMPT:
+
+	[shell pekwm]
+		?received _PEKWM_CMD: WmSet WorkspaceName Updated
+		?start action WmSet wo 0
+		?end action WmSet wo 0
+
+	[shell xprop]
+		[log verify _NET_DESKTOP_NAMES]
+		!xprop -root _NET_DESKTOP_NAMES
+		???_NET_DESKTOP_NAMES(UTF8_STRING) = "Updated"
+		?SH-PROMPT:
+[endfunction]
+
 [function test_warp_pointer]
 	[shell test]
 		[log test_warp_pointer]
@@ -565,6 +584,7 @@ in one go.
 	[call test_update_client_list_report_all]
 	[call test_restack_window]
 	[call test_wmset_scale]
+	[call test_wmset_workspacename]
 
 [shell pekwm]
 	!$_CTRL_C_
