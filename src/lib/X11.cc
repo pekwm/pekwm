@@ -963,7 +963,10 @@ X11::selectXRandrInput(void)
 {
 #ifdef PEKWM_HAVE_XRANDR
 	if (_honour_randr && _xrandr_extension) {
-		XRRSelectInput(_dpy, _root, RRScreenChangeNotifyMask);
+		XRRSelectInput(_dpy, _root,
+			       RROutputChangeNotifyMask
+			       |RRCrtcChangeNotifyMask
+			       |RRScreenChangeNotifyMask);
 		return true;
 	}
 #endif // PEKWM_HAVE_XRANDR
@@ -977,20 +980,8 @@ X11::getScreenChangeNotification(XEvent *ev, ScreenChangeNotification &scn)
 	if (_honour_randr
 	    && _xrandr_extension
 	    && ev->type == _event_xrandr + RRScreenChangeNotify) {
-		XRRScreenChangeNotifyEvent* scr_ev =
-			reinterpret_cast<XRRScreenChangeNotifyEvent*>(ev);
-		if  (scr_ev->rotation == RR_Rotate_90
-		     || scr_ev->rotation == RR_Rotate_270) {
-			scn.width = scr_ev->height;
-			scn.height = scr_ev->width;
-		} else {
-			scn.width = scr_ev->width;
-			scn.height = scr_ev->height;
-		}
-
 		XRRUpdateConfiguration(ev);
 		updateGeometry(scn.width, scn.height);
-
 		return true;
 	}
 #endif // PEKWM_HAVE_XRANDR
