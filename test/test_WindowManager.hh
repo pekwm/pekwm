@@ -104,7 +104,7 @@ TestWindowManager::testStartBackground()
 	// no running process, ensure started
 	startBackground("./test", "Plain #cccccc");
 	ASSERT_EQUAL("exec count", 1, os->getExec().size());
-	ASSERT_EQUAL("exec cmd", BINDIR "/pekwm_bg"
+	ASSERT_EQUAL("exec cmd", "../pekwm_bg"
 		     " --load-dir ./test/backgrounds Plain #cccccc",
 		     os->getExec().at(0));
 
@@ -120,7 +120,7 @@ TestWindowManager::testStartBackground()
 	// new texture, start
 	startBackground("./test", "Plain #dddddd");
 	ASSERT_EQUAL("exec count", 2, os->getExec().size());
-	ASSERT_EQUAL("exec cmd", BINDIR "/pekwm_bg"
+	ASSERT_EQUAL("exec cmd", "../pekwm_bg"
 		     " --load-dir ./test/backgrounds Plain #dddddd",
 		     os->getExec().at(1));
 
