@@ -6,6 +6,7 @@ EXTRA_DIST = CMakeLists.txt \
 	     data/config.pekwm_sys \
 	     data/config.pekwm_sys.invalid_lat \
 	     data/config.pekwm_sys.invalid_long \
+	     data/linux_proc_meminfo \
 	     test.hh \
 	     test_Action.hh \
 	     test_ActionHandler.hh \
@@ -14,6 +15,7 @@ EXTRA_DIST = CMakeLists.txt \
 	     test_CfgParser.hh \
 	     test_Charset.hh \
 	     test_ColorPalette.hh \
+	     test_Cond.hh \
 	     test_Config.hh \
 	     test_Daytime.hh \
 	     test_ExternalCommandData.hh \
@@ -33,10 +35,13 @@ EXTRA_DIST = CMakeLists.txt \
 	     test_PFontPango.hh \
 	     test_PFontXmb.hh \
 	     test_PMenu.hh \
+	     test_PImage.hh \
+	     test_PSurface.hh \
 	     test_RegexString.hh \
 	     test_String.hh \
 	     test_SysConfig.hh \
 	     test_SysResources.hh \
+	     test_TextFormatter.hh \
 	     test_Theme.hh \
 	     test_Timeouts.hh \
 	     test_Tokenizer.hh \

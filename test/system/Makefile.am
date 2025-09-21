@@ -27,7 +27,17 @@ test_update_client_list_CXXFLAGS = $(LIB_CFLAGS)
 test_update_client_list_LDADD = $(LIB_LIBS)
 
 EXTRA_DIST = CMakeLists.txt \
+	     pekwm.autoproperties \
 	     pekwm.config \
+	     pekwm.config.report_all \
+	     pekwm.config.vars \
+	     pekwm.xresources \
+	     pekwm_ctrl.xresources \
+	     pekwm_panel.config.bottom \
+	     pekwm_panel.config.pekwm_env \
+	     pekwm_panel.config.systray \
+	     pekwm_panel.config.top \
+	     pekwm_sys.sh \
 	     pekwm_themeset.config \
 	     pekwm.plux \
 	     pekwm_ctrl.plux \
@@ -38,4 +48,9 @@ EXTRA_DIST = CMakeLists.txt \
 	     pekwm_themeset.plux \
 	     test.pluxinc \
 	     icons/term.png \
+	     mock/netbsd/envstat_battery/envstat \
+	     mock/netbsd/envstat_no_battery/envstat \
+	     mock/openbsd/apm_no_battery/apm \
+	     mock/openbsd/apm_battery/apm \
+	     mock/openbsd/apm_ac/apm \
 	     themes/with-dash/theme
