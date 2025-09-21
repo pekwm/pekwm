@@ -519,8 +519,11 @@ static void
 usage(int ret)
 {
 	std::cout << "usage: " << progname << " [-dh]" << std::endl;
-	std::cout << " -f --log-file       Set log file." << std::endl;
-	std::cout << " -l --log-level      Set log level." << std::endl;
+	std::cout << " -d --display    Display to connect to." << std::endl;
+	std::cout << " -f --log-file   Set log file." << std::endl;
+	std::cout << " -h --help       Show this info." << std::endl;
+	std::cout << " -l --log-level  Set log level." << std::endl;
+	std::cout << " -t --theme      Path to theme." << std::endl;
 	exit(ret);
 }
 
