@@ -109,7 +109,8 @@ static WindowManager *_wm = nullptr;
  * Create window manager instance and run main routine.
  */
 WindowManager*
-WindowManager::start(const std::string &config_file,
+WindowManager::start(const std::string &bin_dir,
+		     const std::string &config_file,
 		     bool replace, bool skip_start, bool synchronous,
 		     bool standalone)
 {
@@ -123,7 +124,7 @@ WindowManager::start(const std::string &config_file,
 
 	// Setup window manager
 	Os *os = mkOs();
-	WindowManager *wm = new WindowManager(os, standalone);
+	WindowManager *wm = new WindowManager(bin_dir, os, standalone);
 	Workspaces::init();
 	if (! pekwm::init(wm, wm, os, dpy, config_file, replace,
 			  synchronous, standalone)) {
@@ -156,8 +157,10 @@ WindowManager::start(const std::string &config_file,
 	return wm;
 }
 
-WindowManager::WindowManager(Os *os, bool standalone)
-	: _os(os),
+WindowManager::WindowManager(const std::string &bin_dir, Os *os,
+			     bool standalone)
+	: _bin_dir(bin_dir),
+	  _os(os),
 	  _standalone(standalone),
 	  _shutdown(false),
 	  _reload(false),
@@ -168,6 +171,10 @@ WindowManager::WindowManager(Os *os, bool standalone)
 	  _event_handler(nullptr),
 	  _skip_enter(false)
 {
+	if (! _bin_dir.empty() && _bin_dir[_bin_dir.size() - 1] != '/') {
+		_bin_dir += '/';
+	}
+
 	_screen_edges[0] = 0;
 	_screen_edges[1] = 0;
 	_screen_edges[2] = 0;
@@ -612,14 +619,14 @@ WindowManager::startBackground(const std::string& theme_dir,
 			stopBackground();
 
 			std::vector<std::string> args;
-			args.push_back(BINDIR "/pekwm_bg");
+			args.push_back(_bin_dir + "pekwm_bg");
 			args.push_back("--load-dir");
 			args.push_back(theme_dir + "/backgrounds");
 			args.push_back(texture);
 			_bg_pid = _os->processExec(args);
 			_bg_args = bg_args;
 
-			P_LOG("started " BINDIR "/pekwm_bg --load-dir "
+			P_LOG("started " << _bin_dir << "pekwm_bg --load-dir "
 			      << theme_dir + "/backgrounds " << texture
 			      << " -> pid " << _bg_pid);
 		}
@@ -650,12 +657,12 @@ WindowManager::startSys()
 		return false;
 	}
 	std::vector<std::string> args;
-	args.push_back(BINDIR "/pekwm_sys");
+	args.push_back(_bin_dir + "pekwm_sys");
 	args.push_back("--theme");
 	args.push_back(pekwm::theme()->getThemeFile());
 	_sys_process = _os->childExec(args, ChildProcess::CHILD_IO_ALL);
 	if (_sys_process) {
-		P_LOG("started " BINDIR "/pekwm_sys -> pid "
+		P_LOG("started " << _bin_dir << "pekwm_sys -> pid "
 		      << _sys_process->getPid());
 		pekwm::actionHandler()->setSysProcess(_sys_process);
 	}
@@ -1864,7 +1871,7 @@ void
 WindowManager::showDialog(const std::string &title, const std::string &msg)
 {
 	std::vector<std::string> args;
-	args.push_back(BINDIR "/pekwm_dialog");
+	args.push_back(_bin_dir + "pekwm_dialog");
 	args.push_back("-t");
 	args.push_back(title);
 	args.push_back(msg);

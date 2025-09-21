@@ -188,8 +188,9 @@ main(int argc, char **argv)
 		  << FEATURES << std::endl
 		  << "using configuration at " << config_file);
 
+	std::string bin_dir = Util::getDir(argv[0]);
 	WindowManager *wm =
-		WindowManager::start(config_file, replace, skip_start,
+		WindowManager::start(bin_dir, config_file, replace, skip_start,
 				     synchronous, standalone);
 
 	// Further limit access (on OpenBSD) after the X11 connection has

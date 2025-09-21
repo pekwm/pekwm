@@ -33,7 +33,8 @@ class WindowManager : public AppCtrl,
 		      public EventLoop
 {
 public:
-	static WindowManager *start(const std::string &config_file,
+	static WindowManager *start(const std::string &bin_dir,
+				    const std::string &config_file,
 				    bool replace, bool skip_start,
 				    bool synchronous, bool standalone);
 	virtual ~WindowManager();
@@ -67,7 +68,7 @@ public:
 	bool setScale(double old_scale, double new_scale, bool reload=true);
 
 protected:
-	WindowManager(Os *os, bool standalone);
+	WindowManager(const std::string &bin_dir, Os *os, bool standalone);
 
 	void handlePekwmCmd(XClientMessageEvent *ev);
 	bool recvPekwmCmd(XClientMessageEvent *ev);
@@ -149,6 +150,7 @@ protected:
 	std::string _pekwm_cmd_buf;
 
 private:
+	std::string _bin_dir;
 	bool _standalone;
 	bool _shutdown; //!< Set to wheter we want to shutdown.
 	bool _reload; //!< Set to wheter we want to reload.

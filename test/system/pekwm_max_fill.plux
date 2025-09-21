@@ -26,7 +26,7 @@ state.
 [shell pekwm]
 	-Invalid read of size
 	[log starting pekwm (pekwm.config)]
-	!$$VALGRIND $BIN_DIR/wm/pekwm --skip-start --config pekwm.config --log-level trace
+	!$$VALGRIND ./bin/pekwm --skip-start --config pekwm.config --log-level trace
 	?Enter event loop.
 
 [shell xedit1]

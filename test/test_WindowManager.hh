@@ -36,7 +36,7 @@ public:
 
 TestWindowManager::TestWindowManager()
 	: TestSuite("WindowManager"),
-	  WindowManager(new OsMock(), true)
+	  WindowManager("../", new OsMock(), true)
 {
 }
 

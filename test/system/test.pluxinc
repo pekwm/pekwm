@@ -5,16 +5,29 @@ Common functions and variables for pekwm tests
 [config set shell_hook_init=init-shell]
 
 [global DISPLAY=:1]
+
+[function init-shell-bindir]
+	[call sh-eval "mkdir -p ./bin"]
+	[call sh-eval "ln -sf ../$BIN_DIR/bg/pekwm_bg ./bin"]
+	[call sh-eval "ln -sf ../$BIN_DIR/ctrl/pekwm_ctrl ./bin"]
+	[call sh-eval "ln -sf ../$BIN_DIR/dialog/pekwm_dialog ./bin"]
+	[call sh-eval "ln -sf ../$BIN_DIR/sys/pekwm_sys ./bin"]
+	[call sh-eval "ln -sf ../$BIN_DIR/wm/pekwm ./bin"]
+	[call sh-eval "ln -sf ../$BIN_DIR/wm/pekwm_wm ./bin"]
+[endfunction]
+
 [function init-shell-cmake]
 	[global BIN_DIR=../../build/src]
 	[global TEST_DIR=../../build/test/system]
 	[global SCRIPTS_DIR=../../build/data/scripts]
+	[call init-shell-bindir]
 [endfunction]
 
 [function init-shell-autoconf]
 	[global BIN_DIR=../../src]
 	[global TEST_DIR=.]
 	[global SCRIPTS_DIR=../../data/scripts]
+	[call init-shell-bindir]
 [endfunction]
 
 [function init-test-display]
