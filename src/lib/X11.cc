@@ -933,11 +933,35 @@ X11::saveSetRemove(Window win)
  * Refetches the root-window size.
  */
 bool
-X11::updateGeometry(uint width, uint height)
+X11::updateGeometry()
 {
 #ifdef PEKWM_HAVE_XRANDR
 	if (! _honour_randr || ! _xrandr_extension) {
 		return false;
+	}
+
+	// The screen has changed geometry in some way. To handle this the
+	// head information is read once again, the root window is re sized
+	// and strut information is updated.
+	initHeads();
+
+	int width = WidthOfScreen(ScreenOfDisplay(_dpy, _screen));
+	int height = HeightOfScreen(ScreenOfDisplay(_dpy, _screen));
+	if (width == 0 || height == 0) {
+		width = 0;
+		height = 0;
+
+		// This shouldn't happen, but can happen so calculate the
+		// geometry
+		std::vector<Head>::iterator it(_heads.begin());
+		for (; it != _heads.end(); ++it) {
+			if ((it->x + it->width) > width) {
+				width = it->x + it->width;
+			}
+			if ((it->y + it->height) > height) {
+				height = it->y + it->height;
+			}
+		}
 	}
 
 	P_LOG("update geometry "
@@ -947,11 +971,6 @@ X11::updateGeometry(uint width, uint height)
 		_screen_gm.width != width || _screen_gm.height != height;
 	_screen_gm.width = width;
 	_screen_gm.height = height;
-
-	// The screen has changed geometry in some way. To handle this the
-	// head information is read once again, the root window is re sized
-	// and strut information is updated.
-	initHeads();
 
 	return updated;
 #else // ! PEKWM_HAVE_XRANDR
@@ -982,7 +1001,7 @@ X11::getScreenChangeNotification(XEvent *ev, ScreenChangeNotification &scn)
 	    && _xrandr_extension
 	    && ev->type == _event_xrandr + RRScreenChangeNotify) {
 		XRRUpdateConfiguration(ev);
-		updateGeometry(scn.width, scn.height);
+		updateGeometry();
 		return true;
 	}
 #endif // PEKWM_HAVE_XRANDR

@@ -131,9 +131,6 @@ static void modeBackground(const std::string& tex_str)
 	ScreenChangeNotification scn;
 	while (! _stop && X11::getNextEvent(ev)) {
 		if (X11::getScreenChangeNotification(&ev, scn)) {
-			std::cout << "Screen changed: " << scn.width << "x"
-				  << scn.height << std::endl;
-			X11::updateGeometry(scn.width, scn.height);
 			X11::freePixmap(pix);
 			pix = loadAndSetBackground(tex_str);
 			if (pix == None) {

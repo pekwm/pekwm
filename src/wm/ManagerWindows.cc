@@ -406,10 +406,6 @@ RootWO::getHeadInfoWithEdge(uint num, Geometry &head)
 void
 RootWO::updateGeometry(uint width, uint height)
 {
-	if (! X11::updateGeometry(width, height)) {
-		return;
-	}
-
 	initStrutHead();
 
 	resize(width, height);

@@ -458,7 +458,7 @@ public:
 	static void saveSetAdd(Window win);
 	static void saveSetRemove(Window win);
 
-	static bool updateGeometry(uint width, uint height);
+	static bool updateGeometry();
 	static Cursor getCursor(CursorType type) { return _cursor_map[type]; }
 
 	static Time getLastEventTime(void) { return _last_event_time; }

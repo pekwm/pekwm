@@ -584,7 +584,8 @@ PMenu::buildMenuCalculateColumns(unsigned int &width, unsigned int &height)
 	}
 
 	_cols = height / (X11::getHeight() - titleHeight(this));
-	if ((height % (X11::getHeight() - titleHeight(this))) != 0) {
+	if (_cols == 0
+	    || (height % (X11::getHeight() - titleHeight(this))) != 0) {
 		++_cols;
 	}
 	_rows = _size / _cols;
