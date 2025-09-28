@@ -159,8 +159,8 @@ WindowManager::start(const std::string &bin_dir,
 
 WindowManager::WindowManager(const std::string &bin_dir, Os *os,
 			     bool standalone)
-	: _bin_dir(bin_dir),
-	  _os(os),
+	: _os(os),
+	  _bin_dir(bin_dir),
 	  _standalone(standalone),
 	  _shutdown(false),
 	  _reload(false),
