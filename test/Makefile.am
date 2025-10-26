@@ -4,12 +4,12 @@ TEST_CXXFLAGS = -I../src/lib -I../src $(LIB_CXXFLAGS) $(TK_CFLAGS)
 TEST_LDADD = ../src/tk/libpekwm_tk.a ../src/lib/libpekwm_lib.a \
 	     $(LIB_LIBS) $(TK_LIBS)
 
-bin_PROGRAMS = test_pekwm \
-	       test_pekwm_ctrl \
-	       test_pekwm_panel \
-	       test_pekwm_panel_sysinfo \
-	       test_util \
-	       test_pekwm_sys
+noinst_PROGRAMS = test_pekwm \
+		  test_pekwm_ctrl \
+		  test_pekwm_panel \
+		  test_pekwm_panel_sysinfo \
+		  test_util \
+		  test_pekwm_sys
 
 test_pekwm_SOURCES = test_pekwm.cc \
 		     test_Action.hh \
