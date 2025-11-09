@@ -66,7 +66,8 @@ parsePMenuName(const std::string &name, uint &keycode, uint &key_pos)
 	return stripped_name;
 }
 
-PMenu::Item::Item(const std::string &name, PWinObj *wo_ref, PTexture *icon)
+PMenu::Item::Item(const std::string &name, bool parse_name, PWinObj *wo_ref,
+		  PTexture *icon)
 	: PWinObjReference(wo_ref),
 	  _keycode(0),
 	  _key_pos(0),
@@ -77,7 +78,11 @@ PMenu::Item::Item(const std::string &name, PWinObj *wo_ref, PTexture *icon)
 	if (_icon) {
 		pekwm::textureHandler()->referenceTexture(_icon);
 	}
-	_name = parsePMenuName(name, _keycode, _key_pos);
+	if (parse_name) {
+		_name = parsePMenuName(name, _keycode, _key_pos);
+	} else {
+		_name = name;
+	}
 }
 
 PMenu::Item::~Item()
@@ -1011,24 +1016,29 @@ PMenu::insert(std::vector<PMenu::Item*>::iterator at, PMenu::Item *item)
 	_items.insert(at, item);
 }
 
-//! @brief Creates and inserts Item
-//! @param name Name of objet to create and insert
-//! @param wo_ref PWinObj to refer to, defaults to 0
+/**
+ * @brief Creates and inserts Item
+ * @param name Name of objet to create and insert
+ * @param wo_ref PWinObj to refer to, defaults to nullptr
+ */
 void
-PMenu::insert(const std::string &name, PWinObj *wo_ref, PTexture *icon)
+PMenu::insert(const std::string &name, bool parse_name, PWinObj *wo_ref,
+	      PTexture *icon)
 {
-	insert(new PMenu::Item(name, wo_ref, icon));
+	insert(new PMenu::Item(name, parse_name, wo_ref, icon));
 }
 
-//! @brief Creates and inserts Item
-//! @param name Name of object to create and insert
-//! @param ae ActionEvent for the object
-//! @param wo_ref PWinObj to refer to, defaults to 0
+/**
+ * @brief Creates and inserts Item
+ * @param name Name of object to create and insert
+ * @param ae ActionEvent for the object
+ * @param wo_ref PWinObj to refer to, defaults to nullptr
+ */
 void
-PMenu::insert(const std::string &name, const ActionEvent &ae,
+PMenu::insert(const std::string &name, bool parse_name, const ActionEvent &ae,
 	      PWinObj *wo_ref, PTexture *icon)
 {
-	PMenu::Item *item = new PMenu::Item(name, wo_ref, icon);
+	PMenu::Item *item = new PMenu::Item(name, parse_name, wo_ref, icon);
 	item->setAE(ae);
 	insert(item);
 }

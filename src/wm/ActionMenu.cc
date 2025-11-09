@@ -154,14 +154,14 @@ ActionMenu::insert(std::vector<PMenu::Item*>::iterator at, PMenu::Item *item)
 void
 ActionMenu::insert(const std::string &name, PWinObj *wo_ref, PTexture *icon)
 {
-	WORefMenu::insert(name, wo_ref, icon);
+	WORefMenu::insert(name, true, wo_ref, icon);
 }
 
 void
 ActionMenu::insert(const std::string &name, const ActionEvent &ae,
 		   PWinObj *wo_ref, PTexture *icon)
 {
-	WORefMenu::insert(name, ae, wo_ref, icon);
+	WORefMenu::insert(name, true, ae, wo_ref, icon);
 }
 
 //! @brief Removes a BaseMenuItem from the menu
@@ -251,7 +251,7 @@ ActionMenu::parseSubmenu(CfgParser::Entry* section, PMenu::Item* parent,
 	submenu->buildMenu();
 
 	const std::string& sub_title = section->getValue();
-	PMenu::Item* item = new PMenu::Item(sub_title, submenu, icon);
+	PMenu::Item* item = new PMenu::Item(sub_title, true, submenu, icon);
 	item->setCreator(parent);
 
 	return item;
@@ -274,7 +274,7 @@ ActionMenu::parseItem(CfgParser::Entry* section, PMenu::Item* parent)
 		PTexture* icon = getIcon(section->findEntry("ICON"));
 
 		const std::string& sub_name = section->getValue();
-		item = new PMenu::Item(sub_name, 0, icon);
+		item = new PMenu::Item(sub_name, true, nullptr, icon);
 		item->setCreator(parent);
 		item->setAE(ae);
 
