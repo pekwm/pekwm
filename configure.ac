@@ -311,6 +311,17 @@ AC_COMPILE_IFELSE(
 	 AC_MSG_RESULT([yes])],
 	[AC_MSG_RESULT([no])])
 
+AC_MSG_CHECKING([for NAN])
+AC_COMPILE_IFELSE(
+	[AC_LANG_PROGRAM([extern "C" {
+			  #include <math.h>
+			  }],
+			  [double val = NAN;])],
+	[AC_DEFINE([PEKWM_HAVE_NAN], [1],
+		   [Define to 1 if NAN is defined])
+	 AC_MSG_RESULT([yes])],
+	[AC_MSG_RESULT([no])])
+
 AC_LANG_POP([C++])
 
 AC_SUBST(LIB_CFLAGS,

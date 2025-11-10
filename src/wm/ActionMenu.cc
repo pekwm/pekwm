@@ -152,16 +152,17 @@ ActionMenu::insert(std::vector<PMenu::Item*>::iterator at, PMenu::Item *item)
 }
 
 void
-ActionMenu::insert(const std::string &name, PWinObj *wo_ref, PTexture *icon)
+ActionMenu::insert(const std::string &name, bool parse_name,
+		   PWinObj *wo_ref, PTexture *icon)
 {
-	WORefMenu::insert(name, true, wo_ref, icon);
+	WORefMenu::insert(name, parse_name, wo_ref, icon);
 }
 
 void
-ActionMenu::insert(const std::string &name, const ActionEvent &ae,
-		   PWinObj *wo_ref, PTexture *icon)
+ActionMenu::insert(const std::string &name, bool parse_name,
+		   const ActionEvent &ae, PWinObj *wo_ref, PTexture *icon)
 {
-	WORefMenu::insert(name, true, ae, wo_ref, icon);
+	WORefMenu::insert(name, parse_name, ae, wo_ref, icon);
 }
 
 //! @brief Removes a BaseMenuItem from the menu

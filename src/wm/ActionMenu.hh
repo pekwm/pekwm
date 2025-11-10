@@ -39,10 +39,13 @@ public:
 	virtual void insert(PMenu::Item *item);
 	virtual void insert(std::vector<PMenu::Item*>::iterator at,
 			    PMenu::Item *item);
-	virtual void insert(const std::string &name, PWinObj *wo_ref = 0,
-			    PTexture *icon = 0);
-	virtual void insert(const std::string &name, const ActionEvent &ae,
-			    PWinObj *wo_ref = 0, PTexture *icon = 0);
+	virtual void insert(const std::string &name, bool parse_name,
+			    PWinObj *wo_ref = nullptr,
+			    PTexture *icon = nullptr);
+	virtual void insert(const std::string &name, bool parse_name,
+			    const ActionEvent &ae,
+			    PWinObj *wo_ref = nullptr,
+			    PTexture *icon = nullptr);
 
 	virtual void reload(CfgParser::Entry *section);
 

@@ -955,10 +955,10 @@ X11::updateGeometry()
 		// geometry
 		std::vector<Head>::iterator it(_heads.begin());
 		for (; it != _heads.end(); ++it) {
-			if ((it->x + it->width) > width) {
+			if (static_cast<int>(it->x + it->width) > width) {
 				width = it->x + it->width;
 			}
-			if ((it->y + it->height) > height) {
+			if (static_cast<int>(it->y + it->height) > height) {
 				height = it->y + it->height;
 			}
 		}
@@ -968,7 +968,8 @@ X11::updateGeometry()
 	      << _screen_gm.width << "x" << _screen_gm.height
 	      << " -> " << width << "x" << height);
 	bool updated =
-		_screen_gm.width != width || _screen_gm.height != height;
+		static_cast<int>(_screen_gm.width) != width
+		|| static_cast<int>(_screen_gm.height) != height;
 	_screen_gm.width = width;
 	_screen_gm.height = height;
 

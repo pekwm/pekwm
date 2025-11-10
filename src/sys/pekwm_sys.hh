@@ -94,7 +94,8 @@ private:
 	void setDpi()
 	{
 		if (_cfg.haveDpi()) {
-			_xsettings.setInt32("Xft/DPI", _cfg.getDpi() * 1024);
+			int dpi = static_cast<int>(_cfg.getDpi() * 1024);
+			_xsettings.setInt32("Xft/DPI", dpi);
 		}
 	}
 

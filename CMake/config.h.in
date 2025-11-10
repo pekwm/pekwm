@@ -19,6 +19,7 @@
 #cmakedefine PEKWM_HAVE_STOD
 #cmakedefine PEKWM_HAVE_STOI
 #cmakedefine PEKWM_HAVE_STOF
+#cmakedefine PEKWM_HAVE_NAN
 
 #cmakedefine PEKWM_HAVE_EXECVPE
 #cmakedefine PEKWM_HAVE_SETENV

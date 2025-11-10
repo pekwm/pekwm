@@ -10,6 +10,7 @@
 #include "Debug.hh"
 #include "SysConfig.hh"
 #include "Util.hh"
+#include "Compat.hh"
 
 extern "C" {
 #include <math.h>
