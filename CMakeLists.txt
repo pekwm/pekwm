@@ -43,6 +43,7 @@ if (PEKWM_HAVE_LOCALE)
 int main() {
   std::locale num_locale(\"\");
   std::locale locale = std::locale().combine<std::numpunct<char> >(num_locale);
+  return 0;
 }
 " PEKWM_HAVE_LOCALE_COMBINE)
 
@@ -60,29 +61,37 @@ set(CMAKE_CXX_FLAGS ${CMAKE_CXX98_STANDARD_COMPILE_OPTION})
 check_cxx_source_compiles("
 #include <iostream>
 #include <iomanip>
-int main() { std::tm tm = {0}; std::cout << std::put_time(&tm, \"%S\"); }
+int main() { std::tm tm = {0}; std::cout << std::put_time(&tm, \"%S\");
+	     return 0; }
 " PEKWM_HAVE_PUT_TIME)
 
 check_cxx_source_compiles("
 #include <iostream>
 #include <string>
-int main() { std::to_string(42); }
+int main() { std::to_string(42); return 0; }
 " PEKWM_HAVE_TO_STRING)
 
 check_cxx_source_compiles("
 #include <string>
-int main() { std::stod(\"42.2\"); }
+int main() { std::stod(\"42.2\"); return 0; }
 " PEKWM_HAVE_STOD)
 
 check_cxx_source_compiles("
 #include <string>
-int main() { std::size_t pos; std::stoi(\"42\", &pos, 10); }
+int main() { std::size_t pos; std::stoi(\"42\", &pos, 10); return 0; }
 " PEKWM_HAVE_STOI)
 
 check_cxx_source_compiles("
 #include <string>
-int main() { std::stof(\"42.0\"); }
+int main() { std::stof(\"42.0\"); return 0; }
 " PEKWM_HAVE_STOF)
+
+check_cxx_source_compiles("
+extern \"C\" {
+#include <math.h>
+}
+int main() { double val = NAN; return 0; }
+" PEKWM_HAVE_NAN)
 
 set(CMAKE_CXX_FLAGS ${orig_CMAKE_CXX_FLAGS})
 

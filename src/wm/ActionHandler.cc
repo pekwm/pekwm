@@ -1440,9 +1440,9 @@ void
 ActionHandler::actionDetachClientSplitHorz(PWinObj *oldf, PWinObj *newf,
 					   float new_aspect)
 {
-	int new_height = new_aspect * oldf->getHeight();
+	int new_height = static_cast<int>(new_aspect * oldf->getHeight());
 	int old_y = oldf->getY() + new_height;
-	int old_height = (1.0 - new_aspect) * oldf->getHeight();
+	int old_height = static_cast<int>((1.0 - new_aspect) * oldf->getHeight());
 	newf->moveResize(oldf->getX(), oldf->getY(),
 			 oldf->getWidth(), new_height);
 	oldf->moveResize(oldf->getX(), old_y,
@@ -1453,9 +1453,9 @@ void
 ActionHandler::actionDetachClientSplitVert(PWinObj *oldf, PWinObj *newf,
 					   float new_aspect)
 {
-	int new_width = new_aspect * oldf->getWidth();
+	int new_width = static_cast<int>(new_aspect * oldf->getWidth());
 	int old_x = oldf->getX() + new_width;
-	int old_width = (1.0 - new_aspect) * oldf->getWidth();
+	int old_width = static_cast<int>((1.0 - new_aspect) * oldf->getWidth());
 	newf->moveResize(oldf->getX(), oldf->getY(),
 			 new_width, oldf->getHeight());
 	oldf->moveResize(old_x, oldf->getY(),

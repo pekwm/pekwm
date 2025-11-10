@@ -161,6 +161,11 @@ namespace std
 	};
 }
 
+#endif // PEKWM_HAVE_LIMITS
+
+#if !defined(PEKWM_HAVE_NAN) && defined(__sun)
+// attempt at NAN from GCC
+#define NAN __builtin_nan("")
 #endif
 
 #ifdef PEKWM_HAVE_PLEDGE
