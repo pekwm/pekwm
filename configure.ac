@@ -10,7 +10,7 @@ AC_PROG_SED
 PKG_PROG_PKG_CONFIG
 
 AC_ARG_ENABLE(tests,
-	      [AC_HELP_STRING([--enable-tests], [Enable compilation of tests])],
+	      [AS_HELP_STRING([--enable-tests], [Enable compilation of tests])],
 	      [TESTS=yes], [TESTS=no])
 AM_CONDITIONAL([ENABLE_TESTS], [test "x$TESTS" = "xyes"])
 
@@ -346,3 +346,5 @@ dnl base url where theme index resides, without ending /
 AC_SUBST(PEKWM_THEMES, "https://www.pekwm.se/themes")
 
 AC_OUTPUT
+m4_unquote(
+  _m4_defn([_m4_wrap_text])_m4_popdef([_m4_wrap_text]))
