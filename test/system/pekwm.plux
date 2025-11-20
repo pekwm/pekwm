@@ -232,7 +232,7 @@ in one go.
 	[shell xprop]
 		[log verify _PEKWM_THEME_SCALE]
 		!xprop -root _PEKWM_THEME_SCALE
-		???_PEKWM_THEME_SCALE(STRING) = "2"
+		?_PEKWM_THEME_SCALE\(STRING\) = "2(\.0+)?"
 		?SH-PROMPT:
 [endfunction]
 
