@@ -161,6 +161,10 @@ option(PEDANTIC "turn on strict compile-time warnings" OFF)
 option(TESTS "include tests" OFF)
 option(DEV "include development tools" OFF)
 
+if (TESTS)
+	set(PEKWM_HAVE_TESTS 1)
+endif (TESTS)
+
 if (ENABLE_XFT)
   find_package(Freetype)
 endif (ENABLE_XFT)

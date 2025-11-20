@@ -12,6 +12,10 @@ PKG_PROG_PKG_CONFIG
 AC_ARG_ENABLE(tests,
 	      [AS_HELP_STRING([--enable-tests], [Enable compilation of tests])],
 	      [TESTS=yes], [TESTS=no])
+if test "x$TESTS" = "xyes"; then
+	AC_DEFINE(PEKWM_HAVE_TESTS, [1],
+		  [Define to 1 if tests are enabled])
+fi
 AM_CONDITIONAL([ENABLE_TESTS], [test "x$TESTS" = "xyes"])
 
 dnl Check for /usr/xpg4/bin/sh and use if available to make shipped scripts

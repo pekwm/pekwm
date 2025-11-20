@@ -5,6 +5,8 @@ Closed issues
 -------------
 
 * #199, unintended N: prefix on _NET_WORKSPACE_NAMES
+* #203, MoveToEdge and FillEdge actions failed to get the current head
+  always moving the window to the first head.
 
 pekwm-0.4.0
 ===========

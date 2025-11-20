@@ -39,10 +39,15 @@ static int
 main_tests(int argc, char *argv[])
 {
 	// Setup environment required for the tests
-	Config cfg;
-	HintWO hint_wo(None);
 	Debug::setLogFile("/dev/null");
 	X11::addHead(Head(0, 0, 800, 600));
+	X11::addHead(Head(800, 0, 800, 600));
+
+	// Setup after heads have been created, RootWO depends on number of
+	// heads to get strut setup properly
+	pekwm::setConfig(new Config());
+	HintWO hint_wo(None);
+	pekwm::setRootWO(new RootWO(None, &hint_wo, pekwm::config(), true));
 
 	TestAutoProperties testAutoProperties;
 	// Action
@@ -62,7 +67,7 @@ main_tests(int argc, char *argv[])
 	TestInputBuffer testInputBuffer;
 
 	// ManagerWindows
-	TestRootWO testRootWO(&hint_wo, &cfg);
+	TestRootWO testRootWO(&hint_wo, pekwm::config());
 
 	// Observable
 	TestObserverMapping testObserverMapping;
