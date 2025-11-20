@@ -88,7 +88,7 @@ public:
 	}
 	static uint getPerRow(void) { return _per_row ? _per_row : size(); }
 
-	static void setSize(uint number);
+	static bool setSize(uint number);
 	static void setPerRow(uint per_row) { _per_row = per_row; }
 	static void setNames(void);
 

@@ -27,6 +27,7 @@ public:
 	void testFindWOAndFocusFind();
 	void testLayoutOnHeadTypes();
 	void testGotoWorkspaceBackAndForth();
+	void testSetSize();
 };
 
 TestWorkspaces::TestWorkspaces()
@@ -48,6 +49,7 @@ TestWorkspaces::run_test(TestSpec spec, bool status)
 	TEST_FN(spec, "layoutOnHeadTypes", testLayoutOnHeadTypes());
 	TEST_FN(spec, "gotoWorkspaceBackAndForth",
 		testGotoWorkspaceBackAndForth());
+	TEST_FN(spec, "setSize", testSetSize());
 	return status;
 }
 
@@ -206,4 +208,25 @@ TestWorkspaces::testGotoWorkspaceBackAndForth()
 	switched = gotoWorkspace(3, false, false);
 	ASSERT_TRUE("move from 3 -> 3, go back to 1", switched);
 	ASSERT_EQUAL("move from 3 -> 3, go back to 1", 1, getActive());
+}
+
+void
+TestWorkspaces::testSetSize()
+{
+	// size down to 1, everything on the same workspace
+	ASSERT_TRUE("size 0, result in 1", setSize(0));
+	ASSERT_EQUAL("size 1", 1, size());
+	ASSERT_EQUAL("active 0", 0, getActive());
+	ASSERT_EQUAL("previous 0", 0, getPrevious());
+
+	// size up above number of configured names, use default names
+	ASSERT_TRUE("size 4, grow to 4", setSize(4));
+	ASSERT_EQUAL("size 4", 4, size());
+	ASSERT_EQUAL("name 0", "1", getWorkspace(0).getName());
+	ASSERT_EQUAL("name 1", "2", getWorkspace(1).getName());
+	ASSERT_EQUAL("name 2", "3", getWorkspace(2).getName());
+	ASSERT_EQUAL("name 3", "4", getWorkspace(3).getName());
+
+	// size same, don't change
+	ASSERT_FALSE("size unchanged", setSize(4));
 }

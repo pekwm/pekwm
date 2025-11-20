@@ -564,6 +564,14 @@ in one go.
 		-
 [endfunction]
 
+[function test_net_desktop_names]
+	[shell xprop]
+		[log get _NET_DESKTOP_NAMES]
+		!xprop -root _NET_DESKTOP_NAMES
+		? = "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"$
+		?SH-PROMPT:
+[endfunction]
+
 [shell Xvfb]
 	[call start-xvfb]
 
@@ -574,6 +582,7 @@ in one go.
 	?Enter event loop.
 
 [shell test]
+	[call test_net_desktop_names]
 	[call test_client_frame_geometry_property]
 	[call test_icon_property]
 	[call test_transient_for]
