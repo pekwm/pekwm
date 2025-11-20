@@ -134,8 +134,10 @@ Workspaces::cleanup()
 	X11::deleteProperty(X11::getRoot(), PEKWM_CLIENT_LIST);
 }
 
-//! @brief Sets total amount of workspaces to number
-void
+/**
+ * Sets total amount of workspaces to number
+ */
+bool
 Workspaces::setSize(uint number)
 {
 	if (number < 1) {
@@ -143,8 +145,7 @@ Workspaces::setSize(uint number)
 	}
 
 	if (number == _workspaces.size()) {
-		// no need to change number of workspaces to the current number
-		return;
+		return false;
 	}
 
 	uint before = _workspaces.size();
@@ -169,6 +170,8 @@ Workspaces::setSize(uint number)
 	if (number <= _active) {
 		setWorkspace(number - 1, true);
 	}
+
+	return true;
 }
 
 /**
@@ -178,7 +181,7 @@ void
 Workspaces::setNames(void)
 {
 	std::vector<Workspace>::size_type i = 0;
-	std::vector<Workspace>::size_type num_workspaces=_workspaces.size();
+	std::vector<Workspace>::size_type num_workspaces = _workspaces.size();
 	for (; i < num_workspaces; ++i) {
 		_workspaces[i].setName(pekwm::config()->getWorkspaceName(i));
 	}
@@ -1074,15 +1077,18 @@ Workspaces::setLastFocused(uint workspace, PWinObj* wo)
 	_workspaces[workspace].setLastFocused(wo);
 }
 
-//! @brief Create name for workspace num
+/**
+ * Create name for workspace number, use the configured name if set else the
+ * number + 1 as a string is used.
+ */
 std::string
 Workspaces::getWorkspaceName(uint num)
 {
-	std::ostringstream buf;
-	buf << num + 1;
-	buf << ": ";
-	buf << pekwm::config()->getWorkspaceName(num);
-	return buf.str();
+	const std::string &name = pekwm::config()->getWorkspaceName(num);
+	if (name.empty()) {
+		return std::to_string(num + 1);
+	}
+	return name;
 }
 
 // MISC METHODS

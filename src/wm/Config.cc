@@ -173,7 +173,6 @@ Config::Config() :
 	_screen_workspaces(4),
 	_screen_workspaces_back_and_forth(true),
 	_screen_workspaces_per_row(0),
-	_screen_workspace_name_default("Workspace"),
 	_screen_edge_indent(false),
 	_screen_doubleclicktime(250), _screen_fullscreen_above(true),
 	_screen_fullscreen_detect(true),

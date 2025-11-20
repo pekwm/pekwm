@@ -1,3 +1,11 @@
+pekwm-0.4.1
+===========
+
+Closed issues
+-------------
+
+* #199, unintended N: prefix on _NET_WORKSPACE_NAMES
+
 pekwm-0.4.0
 ===========
 

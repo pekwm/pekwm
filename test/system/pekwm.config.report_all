@@ -1,10 +1,11 @@
 INCLUDE = "$_PEKWM_ETC_PATH/config_system"
 
 Files {
-    AutoProps = "./pekwm.autoproperties"
-    Icons = "./icons/"
+	AutoProps = "./pekwm.autoproperties"
+	Icons = "./icons/"
 }
 
 Screen {
-    ReportAllClients = "True"
+	ReportAllClients = "True"
+	WorkspaceNames = "One;Two;Three;Four;Five;Six;Seven;Eight;Nine"
 }
