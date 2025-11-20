@@ -1147,6 +1147,16 @@ void
 X11::addHead(const Head &head)
 {
 	_heads.push_back(head);
+#ifdef PEKWM_HAVE_TESTS
+	int rx = head.x + static_cast<int>(head.width);
+	if (rx > static_cast<int>(_screen_gm.width)) {
+		_screen_gm.width = rx;
+	}
+	int by = head.y + static_cast<int>(head.height);
+	if (by > static_cast<int>(_screen_gm.height)) {
+		_screen_gm.height = by;
+	}
+#endif // PEKWM_HAVE_TESTS
 }
 
 /**

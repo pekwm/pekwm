@@ -17,6 +17,7 @@ public:
 	virtual bool run_test(TestSpec, bool status);
 
 private:
+	static void testMoveToEdge();
 	static void testFillEdgeGeometry();
 	static void testDetachClientSplitHorz();
 	static void testDetachClientSplitVert();
@@ -34,10 +35,29 @@ TestActionHandler::~TestActionHandler()
 bool
 TestActionHandler::run_test(TestSpec spec, bool status)
 {
+	TEST_FN(spec, "moveToEdge", testMoveToEdge());
 	TEST_FN(spec, "fillEdgeGeometry", testFillEdgeGeometry());
 	TEST_FN(spec, "detachClientSplitHorz", testDetachClientSplitHorz());
 	TEST_FN(spec, "detachClientSplitVert", testDetachClientSplitVert());
 	return status;
+}
+
+void
+TestActionHandler::testMoveToEdge()
+{
+	PWinObj wo;
+
+	// head 0
+	wo.moveResize(0, 0, 100, 100);
+	ActionHandler::actionMoveToEdge(&wo, RIGHT_CENTER_EDGE);
+	ASSERT_EQUAL("RIGHT_CENTER_EDGE", Geometry(700, 250, 100, 100),
+		     wo.getGeometry());
+
+	// head 1
+	wo.moveResize(800, 0, 100, 100);
+	ActionHandler::actionMoveToEdge(&wo, RIGHT_CENTER_EDGE);
+	ASSERT_EQUAL("RIGHT_CENTER_EDGE", Geometry(1500, 250, 100, 100),
+		     wo.getGeometry());
 }
 
 void

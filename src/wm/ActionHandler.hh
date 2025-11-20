@@ -53,6 +53,7 @@ public:
 						float new_aspect);
 	static void actionDetachClientSplitVert(PWinObj *oldf, PWinObj *newf,
 						float new_aspect);
+	static bool actionMoveToEdge(PWinObj *wo, OrientationType edge);
 
 private:
 	void handleAction(const ActionPerformed* ap, ActionEvent::it it);
@@ -74,7 +75,6 @@ private:
 	void actionExec(Client *client, const std::string &command,
 			bool use_shell);
 	void actionSetenv(const std::string &name, const std::string &value);
-	bool actionMoveToEdge(PWinObj *wo, OrientationType edge);
 	bool actionFillEdge(Frame *frame, OrientationType edge,
 			    int percent);
 	bool isOrientationOpposites(OrientationType lhs, OrientationType rhs);

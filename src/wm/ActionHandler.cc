@@ -664,7 +664,7 @@ ActionHandler::actionSetenv(const std::string &name, const std::string &value)
 bool
 ActionHandler::actionMoveToEdge(PWinObj *wo, OrientationType edge)
 {
-	uint head_nr = X11Util::getNearestHead(wo);
+	uint head_nr = X11Util::getNearestHead(*wo);
 	Geometry real_head;
 	X11::getHeadInfo(head_nr, real_head);
 	Geometry head;
@@ -764,7 +764,7 @@ ActionHandler::actionFillEdge(Frame *frame, OrientationType edge, int percent)
 		return true;
 	}
 
-	uint head_nr = X11Util::getNearestHead(frame);
+	uint head_nr = X11Util::getNearestHead(*frame);
 	Geometry head;
 	pekwm::rootWo()->getHeadInfoWithEdge(head_nr, head);
 
