@@ -38,7 +38,7 @@ private:
 	bool setXSettingString(const std::string &key, const std::string &sval);
 	void handleMonitorChange();
 	void handleXSave();
-	void handleSetTimeOfDay(const std::vector<std::string> &args);
+	bool handleSetTimeOfDay(const std::vector<std::string> &args);
 	void handleSetDpi(const std::vector<std::string> &args);
 	void handleMonLoad(const std::vector<std::string> &args);
 	void handleMonSave(const std::vector<std::string> &args);

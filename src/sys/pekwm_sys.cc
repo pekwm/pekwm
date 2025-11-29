@@ -97,7 +97,7 @@ PekwmSys::main(const std::string &theme)
 	}
 	if (! pekwm::ascii_ncase_equal(_cfg.getTimeOfDay(), "AUTO")) {
 		P_TRACE("using static time of day " << _cfg.getTimeOfDay());
-		_tod_override = time_of_day_from_string(_cfg.getTimeOfDay());
+		time_of_day_from_string(_cfg.getTimeOfDay(), _tod_override);
 	}
 
 	// load theme before time of day detection, to get the right resources
@@ -349,35 +349,36 @@ PekwmSys::handleXSave()
 	}
 }
 
-void
+bool
 PekwmSys::handleSetTimeOfDay(const std::vector<std::string> &args)
 {
 	if (args.size() != 1) {
 		P_TRACE("Set TimeOfDay expected 1 argument, got "
 			<< args.size());
-		return;
+		return false;
 	}
 
-	if (pekwm::ascii_ncase_equal(args[1], "AUTO")) {
+	if (pekwm::ascii_ncase_equal(args[0], "AUTO")) {
 		_tod_override = static_cast<TimeOfDay>(-1);
-	} else if (pekwm::ascii_ncase_equal(args[1], "TOGGLE")) {
+	} else if (pekwm::ascii_ncase_equal(args[0], "TOGGLE")) {
 		// toggle between day and night
 		if (_tod == TIME_OF_DAY_DAY) {
 			_tod_override = TIME_OF_DAY_NIGHT;
 		} else {
 			_tod_override = TIME_OF_DAY_DAY;
 		}
-	} else if (pekwm::ascii_ncase_equal(args[1], "NEXT")) {
+	} else if (pekwm::ascii_ncase_equal(args[0], "NEXT")) {
 		// go to next time of day including dawn and dusk
 		_tod_override = static_cast<TimeOfDay>(_tod + 1);
 		if (_tod_override > TIME_OF_DAY_DUSK) {
 			_tod_override = TIME_OF_DAY_NIGHT;
 		}
-	} else {
-		_tod_override = time_of_day_from_string(args[1]);
+	} else if (! time_of_day_from_string(args[0], _tod_override)) {
+		return false;
 	}
 
 	_tod = timeOfDayChanged(getEffectiveTimeOfDay(_daytime.getTimeOfDay()));
+	return true;
 }
 
 void
@@ -479,11 +480,13 @@ PekwmSys::reload()
 		P_TRACE("time of day changed to " << _cfg.getTimeOfDay());
 		if (pekwm::ascii_ncase_equal(_cfg.getTimeOfDay(), "AUTO")) {
 			_tod_override = static_cast<TimeOfDay>(-1);
+			update_tod = true;
+		} else if (time_of_day_from_string(_cfg.getTimeOfDay(),
+						   _tod_override)) {
+			update_tod = true;
 		} else {
-			_tod_override =
-				time_of_day_from_string(_cfg.getTimeOfDay());
+			P_TRACE("invalid time of day " << _cfg.getTimeOfDay());
 		}
-		update_tod = true;
 	}
 
 	if (update_tod) {
