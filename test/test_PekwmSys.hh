@@ -20,6 +20,7 @@ public:
 	virtual bool run_test(TestSpec spec, bool status);
 private:
 	static void testUpdateDaytime();
+	static void testHandleSetTimeOfDay();
 };
 
 TestPekwmSys::TestPekwmSys()
@@ -35,6 +36,7 @@ bool
 TestPekwmSys::run_test(TestSpec spec, bool status)
 {
 	TEST_FN(spec, "updateDaytime", testUpdateDaytime());
+	TEST_FN(spec, "handleSetTimeOfDay", testHandleSetTimeOfDay());
 	return status;
 }
 
@@ -63,4 +65,30 @@ TestPekwmSys::testUpdateDaytime()
 	sys._tod_override = static_cast<TimeOfDay>(-1);
 	// based on current time, just know timeout is <= next day timeout
 	ASSERT_EQUAL("timeout next day", next_day_timeout, tv->tv_sec);
+}
+
+void
+TestPekwmSys::testHandleSetTimeOfDay()
+{
+	OsMock os;
+	PekwmSys sys("", false, &os);
+
+	std::vector<std::string> emptyArgs;
+	ASSERT_EQUAL("args < 1", false, sys.handleSetTimeOfDay(emptyArgs));
+
+	std::vector<std::string> tooManyArgs(2, "");
+	ASSERT_EQUAL("args > 1", false, sys.handleSetTimeOfDay(tooManyArgs));
+
+	std::vector<std::string> args(1, "");
+	args[0] = "day";
+	ASSERT_EQUAL("args day", true, sys.handleSetTimeOfDay(args));
+	ASSERT_EQUAL("day", TIME_OF_DAY_DAY, sys.getEffectiveTimeOfDay());
+
+	args[0] = "NeXt";
+	ASSERT_EQUAL("args next", true, sys.handleSetTimeOfDay(args));
+	ASSERT_EQUAL("next", TIME_OF_DAY_DUSK, sys.getEffectiveTimeOfDay());
+
+	args[0] = "invalid";
+	ASSERT_EQUAL("args invalid", false, sys.handleSetTimeOfDay(args));
+	ASSERT_EQUAL("invalid", TIME_OF_DAY_DUSK, sys.getEffectiveTimeOfDay());
 }

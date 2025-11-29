@@ -22,7 +22,7 @@ enum TimeOfDay {
 };
 
 const char *time_of_day_to_string(enum TimeOfDay tod);
-enum TimeOfDay time_of_day_from_string(const std::string &str);
+bool time_of_day_from_string(const std::string &str, enum TimeOfDay &tod);
 
 /**
  * Class used to calculate sun rise and set times based on the given

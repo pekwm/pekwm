@@ -78,18 +78,21 @@ time_of_day_to_string(enum TimeOfDay tod)
 /**
  * Get TimeOfDay from string.
  */
-enum TimeOfDay
-time_of_day_from_string(const std::string &str)
+bool
+time_of_day_from_string(const std::string &str, enum TimeOfDay &tod)
 {
 	if (pekwm::ascii_ncase_equal(str, "DAWN")) {
-		return TIME_OF_DAY_DAWN;
+		tod = TIME_OF_DAY_DAWN;
 	} else if (pekwm::ascii_ncase_equal(str, "DAY")) {
-		return TIME_OF_DAY_DAY;
+		tod = TIME_OF_DAY_DAY;
 	} else if (pekwm::ascii_ncase_equal(str, "DUSK")) {
-		return TIME_OF_DAY_DUSK;
+		tod = TIME_OF_DAY_DUSK;
+	} else if (pekwm::ascii_ncase_equal(str, "NIGHT")) {
+		tod = TIME_OF_DAY_NIGHT;
 	} else {
-		return TIME_OF_DAY_NIGHT;
+		return false;
 	}
+	return true;
 }
 
 /**

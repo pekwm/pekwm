@@ -1,3 +1,11 @@
+pekwm-0.4.2
+===========
+
+Closed issues
+-------------
+
+* Fix out of bounds vector access in pekwm_sys TimeOfDay command.
+
 pekwm-0.4.1
 ===========
 
