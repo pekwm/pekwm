@@ -1,4 +1,4 @@
-AC_INIT([pekwm], [0.4.0], [pekdon@gmail.com])
+AC_INIT([pekwm], [0.4.1], [pekdon@gmail.com])
 AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 
