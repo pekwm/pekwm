@@ -36,6 +36,7 @@ enum CtrlAction {
 	PEKWM_CTRL_ACTION_LIST,
 	PEKWM_CTRL_ACTION_LIST_STACKING,
 	PEKWM_CTRL_ACTION_LIST_CHILDREN,
+	PEKWM_CTRL_ACTION_LIST_ALL,
 	PEKWM_CTRL_ACTION_UTIL,
 	PEKWM_CTRL_ACTION_XRM_GET,
 	PEKWM_CTRL_ACTION_XRM_SET,
@@ -58,21 +59,58 @@ namespace pekwm
 	}
 }
 
-static void usage(int ret)
+static void usageListAll()
 {
+	std::cout << "action list-all: print information about clients on all "
+		  << "workspaces" << std::endl << std::endl;
+	std::cout << "window-id: X11 id of client" << std::endl;
+	std::cout << "frame-id: pekwm frame id, same for all clients grouped "
+		  << "together" << std::endl;
+	std::cout << "frame-order: position of the client in a group" <<
+		  std::endl;
+	std::cout << "workspace: workspace client appears on" << std::endl;
+	std::cout << "state:" << std::endl;
+	std::cout << "  * I, iconified" << std::endl;
+	std::cout << "  * S, shaded" << std::endl;
+	std::cout << "  * V, maximized vertically" << std::endl;
+	std::cout << "  * H, maximized horizontally" << std::endl;
+	std::cout << "  * F, fullscreen" << std::endl;
+	std::cout << "  * T, skip taskbar/panel" << std::endl;
+	std::cout << "  * P, skip pager" << std::endl;
+	std::cout << "  * @, sticky/appear on all workspaces" << std::endl;
+	std::cout << "  * >, above normal clients" << std::endl;
+	std::cout << "  * <, below normal clients" << std::endl;
+	std::cout << "  * !, demands attention" << std::endl;
+	std::cout << "  * *, active client in group" << std::endl;
+	std::cout << "title: visible title" << std::endl;
+	std::cout << std::endl;
+}
+
+static void usage(const char *action, int ret)
+{
+	if (action != nullptr) {
+		std::string name(action);
+		if (name == "list-all") {
+			usageListAll();
+			exit(ret);
+		}
+	}
+
 	std::cout << "usage: " << progname << " [-acdhs] [command]"
 		  << std::endl;
 	std::cout << "  -a --action [run|focus|restack|list|list-stacking"
-		  << "|list-children|util] Control action" << std::endl;
-	std::cout << "  -c --client pattern Client pattern" << std::endl;
-	std::cout << "  -C pattern          Other client pattern" << std::endl;
-	std::cout << "  -d --display dpy    Display" << std::endl;
-	std::cout << "  -h --help           Display this information"
+		  << "|list-children|list-all|util] Control action"
 		  << std::endl;
-	std::cout << "  -g --xrm-get        Get string resource" << std::endl;
-	std::cout << "  -s --xrm-set        Set string resource" << std::endl;
-	std::cout << "  -w --window window  Client window" << std::endl;
-	std::cout << "  -W window           Other client window" << std::endl;
+	std::cout << "  -c --client pattern  Client pattern" << std::endl;
+	std::cout << "  -C pattern           Other client pattern" << std::endl;
+	std::cout << "  -d --display dpy     Display" << std::endl;
+	std::cout << "  -h --help            Display this information"
+		  << std::endl;
+	std::cout << "  -h --help [list-all] Display action help" << std::endl;
+	std::cout << "  -g --xrm-get         Get string resource" << std::endl;
+	std::cout << "  -s --xrm-set         Set string resource" << std::endl;
+	std::cout << "  -w --window window   Client window" << std::endl;
+	std::cout << "  -W window            Other client window" << std::endl;
 	exit(ret);
 }
 
@@ -97,6 +135,8 @@ static CtrlAction getAction(const std::string& name)
 		return PEKWM_CTRL_ACTION_LIST_STACKING;
 	} else if (name == "list-children") {
 		return PEKWM_CTRL_ACTION_LIST_CHILDREN;
+	} else if (name == "list-all") {
+		return PEKWM_CTRL_ACTION_LIST_ALL;
 	} else if (name == "run") {
 		return PEKWM_CTRL_ACTION_RUN;
 	} else if (name == "util") {
@@ -303,16 +343,25 @@ static bool listChildren()
 		if (attr.override_redirect || attr.map_state == IsUnmapped) {
 			continue;
 		}
-		std::cout << *it << std::endl;
+		std::cout << *it;
 
 		std::vector<Window> c_wins;
 		if (! X11::queryTree(*it, root, parent, c_wins)) {
+			std::cout << std::endl;
 			continue;
 		}
 
+		Cardinal frame_id = -1;
 		std::stringstream buf;
 		std::vector<Window>::iterator c_it(c_wins.begin());
 		for (; c_it != c_wins.end(); ++c_it) {
+			if (frame_id == -1
+			    && X11::getCardinal(*c_it, PEKWM_FRAME_ID,
+						frame_id)) {
+				std::cout << " (frame_id: " << frame_id << ")"
+					  << std::endl;
+			}
+
 			std::string name = readClientName(*c_it);
 			if (name.size() == 0) {
 				if (buf.tellp()) {
@@ -320,11 +369,104 @@ static bool listChildren()
 				}
 				buf << *c_it;
 			} else {
+				if (frame_id == -1) {
+					std::cout << std::endl;
+					frame_id = 0;
+				}
 				printClient(*c_it, "  ");
 			}
 		}
 		std::cout << "  * " << buf.str() << std::endl;
 	}
+	return true;
+}
+
+static void wmStateToString(Window win, std::string &state)
+{
+	NetWMStates win_states;
+	if (! X11Util::readEwmhStates(win, win_states)) {
+		return;
+	}
+
+	if (win_states.hidden) {
+		state += "I";
+	}
+	if (win_states.shaded) {
+		state += "S";
+	}
+	if (win_states.max_vert) {
+		state += "V";
+	}
+	if (win_states.max_horz) {
+		state += "H";
+	}
+	if (win_states.skip_taskbar) {
+		state += "T";
+	}
+	if (win_states.skip_pager) {
+		state += "P";
+	}
+	if (win_states.sticky) {
+		state += "@";
+	}
+	if (win_states.above) {
+		state += ">";
+	}
+	if (win_states.below) {
+		state += "<";
+	}
+	if (win_states.fullscreen) {
+		state += "F";
+	}
+	if (win_states.demands_attention) {
+		state += "!";
+	}
+}
+
+static void printClientPekwm(Window win)
+{
+	Cardinal frame_id = 0, frame_order = 0, frame_active = 0;
+	X11::getCardinal(win, PEKWM_FRAME_ID, frame_id);
+	X11::getCardinal(win, PEKWM_FRAME_ORDER, frame_order);
+	X11::getCardinal(win, PEKWM_FRAME_ACTIVE, frame_active);
+
+	Cardinal workspace = 0;
+	X11::getCardinal(win, NET_WM_DESKTOP, workspace);
+
+	std::string state;
+	wmStateToString(win, state);
+	if (frame_active) {
+		state += "*";
+	}
+
+	std::string name = readPekwmTitle(win);
+	if (name.empty()) {
+		name = readClientName(win);
+	}
+	std::string mb_name = Charset::toSystem(name);
+
+	std::cout << win << " " << frame_id << " " << frame_order << " "
+		  << workspace << " [" << state << "] " << mb_name
+		  << std::endl;
+}
+
+static bool listClientsAll()
+{
+	ulong actual;
+	Window *windows;
+	Atom atom = X11::getAtom(PEKWM_CLIENT_LIST);
+	if (! X11::getProperty(X11::getRoot(), atom, XA_WINDOW, 0,
+			       reinterpret_cast<uchar**>(&windows), &actual)) {
+		return false;
+	}
+
+	std::cout << "window-id frame-id frame-order workspace state title"
+		  << std::endl;
+	for (uint i = 0; i < actual; i++) {
+		printClientPekwm(windows[i]);
+	}
+	X11::free(windows);
+
 	return true;
 }
 
@@ -353,7 +495,7 @@ static bool actionRun(int argc, char** argv, Window client)
 
 	if (cmd.empty()) {
 		std::cerr << "empty command string" << std::endl;
-		usage(1);
+		usage(nullptr, 1);
 	}
 	std::cout << "_PEKWM_CMD " << client << " " << cmd;
 	bool res = sendCommand(cmd, client, sendClientMessage, nullptr);
@@ -414,7 +556,7 @@ static bool actionXrmGet(const std::string& key)
 {
 	if (key.empty()) {
 		std::cerr << "no resource given" << std::endl;
-		usage(1);
+		usage(nullptr, 1);
 	}
 
 	std::string val;
@@ -445,7 +587,7 @@ static void parseWinId(Window &win, RegexString &re, const char *arg,
 	if (re.is_match_ok()) {
 		std::cerr << "-" << c << " and -" << w << " are mutually "
 			  << "exclusive" << std::endl;
-		usage(1);
+		usage(nullptr, 1);
 	}
 
 	// ID given in HEX format
@@ -510,14 +652,14 @@ int main(int argc, char* argv[])
 		case 'a':
 			action = getAction(optarg);
 			if (action == PEKWM_CTRL_ACTION_NO) {
-				usage(1);
+				usage(nullptr, 1);
 			}
 			break;
 		case 'c':
 			if (client != None) {
 				std::cerr << "-c and -w are mutually "
 					  << "exclusive" << std::endl;
-				usage(1);
+				usage(nullptr, 1);
 			}
 			client_re.parse_match(optarg);
 			break;
@@ -525,7 +667,7 @@ int main(int argc, char* argv[])
 			if (sibling != None) {
 				std::cerr << "-C and -W are mutually "
 					  << "exclusive" << std::endl;
-				usage(1);
+				usage(nullptr, 1);
 			}
 			sibling_re.parse_match(optarg);
 			break;
@@ -540,7 +682,10 @@ int main(int argc, char* argv[])
 			action = PEKWM_CTRL_ACTION_XRM_SET;
 			break;
 		case 'h':
-			usage(0);
+			if (optind < argc && argv[optind][0] != '-') {
+				optarg = argv[optind++];
+			}
+			usage(optarg, 0);
 			break;
 		case 'w':
 			parseWinId(client, client_re, optarg, 'c', 'w');
@@ -550,7 +695,7 @@ int main(int argc, char* argv[])
 			break;
 
 		default:
-			usage(1);
+			usage(nullptr, 1);
 			break;
 		}
 	}
@@ -602,6 +747,12 @@ int main(int argc, char* argv[])
 		std::cout << "XQueryTree" << std::endl;
 		res = listChildren();
 		printRes(res);
+		break;
+	case PEKWM_CTRL_ACTION_LIST_ALL:
+		res = listClientsAll();
+		if (! res) {
+			printRes(res);
+		}
 		break;
 	case PEKWM_CTRL_ACTION_XRM_GET: {
 		res = actionXrmGet(val);

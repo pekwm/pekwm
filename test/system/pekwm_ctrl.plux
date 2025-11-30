@@ -94,6 +94,16 @@ Start a single Xvfb pekwm_ctrl system tests in one go.
 	-ERROR
 	[call sh-eval "$BIN_DIR/ctrl/pekwm_ctrl -a list"]
 
+	# list tree for debugging purposes
+	-ERROR
+	[call sh-eval "$BIN_DIR/ctrl/pekwm_ctrl -a list-children"]
+
+	# list all clients for end-user purposes
+	!$BIN_DIR/ctrl/pekwm_ctrl -a list-all
+	?window-id frame-id frame-order workspace state title
+	?[0-9]+ 1 0 0 \[\*\] xterm
+	?SH-PROMPT:
+
 	-(ERROR|no client match)
 	[call set_title short short]
 	[call set_title medium message_spans_multiple]
