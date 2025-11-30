@@ -90,6 +90,11 @@ Widgets {
 		Scale = "false"
 		Exec = "$_PEKWM_SCRIPT_PATH/pekwm_toggle_kbd_layout.sh"
 	}
+	Icon = "ATOM__PEKWM_THEME_VARIANT" {
+		Icon = "theme.png"
+		Scale = "false"
+		Exec = "pekwm_ctrl 'sys timeofday toggle'"
+	}
 	DateTime = "%Y-%m-%d %H:%M" {
 		Size = "Required"
 		Interval = "60"

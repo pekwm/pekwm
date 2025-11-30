@@ -12,7 +12,13 @@ icon_files = battery.png \
 	     flag-pl.png \
 	     flag-pt.png \
 	     flag-se.png \
-	     flag-us.png
+	     flag-us.png \
+	     theme-light.png \
+	     theme-dark.png \
+	     timeofday-dawn.png \
+	     timeofday-day.png \
+	     timeofday-dusk.png \
+	     timeofday-night.png
 EXTRA_DIST = CMakeLists.txt $(icon_files)
 
 icondir = $(pkgdatadir)/icons

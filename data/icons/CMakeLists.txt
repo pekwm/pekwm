@@ -16,4 +16,10 @@ install(FILES
 	flag-pt.png
 	flag-se.png
 	flag-us.png
+	theme-light.png
+	theme-dark.png
+	timeofday-dawn.png
+	timeofday-day.png
+	timeofday-dusk.png
+	timeofday-night.png
 	DESTINATION share/pekwm/icons)
