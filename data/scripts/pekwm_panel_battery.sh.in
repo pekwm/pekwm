@@ -1,6 +1,7 @@
 #!@SH@
 #
-# Copyright (C) 2024-2025 Claes Nästén <pekdon@gmail.com>
+# Copyright (C) 2024-2025
+# Improved Linux battery detection by Ricardson
 #
 
 battery="100"
@@ -35,27 +36,67 @@ read_netbsd_envstat()
 		/connected:/ { if (in_ac && $2 == "FALSE") { battery_state="battery" } } \
 		/^\[acpibat[0-9]+\]/ { in_bat=1; in_ac=0; battery_count += 1 } \
 		/charge:/ { if (in_bat) { battery=substr($6, 2, length($6) - 3) } } \
-		END { print battery " " battery_state " "  battery_count  }'`
-	battery=`echo $battery_info | awk '{ print int($1) }'`
-	battery_state=`echo $battery_info | awk '{ print $2 }'`
-	battery_count=`echo $battery_info | awk '{ print $3 }'`
+		END { print battery " " battery_state " " battery_count }'`
+
+	battery=`echo "$battery_info" | awk '{ print int($1) }'`
+	battery_state=`echo "$battery_info" | awk '{ print $2 }'`
+	battery_count=`echo "$battery_info" | awk '{ print $3 }'`
 }
 
 read_sysfs()
 {
 	bat0="/sys/class/power_supply/BAT0"
-	if ! test -e "$bat0"; then
+
+	if test ! -d "$bat0"; then
+		battery_count=0
 		return
 	fi
 
-	battery=`cat "$bat0/capacity"`
-	battery_state=`cat "$bat0/status" | tr A-Z a-z`
-	if test "x${battery_state}" = "xdischarging"; then
-		battery_state="battery"
+	battery_count=1
+
+	# Prefer accurate energy-based values
+	if test -f "$bat0/energy_now" && test -f "$bat0/energy_full"; then
+		now=`cat "$bat0/energy_now" 2>/dev/null || echo 0`
+		full=`cat "$bat0/energy_full" 2>/dev/null || echo 0`
+
+		if test "$full" -gt 0; then
+			battery=`expr "$now" \* 100 / "$full"`
+		else
+			battery=0
+		fi
+
+	# Fallback to charge_now / charge_full
+	elif test -f "$bat0/charge_now" && test -f "$bat0/charge_full"; then
+		now=`cat "$bat0/charge_now" 2>/dev/null || echo 0`
+		full=`cat "$bat0/charge_full" 2>/dev/null || echo 0`
+
+		if test "$full" -gt 0; then
+			battery=`expr "$now" \* 100 / "$full"`
+		else
+			battery=0
+		fi
+
+	# Final fallback (legacy kernel behavior)
+	elif test -f "$bat0/capacity"; then
+		battery=`cat "$bat0/capacity" 2>/dev/null || echo 0`
 	else
-		battery_state="ac"
+		battery=0
 	fi
-	battery_count=`ls /sys/class/power_supply/BAT* | wc -l`
+
+	# Determine AC/battery state
+	state=`cat "$bat0/status" 2>/dev/null | tr A-Z a-z`
+
+	case "$state" in
+		discharging)
+			battery_state="battery"
+			;;
+		charging|full)
+			battery_state="ac"
+			;;
+		*)
+			battery_state="ac"
+			;;
+	esac
 }
 
 UNAME_S="$1"
@@ -63,7 +104,7 @@ if test "x${UNAME_S}" = "x"; then
 	UNAME_S=`uname -s`
 fi
 
-case $UNAME_S in
+case "$UNAME_S" in
 	OpenBSD)
 		read_openbsd_apm
 		;;
@@ -80,3 +121,4 @@ esac
 echo "battery $battery"
 echo "battery_count $battery_count"
 echo "battery_state $battery_state"
+
