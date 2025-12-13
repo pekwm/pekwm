@@ -38,6 +38,15 @@ make
 make install
 ```
 
+Distribution Packages
+=====================
+
+[![Packaging status](https://repology.org/badge/vertical-allrepos/pekwm.svg)](https://repology.org/project/pekwm)
+
+pekwm is available in many Linux and BSD distributions.
+An up-to-date overview of packaged versions and supported distributions
+can be found on Repology.
+
 Getting Started
 ===============
 
@@ -48,3 +57,4 @@ For themes, go to the [pekwm themes](https://www.pekwm.se/themes/)
 site that is based on data from the
 [pekwm-theme-index](https://github.com/pekdon/pekwm-theme-index) where you
 can register your own themes for inclusion.
+
