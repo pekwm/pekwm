@@ -40,3 +40,33 @@ pekwm_panel_battery.sh script
 	???battery_count 1
 	???battery_state battery
 	?SH-PROMPT:
+
+[shell pekwm_panel_battery_linux]
+	[timeout 2]
+	[log test Linux (no battery)]
+	!$SCRIPTS_DIR/pekwm_panel_battery.sh Linux ./mock/linux/no_battery
+	???battery 100
+	???battery_count 0
+	???battery_state ac
+	?SH-PROMPT:
+
+	#[log test Linux (energy)]
+	#!$SCRIPTS_DIR/pekwm_panel_battery.sh Linux ./mock/linux/energy
+	#???battery 10
+	#???battery_count 1
+	#???battery_state ac
+	#?SH-PROMPT:
+
+	[log test Linux (charge)]
+	!$SCRIPTS_DIR/pekwm_panel_battery.sh Linux ./mock/linux/charge
+	???battery 88
+	???battery_count 1
+	???battery_state battery
+	?SH-PROMPT:
+
+	[log test Linux (capacity)]
+	!$SCRIPTS_DIR/pekwm_panel_battery.sh Linux ./mock/linux/capacity
+	???battery 78
+	???battery_count 1
+	???battery_state ac
+	?SH-PROMPT:

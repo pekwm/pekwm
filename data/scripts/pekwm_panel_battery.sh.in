@@ -1,6 +1,6 @@
 #!@SH@
 #
-# Copyright (C) 2024-2025
+# Copyright (C) 2024-2025 Claes Nästén <pekdon@gmail.com>
 # Improved Linux battery detection by Ricardson
 #
 
@@ -45,7 +45,7 @@ read_netbsd_envstat()
 
 read_sysfs()
 {
-	bat0="/sys/class/power_supply/BAT0"
+	bat0="$LINUX_BASEDIR/sys/class/power_supply/BAT0"
 
 	if test ! -d "$bat0"; then
 		battery_count=0
@@ -90,10 +90,8 @@ read_sysfs()
 		discharging)
 			battery_state="battery"
 			;;
-		charging|full)
-			battery_state="ac"
-			;;
 		*)
+			# includes charging and full states
 			battery_state="ac"
 			;;
 	esac
@@ -112,6 +110,7 @@ case "$UNAME_S" in
 		read_netbsd_envstat
 		;;
 	Linux)
+		LINUX_BASEDIR="$2"
 		read_sysfs
 		;;
 	*)
@@ -121,4 +120,3 @@ esac
 echo "battery $battery"
 echo "battery_count $battery_count"
 echo "battery_state $battery_state"
-
