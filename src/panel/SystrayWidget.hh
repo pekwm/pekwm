@@ -24,7 +24,7 @@ class SystrayWidget : public PanelWidget {
 public:
 	class Client : public PWinObj {
 	public:
-		Client(Window win);
+		Client(Window win, uint side);
 		virtual ~Client();
 
 		long getXEmbedVersion() const { return _xembed_version; }
@@ -32,6 +32,8 @@ public:
 
 		bool isMapped() const;
 		void setFlags(long f) { _xembed_flags = f; }
+
+		void sendConfigureNotify();
 
 	private:
 		long _xembed_version;
