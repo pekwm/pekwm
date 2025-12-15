@@ -28,12 +28,13 @@ enum SystrayOpcode {
 
 // SystrayWidget::Client
 
-SystrayWidget::Client::Client(Window win)
+SystrayWidget::Client::Client(Window win, uint side)
 	: PWinObj(false),
 	  _xembed_version(0),
 	  _xembed_flags(0)
 {
 	setWindow(win);
+	resize(side, side);
 	X11::selectInput(win, PropertyChangeMask);
 }
 
@@ -48,6 +49,23 @@ bool
 SystrayWidget::Client::isMapped() const
 {
 	return (_xembed_flags & XEMBED_FLAG_MAPPED) == XEMBED_FLAG_MAPPED;
+}
+
+void
+SystrayWidget::Client::sendConfigureNotify()
+{
+	XConfigureEvent ev = {};
+
+	ev.type = ConfigureNotify;
+	ev.event = _window;
+	ev.window = _window;
+	ev.x = _gm.x;
+	ev.y = _gm.y;
+	ev.width = _gm.width;
+	ev.height = _gm.height;
+
+	X11::sendEvent(_window, False, StructureNotifyMask,
+		       reinterpret_cast<XEvent*>(&ev));
 }
 
 // SystrayWidget
@@ -146,10 +164,12 @@ SystrayWidget::addTrayIcon(Window win)
 
 	int x = getX() + (numClientsMapped() * _theme.getHeight());
 	int y = 0;
-	SystrayWidget::Client* client = new SystrayWidget::Client(win);
+	SystrayWidget::Client* client =
+		new SystrayWidget::Client(win, _theme.getHeight());
 	readXEmbedInfo(client);
 
 	X11::reparentWindow(client->getWindow(), _parent->getWindow(), x, y);
+	client->sendConfigureNotify();
 	if (client->isMapped()) {
 		P_TRACE("systray: mapping client " << client->getWindow());
 		X11::mapRaised(client->getWindow());
