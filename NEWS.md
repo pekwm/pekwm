@@ -5,7 +5,8 @@ Closed issues
 -------------
 
 * #205, SysTray icons not displaying properly due to missing configure notify.
-* Fix out of bounds vector access in pekwm_sys TimeOfDay command.
+* Fix out of bounds vector access in pekwm_sys TimeOfDay command and stdin
+  reading in interactive mode.
 
 pekwm-0.4.1
 ===========

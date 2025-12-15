@@ -215,6 +215,9 @@ PekwmSys::handleStdin()
 		std::cin.read(const_cast<char*>(buf.data()), len);
 		args = StringUtil::shell_split(buf);
 	}
+	if (args.empty() || args[0].empty()) {
+		return;
+	}
 
 	std::string command = args[0];
 	args.erase(args.begin());
