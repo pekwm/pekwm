@@ -226,6 +226,7 @@ RootWO::RootWO(Window root, HintWO *hint_wo, Config *cfg, bool standalone)
 	X11::setCardinal(_window, NET_NUMBER_OF_DESKTOPS,
 			 static_cast<Cardinal>(_cfg->getWorkspaces()));
 	X11::setCardinal(_window, NET_CURRENT_DESKTOP, 0);
+	X11::setString(_window, PEKWM_VERSION, VERSION);
 
 	Cardinal desktop_geometry[2];
 	desktop_geometry[0] = static_cast<Cardinal>(_gm.width);
