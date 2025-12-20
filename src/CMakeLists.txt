@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.10)
 
 configure_file(${CMAKE_SOURCE_DIR}/CMake/config.h.in
 	       ${CMAKE_CURRENT_BINARY_DIR}/config.h)
-
 add_subdirectory(lib)
 add_subdirectory(bg)
 if (CMAKE_BUILD_TYPE MATCHES Debug)

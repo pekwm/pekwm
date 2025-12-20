@@ -3,11 +3,17 @@ cmake_minimum_required(VERSION 3.10)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMake/Modules/")
 
 project(pekwm)
+
 set(pekwm_VERSION_MAJOR 0)
 set(pekwm_VERSION_MINOR 5)
 set(pekwm_VERSION_PATCH 0)
+include(GetGitHash)
+
 set(pekwm_VERSION
     "${pekwm_VERSION_MAJOR}.${pekwm_VERSION_MINOR}.${pekwm_VERSION_PATCH}")
+if (GIT_HASH)
+	set(pekwm_VERSION "${pekwm_VERSION}-${GIT_HASH}")
+endif ()
 set(PEKWM_THEMES "https://www.pekwm.se/themes" CACHE STRING
     "base url where theme index resides, without ending /")
 
