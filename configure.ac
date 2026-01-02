@@ -49,7 +49,6 @@ AM_CONDITIONAL([PEKWM_HOST_SUNOS], [test "x$PEKWM_HOST" = "xSunOS"])
 
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile
-		 contrib/Makefile
 		 data/Makefile
 		 data/icons/Makefile
 		 data/scripts/Makefile

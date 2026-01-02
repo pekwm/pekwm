@@ -332,7 +332,6 @@ add_definitions(-DVERSION="${pekwm_VERSION}"
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH True)
 
 # Subdirectories
-add_subdirectory(contrib)
 add_subdirectory(data)
 add_subdirectory(doc)
 add_subdirectory(src)
